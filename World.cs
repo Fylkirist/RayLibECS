@@ -9,6 +9,7 @@ internal class World
     private List<Entity> _entitiesToDestroy;
     private List<RayLibECS.Systems.System> _systems;
     private List<Component> _components;
+    private List<Component> _cachedComponents;
 
     public World()
     {
@@ -16,6 +17,7 @@ internal class World
         _entitiesToDestroy = new List<Entity>();
         _systems = new List<RayLibECS.Systems.System>();
         _components = new List<Component>();
+        _cachedComponents = new List<Component>();
     }
 
     public void Update(long delta,InputState input)
@@ -62,6 +64,17 @@ internal class World
         _entities.Add(new Entity(newId,tag));
     }
 
+    public Component CreateComponent(Type type)
+    {
+        var cached = _cachedComponents.FirstOrDefault(c => c.GetType() == type);
+        if (cached != null)
+        {
+            _cachedComponents.Remove(cached);
+            return cached;
+        }
+        return Activator.CreateInstance(type);
+    }
+
     public void AttachComponent(Entity entity,Component component)
     {
         if (_components.Any(c => c.Owner == entity && component.GetType() == c.GetType()))
@@ -72,10 +85,10 @@ internal class World
         _components.Add(component);
     }
 
-    public Component DetachComponent(Component component)
+    public void DetachComponent(Component component)
     {
         _components.Remove(component);
-        return component;
+        _cachedComponents.Add(component);
     }
 
     public void AddSystem(RayLibECS.Systems.System system)
