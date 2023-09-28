@@ -1,5 +1,9 @@
-namespace RayLibECS.Components
-public class Polygon3CollisionShape:Component
+using System.Numerics;
+using RayLibECS.Entities;
+
+namespace RayLibECS.Components;
+
+internal class Polygon2CollisionShape:Component
 {
     public List<Vector2> Points;
     public Polygon2CollisionShape(Entity owner, List<Vector2> points):base(owner)

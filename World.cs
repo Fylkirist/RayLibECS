@@ -3,7 +3,7 @@ using RayLibECS.Entities;
 
 namespace RayLibECS;
 
-internal class World
+public class World
 {
     private List<Entity> _entities;
     private List<Entity> _entitiesToDestroy;
@@ -48,7 +48,7 @@ internal class World
         _entitiesToDestroy.Add(entity);
     }
 
-    public void CreateEntity(string tag)
+    public Entity CreateEntity(string tag)
     {
         var usedIds = new HashSet<int>();
         foreach (var e in _entities)
@@ -61,7 +61,9 @@ internal class World
         {
             newId++;
         }
-        _entities.Add(new Entity(newId,tag));
+        var entity = new Entity(newId,tag);
+        _entities.Add(entity);
+        return entity;
     }
 
     public Component CreateComponent(Type type)
@@ -72,8 +74,16 @@ internal class World
             _cachedComponents.Remove(cached);
             return cached;
         }
-        return Activator.CreateInstance(type);
+    
+        if (typeof(Component).IsAssignableFrom(type))
+        {
+            var newComponent = (Component)Activator.CreateInstance(type);
+            return newComponent;
+        }
+    
+        throw new InvalidOperationException($"Type {type} is not a valid Component type.");
     }
+
 
     public void AttachComponent(Entity entity,Component component)
     {

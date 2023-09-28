@@ -1,6 +1,6 @@
 ﻿namespace RayLibECS.Systems;
 
-internal abstract class System
+public abstract class System
 {
     public abstract void Initialize();
 

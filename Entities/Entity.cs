@@ -1,6 +1,6 @@
 ﻿namespace RayLibECS.Entities;
 
-internal class Entity
+public class Entity
 {
     public int Id;
     public string Tag;

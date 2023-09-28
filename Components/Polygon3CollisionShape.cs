@@ -1,4 +1,7 @@
-namespace RayLibECS.Components
+using System.Numerics;
+using RayLibECS.Entities;
+
+namespace RayLibECS.Components;
 public class Polygon3CollisionShape:Component
 {
     public List<Vector3> Points;

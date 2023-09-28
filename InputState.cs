@@ -3,7 +3,7 @@ using Raylib_cs;
 
 namespace RayLibECS;
 
-internal class InputState
+public class InputState
 {
     private LinkedList<KeyboardKey> _pressedKeys;
     private LinkedList<KeyboardKey> _releasedKeys;
