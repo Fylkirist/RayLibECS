@@ -7,9 +7,10 @@ internal class Game
 {
     private bool _running;
     private InputState _inputState;
-
+    private World _world;
     internal Game()
     {
+        _world = new World();
         _running = true;
         _inputState = new InputState();
     }
@@ -52,13 +53,14 @@ internal class Game
     public void Draw()
     {
         Raylib.BeginDrawing();
-        Raylib.ClearBackground(Color.BLACK);
-        Raylib.DrawCircle(1920 / 2, 1080 / 2, 20, Color.WHITE);
+        _world.Draw();
         Raylib.EndDrawing();
     }
 
     public void Update(long delta)
     {
+        Raylib.PollInputEvents();
         _inputState.Update();
+        _world.Update(delta,_inputState);
     }
 }

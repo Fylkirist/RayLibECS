@@ -6,12 +6,17 @@ public class CollisionDetectionSystem : System
         throw new NotImplementedException();
     }
 
-    public override void Initialize()
+    public override void Update(long delta)
     {
         throw new NotImplementedException();
     }
 
-    public override void Update()
+    public override void Detach()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Initialize()
     {
         throw new NotImplementedException();
     }

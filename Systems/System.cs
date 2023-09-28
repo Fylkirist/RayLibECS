@@ -6,5 +6,7 @@ public abstract class System
 
     public abstract void Draw();
 
-    public abstract void Update();
+    public abstract void Update(long delta);
+
+    public abstract void Detach();
 }
