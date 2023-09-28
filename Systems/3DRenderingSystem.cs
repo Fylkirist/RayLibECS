@@ -9,18 +9,29 @@ namespace RayLibECS.Systems;
 public class RenderingSystem3D : System
 {
     private Entity? _currentCamera;
-    private World _world;
-    public RenderingSystem3D(World world){
-        _world = world;
+    private bool _active;
+    public RenderingSystem3D(World world) : base(world)
+    {
+        _active = false;
     }
     public override void Draw()
     {
-        _world.GetComponents(_currentCamera.Id);
+        if (!_active) return;
+        var cameraComponents = _world.GetComponents(_currentCamera.Id);
+        foreach (var component in cameraComponents)
+        {
+            switch (component.GetType())
+            {
+                default:
+                    break;
+            }
+        }
     }
 
     public override void Initialize()
     {
-        throw new NotImplementedException();
+        InitializeNewCamera();
+        _active = true;
     }
 
     public override void Update(long delta)
@@ -30,12 +41,19 @@ public class RenderingSystem3D : System
 
     public override void Detach()
     {
-        throw new NotImplementedException();
+        _active = false;
     }
 
     private void InitializeNewCamera(){
         var initCam = _world.CreateEntity("camera");
-        _world.AttachComponent(initCam,(Polygon3CollisionShape)_world.CreateComponent(typeof(Polygon3CollisionShape)));
-        _world.AttachComponent(initCam,(Position3)_world.CreateComponent(typeof(Position3)));
+        var collisionShape = (BoxCollisionShape)_world.CreateComponent(typeof(BoxCollisionShape));
+        collisionShape.BoundingBox = new BoundingBox(
+            new Vector3(0,0,0),
+            new Vector3(1,1,1)
+        );
+        _world.AttachComponent(initCam,collisionShape);
+        var cameraComp = (Camera3) _world.CreateComponent(typeof(Camera3));
+        cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
+        _world.AttachComponent(initCam,cameraComp);
     }
 }

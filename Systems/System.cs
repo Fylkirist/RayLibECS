@@ -2,6 +2,12 @@
 
 public abstract class System
 {
+    protected World _world;
+
+    protected System(World world)
+    {
+        _world = world;
+    }
     public abstract void Initialize();
 
     public abstract void Draw();

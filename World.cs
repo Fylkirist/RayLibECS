@@ -77,7 +77,7 @@ public class World
     
         if (typeof(Component).IsAssignableFrom(type))
         {
-            var newComponent = (Component)Activator.CreateInstance(type);
+            var newComponent = Activator.CreateInstance(type) as Component;
             return newComponent;
         }
     

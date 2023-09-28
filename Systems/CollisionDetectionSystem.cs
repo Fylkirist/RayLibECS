@@ -20,4 +20,8 @@ public class CollisionDetectionSystem : System
     {
         throw new NotImplementedException();
     }
+
+    public CollisionDetectionSystem(World world) : base(world)
+    {
+    }
 }
