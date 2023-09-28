@@ -29,6 +29,7 @@ public class RenderingSystem3D : System
 
     private void InitializeNewCamera(){
         var initCam = _world.CreateEntity("camera");
-        _world.AttachComponent(initCam,(Polygon3CollisionShape)_world.CreateComponent());
+        _world.AttachComponent(initCam,(Polygon3CollisionShape)_world.CreateComponent(typeof(Polygon3CollisionShape)));
+        _world.AttachComponent(initCam,(Position3)_world.CreateComponent(typeof(Position3)));
     }
 }
