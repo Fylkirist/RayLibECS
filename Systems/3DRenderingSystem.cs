@@ -17,7 +17,7 @@ public class RenderingSystem3D : System
     public override void Draw()
     {
         if (!_active) return;
-        var cameraComponents = _world.GetComponents(_currentCamera.Id);
+        var cameraComponents = World.GetComponents(_currentCamera.Id);
         foreach (var component in cameraComponents)
         {
             switch (component.GetType())
@@ -34,26 +34,33 @@ public class RenderingSystem3D : System
         _active = true;
     }
 
-    public override void Update(long delta)
+    public override void Update(long delta, InputState input)
     {
-        
+        if(!_active) return;
+        var cameraComponents = World.GetComponents(_currentCamera.Id);
     }
 
     public override void Detach()
     {
         _active = false;
+        CleanupCameraEntity();
     }
 
     private void InitializeNewCamera(){
-        var initCam = _world.CreateEntity("camera");
-        var collisionShape = (BoxCollisionShape)_world.CreateComponent(typeof(BoxCollisionShape));
+        var initCam = World.CreateEntity("camera");
+        var collisionShape = (BoxCollisionShape)World.CreateComponent(typeof(BoxCollisionShape));
         collisionShape.BoundingBox = new BoundingBox(
             new Vector3(0,0,0),
             new Vector3(1,1,1)
         );
-        _world.AttachComponent(initCam,collisionShape);
-        var cameraComp = (Camera3) _world.CreateComponent(typeof(Camera3));
+        World.AttachComponent(initCam,collisionShape);
+        var cameraComp = (Camera3) World.CreateComponent(typeof(Camera3));
         cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
-        _world.AttachComponent(initCam,cameraComp);
+        World.AttachComponent(initCam,cameraComp);
+    }
+
+    private void CleanupCameraEntity()
+    {
+        World.DestroyEntity(_currentCamera);
     }
 }

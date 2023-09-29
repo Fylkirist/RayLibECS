@@ -6,7 +6,9 @@ namespace RayLibECS;
 public class InputState
 {
     private List<int> _pressedKeys;
+    public List<int> PressedKeys => _pressedKeys;
     private List<int> _releasedKeys;
+    public List<int> ReleasedKeys => _releasedKeys;
     private Vector2 _mousePosition;
     private CBool _mousePressed;
     private CBool _mouseReleased;

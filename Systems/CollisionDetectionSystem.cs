@@ -6,7 +6,7 @@ public class CollisionDetectionSystem : System
         throw new NotImplementedException();
     }
 
-    public override void Update(long delta)
+    public override void Update(long delta,InputState input)
     {
         throw new NotImplementedException();
     }

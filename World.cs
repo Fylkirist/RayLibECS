@@ -1,5 +1,6 @@
 ﻿using RayLibECS.Components;
 using RayLibECS.Entities;
+using RayLibECS.Systems;
 
 namespace RayLibECS;
 
@@ -20,11 +21,19 @@ public class World
         _cachedComponents = new List<Component>();
     }
 
+    public void InitializeWorld()
+    {
+        foreach (var sys in _systems)
+        {
+            sys.Initialize();
+        }
+    }
+
     public void Update(long delta,InputState input)
     {
         foreach (var system in _systems)
         {
-            system.Update(delta);
+            system.Update(delta,input);
         }
 
         foreach (var entity in _entitiesToDestroy)
@@ -109,7 +118,7 @@ public class World
 
     public void RemoveSystem(Systems.System system)
     {
-
+        
     }
 
     public IEnumerable<Component> GetComponents(Type type)
@@ -125,5 +134,10 @@ public class World
     public IEnumerable<Component> GetComponents(string tag)
     {
         return _components.Where(c => c.Owner.Tag == tag);
+    }
+
+    public IEnumerable<Component> GetComponents(Entity entity)
+    {
+        return _components.Where(c => c.Owner == entity);
     }
 }
