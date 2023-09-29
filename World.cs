@@ -1,10 +1,17 @@
-﻿using Raylib_cs;
+﻿using System.Numerics;
+using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Systems;
 
 namespace RayLibECS;
 
+public enum RenderingModes
+{
+    TwoD,
+    ThreeD,
+    Static
+}
 public class World
 {
     private List<Entity> _entities;
@@ -24,6 +31,13 @@ public class World
 
     public void InitializeWorld()
     {
+        var testEntity = CreateEntity("stuff");
+        var testRenderComponent = (DrawableCircle)CreateComponent(typeof(DrawableCircle));
+        testRenderComponent.Position = Vector2.Zero;
+        testRenderComponent.Radius = 200;
+        testRenderComponent.Colour = Color.WHITE;
+
+        AttachComponent(testEntity,testRenderComponent);
         AddSystem(new RenderingSystem2D(this));
         foreach (var sys in _systems)
         {
@@ -31,7 +45,7 @@ public class World
         }
     }
 
-    public void Update(long delta,InputState input)
+    public void Update(float delta,InputState input)
     {
         foreach (var system in _systems)
         {
@@ -142,5 +156,12 @@ public class World
     public IEnumerable<Component> GetComponents(Entity entity)
     {
         return _components.Where(c => c.Owner == entity);
+    }
+
+    public IEnumerable<Component> GetComponents(RenderingModes renderMode)
+    {
+        return _components
+            .OfType<RenderableComponent>()
+            .Where(c => c.RenderingMode == renderMode);
     }
 }

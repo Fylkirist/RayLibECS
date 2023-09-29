@@ -18,40 +18,55 @@ internal class RenderingSystem2D:System
     {
         Initialize2DCamera();
         _active = true;
-
     }
 
     public override void Draw()
     {
         if(!_active) return;
-        var camComponents = World.GetComponents(_currentCamera);
-        foreach (var component in camComponents)
+        var activeCamera = GetActiveCamera();
+        Raylib.BeginMode2D(activeCamera.Position);
+        foreach (var component in World.GetComponents(RenderingModes.TwoD))
         {
             switch (component)
             {
-                case Camera2 camera2: 
-
+                case DrawableCircle circle:
+                    var circlePosition = Raylib.GetWorldToScreen2D(circle.Position, activeCamera.Position);
+                    Raylib.DrawCircle((int)circlePosition.X, (int)circlePosition.Y,circle.Radius,circle.Colour);
                     break;
-                case StaticPosition staticPos:
-                    
+                case DrawableRectangle rectangle:
+                    var rectPosition =
+                        Raylib.GetWorldToScreen2D(new Vector2(rectangle.Rect.x, rectangle.Rect.y), activeCamera.Position);
+                    Raylib.DrawRectangle((int)rectPosition.X,(int)rectPosition.Y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
                     break;
             }
         }
-        Raylib.DrawRectangle(300,300,300,300,Color.BLUE);
+
+        Raylib.EndMode2D();
     }
 
-    public override void Update(long delta, InputState input)
+    public override void Update(float delta, InputState input)
     {
         if(!_active) return;
-        var camComponents = World.GetComponents(_currentCamera);
-        foreach (var component in camComponents)
+        var activeCam = GetActiveCamera();
+        foreach (var key in input.PressedKeys)
         {
-            switch (component)
+            if (key == KeyboardKey.KEY_RIGHT)
             {
-                case Camera2 cam2:
-
-                    break;
+                activeCam.Position.target.X += delta*10;
             }
+
+            if (key == KeyboardKey.KEY_LEFT)
+            {
+                activeCam.Position.target.X -= delta*10;
+            }
+
+            if (key == KeyboardKey.KEY_UP)
+            {
+                activeCam.Position.target.Y -= delta*10;
+            }
+
+            if (key == KeyboardKey.KEY_DOWN)
+                activeCam.Position.target.Y += delta*10;
         }
     }
 
@@ -76,6 +91,19 @@ internal class RenderingSystem2D:System
     private void CleanupCameraEntity()
     {
         World.DestroyEntity(_currentCamera);
+    }
+
+    private Camera2 GetActiveCamera()
+    {
+        foreach (var component in World.GetComponents(_currentCamera))
+        {
+            return component switch
+            {
+                Camera2 cam2 => cam2,
+            };
+        }
+
+        return new Camera2(_currentCamera);
     }
 
     public RenderingSystem2D(World world) : base(world)

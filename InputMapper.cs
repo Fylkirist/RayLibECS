@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Raylib_cs;
 
 namespace RayLibECS;
 
@@ -33,18 +34,18 @@ public enum InputEvents
 
 internal class InputMapper
 {
-    private Dictionary<int, InputEvents> _pressedMaps;
-    private Dictionary<int, InputEvents> _releasedMaps;
+    private Dictionary<KeyboardKey, InputEvents> _pressedMaps;
+    private Dictionary<KeyboardKey, InputEvents> _releasedMaps;
     private string _configFile;
 
     public InputMapper(string configFile)
     {
-        _pressedMaps = new Dictionary<int, InputEvents>();
-        _releasedMaps = new Dictionary<int, InputEvents>();
+        _pressedMaps = new Dictionary<KeyboardKey, InputEvents>();
+        _releasedMaps = new Dictionary<KeyboardKey, InputEvents>();
         for (int i = 0; i < _pressedMaps.Count; i++)
         {
-            _releasedMaps.Add(i,InputEvents.None);
-            _pressedMaps.Add(i, InputEvents.None);
+            _releasedMaps.Add(Enum.GetValues<KeyboardKey>()[i],InputEvents.None);
+            _pressedMaps.Add(Enum.GetValues<KeyboardKey>()[i], InputEvents.None);
         }
         _configFile = configFile;
         LoadKeyMapConfig();
@@ -67,7 +68,7 @@ internal class InputMapper
         }
     }
 
-    public void SetBinding(InputEvents inputEvent, int key)
+    public void SetBinding(InputEvents inputEvent, KeyboardKey key)
     {
         _releasedMaps[key] = inputEvent;
         _pressedMaps[key] = inputEvent;
@@ -83,7 +84,7 @@ internal class InputMapper
         SaveKeyMapConfig();
     }
 
-    public void RemoveBinding(int key)
+    public void RemoveBinding(KeyboardKey key)
     {
         _releasedMaps[key] = InputEvents.None;
         _pressedMaps[key] = InputEvents.None;

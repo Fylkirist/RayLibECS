@@ -20,6 +20,7 @@ internal class Game
         Raylib.InitWindow(1920, 1080, "Deez nutz");
         Raylib.SetTargetFPS(144);
         Raylib.InitAudioDevice();
+        Raylib.SetConfigFlags(ConfigFlags.FLAG_WINDOW_RESIZABLE);
         _world.InitializeWorld();
 
         Task update = Task.Run(UpdateLoop);
@@ -35,23 +36,32 @@ internal class Game
     public void UpdateLoop()
     {
         var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        long previousTime = stopwatch.ElapsedMilliseconds;
+
         while (_running)
         {
-            Update(stopwatch.ElapsedMilliseconds);
+            long currentTime = stopwatch.ElapsedMilliseconds;
+            float deltaTime = (currentTime - previousTime) / 1000f; // Convert to seconds
+
+            Update(deltaTime);
+
+            previousTime = currentTime;
         }
     }
 
     public void Draw()
     {
         Raylib.BeginDrawing();
+        Raylib.DrawFPS(100,100);
         _world.Draw();
         Raylib.EndDrawing();
     }
 
-    public void Update(long delta)
+    public void Update(float delta)
     {
-        Raylib.PollInputEvents();
         _inputState.Update();
+        if (Raylib.WindowShouldClose()) _running = false;
         _world.Update(delta,_inputState);
     }
 }

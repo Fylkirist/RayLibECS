@@ -8,13 +8,13 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-internal class DrawableRectangle : Component
+internal class DrawableRectangle : RenderableComponent
 {
-    public Texture2D Texture;
+    public Color Colour;
     public Rectangle Rect;
-    public DrawableRectangle(Entity owner) : base(owner)
+    public DrawableRectangle() : base()
     {
-        Texture = new Texture2D();
+        Colour = Color.BLANK;
         Rect = new Rectangle();
     }
 }

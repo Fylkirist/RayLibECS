@@ -34,7 +34,7 @@ public class RenderingSystem3D : System
         _active = true;
     }
 
-    public override void Update(long delta, InputState input)
+    public override void Update(float delta, InputState input)
     {
         if(!_active) return;
         var cameraComponents = World.GetComponents(_currentCamera);
@@ -57,6 +57,7 @@ public class RenderingSystem3D : System
         var cameraComp = (Camera3) World.CreateComponent(typeof(Camera3));
         cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
         World.AttachComponent(initCam,cameraComp);
+        _currentCamera = initCam;
     }
 
     private void CleanupCameraEntity()
