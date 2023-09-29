@@ -37,7 +37,7 @@ public class RenderingSystem3D : System
     public override void Update(long delta, InputState input)
     {
         if(!_active) return;
-        var cameraComponents = World.GetComponents(_currentCamera.Id);
+        var cameraComponents = World.GetComponents(_currentCamera);
     }
 
     public override void Detach()

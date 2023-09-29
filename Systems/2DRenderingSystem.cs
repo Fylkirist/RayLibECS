@@ -37,6 +37,7 @@ internal class RenderingSystem2D:System
                     break;
             }
         }
+        Raylib.DrawRectangle(300,300,300,300,Color.BLUE);
     }
 
     public override void Update(long delta, InputState input)
@@ -67,7 +68,7 @@ internal class RenderingSystem2D:System
         _currentCamera = newCam;
 
         var camPosition = World.CreateComponent(typeof(Camera2)) as Camera2;
-        camPosition.Position = new Camera2D(new Vector2(0,0), new Vector2(0,0), 0, 0);
+        camPosition.Position = new Camera2D(new Vector2(Raylib.GetScreenWidth()/2,Raylib.GetScreenHeight()/2), new Vector2(0,0), 0, 1);
         World.AttachComponent(newCam,camPosition);
         Raylib.BeginMode2D(camPosition.Position);
     }

@@ -15,5 +15,10 @@ namespace RayLibECS.Components
         {
             Position = new Camera2D();
         }
+
+        public Camera2() : base()
+        {
+            Position = new Camera2D();
+        }
     }
 }

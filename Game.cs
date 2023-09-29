@@ -20,26 +20,17 @@ internal class Game
         Raylib.InitWindow(1920, 1080, "Deez nutz");
         Raylib.SetTargetFPS(144);
         Raylib.InitAudioDevice();
+        _world.InitializeWorld();
 
         Task update = Task.Run(UpdateLoop);
-        
-        Task draw = Task.Run(DrawLoop);
 
-        while (_running)
-        {
-            if(Raylib.WindowShouldClose())
-                _running = false;
-        }
-        Raylib.CloseWindow();
-    }
-
-    public void DrawLoop()
-    {
         while (_running)
         {
             Draw();
         }
+        Raylib.CloseWindow();
     }
+
 
     public void UpdateLoop()
     {

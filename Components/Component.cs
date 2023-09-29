@@ -10,4 +10,9 @@ public abstract class Component
     {
         Owner = owner;
     }
+
+    protected Component()
+    {
+        Owner = new Entity(0, "");
+    }
 }

@@ -1,4 +1,5 @@
-﻿using RayLibECS.Components;
+﻿using Raylib_cs;
+using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Systems;
 
@@ -23,6 +24,7 @@ public class World
 
     public void InitializeWorld()
     {
+        AddSystem(new RenderingSystem2D(this));
         foreach (var sys in _systems)
         {
             sys.Initialize();
@@ -46,6 +48,7 @@ public class World
 
     public void Draw()
     {
+        Raylib.ClearBackground(Color.BLACK);
         foreach (var system in _systems)
         {
             system.Draw();
