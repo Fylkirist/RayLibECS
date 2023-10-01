@@ -1,18 +1,14 @@
+using System.Runtime.CompilerServices;
 using RayLibECS.Components;
+using RayLibECS.Interfaces;
 
 namespace RayLibECS.Systems;
 public class CollisionDetectionSystem2D : System
 {
-    private Type[] _collisionTypes;
 
     public CollisionDetectionSystem2D(World world) : base(world)
     {
-        _collisionTypes = new []
-        {
-            typeof(Polygon2CollisionShape),
-            typeof(RectangleCollisionShape),
-            typeof(BoxCollisionShape)
-        };
+
     }
     public override void Draw()
     {
@@ -21,18 +17,25 @@ public class CollisionDetectionSystem2D : System
 
     public override void Update(float delta,InputState input)
     {
-        var collisionShapes = World.GetCollisionShapes(_collisionTypes);
-        foreach (var entity1 in collisionShapes)
+        var collisionMeshes = World.GetComponents(typeof(CollisionMesh2));
+        foreach (CollisionMesh2 collisionMesh in collisionMeshes.Cast<CollisionMesh2>())
         {
-            foreach (var entity2 in collisionShapes)
+            foreach (var component in collisionMeshes)
             {
-                if(entity1 == entity2) continue;
-                foreach (var type in _collisionTypes)
+                var colliderMesh = (CollisionMesh2)component;
+                if(collisionMesh ==  colliderMesh) continue;
+                if(colliderMesh.Owner.Components.Any(c=>c.GetType() == typeof(CollisionEvent))) continue;
+                if (CheckMeshCollision(collisionMesh, colliderMesh))
                 {
-                    
-                }
+                    World.AttachComponent(collisionMesh.Owner,);
+                };
             }
         }
+    }
+
+    private bool CheckMeshCollision(CollisionMesh2 mesh1, CollisionMesh2 mesh2)
+    {
+        return true;
     }
 
     public override void Detach()
