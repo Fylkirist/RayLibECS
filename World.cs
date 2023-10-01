@@ -119,6 +119,7 @@ public class World
         }
         component.Owner = entity;
         _components.Add(component);
+        entity.Components.Add(component);
     }
 
     public void DetachComponent(Component component)
@@ -155,7 +156,7 @@ public class World
 
     public IEnumerable<Component> GetComponents(Entity entity)
     {
-        return _components.Where(c => c.Owner == entity);
+        return entity.Components;
     }
 
     public IEnumerable<Component> GetComponents(RenderingModes renderMode)
@@ -163,5 +164,10 @@ public class World
         return _components
             .OfType<RenderableComponent>()
             .Where(c => c.RenderingMode == renderMode);
+    }
+
+    public IEnumerable<Component> GetCollisionShapes(Type[] collisionTypes)
+    {
+        return _components.Where(c=>collisionTypes.Contains(c.GetType()));
     }
 }
