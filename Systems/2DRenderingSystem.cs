@@ -52,21 +52,21 @@ internal class RenderingSystem2D:System
         {
             if (key == KeyboardKey.KEY_RIGHT)
             {
-                activeCam.Position.target.X += delta*10;
+                activeCam.Position.target.X += delta*100;
             }
 
             if (key == KeyboardKey.KEY_LEFT)
             {
-                activeCam.Position.target.X -= delta*10;
+                activeCam.Position.target.X -= delta*100;
             }
 
             if (key == KeyboardKey.KEY_UP)
             {
-                activeCam.Position.target.Y -= delta*10;
+                activeCam.Position.target.Y -= delta*100;
             }
 
             if (key == KeyboardKey.KEY_DOWN)
-                activeCam.Position.target.Y += delta*10;
+                activeCam.Position.target.Y += delta*100;
         }
     }
 

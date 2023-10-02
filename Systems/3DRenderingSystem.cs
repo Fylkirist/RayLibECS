@@ -47,13 +47,7 @@ public class RenderingSystem3D : System
     }
 
     private void InitializeNewCamera(){
-        var initCam = World.CreateEntity("camera");
-        var collisionShape = (BoxCollisionShape)World.CreateComponent(typeof(BoxCollisionShape));
-        collisionShape.BoundingBox = new BoundingBox(
-            new Vector3(0,0,0),
-            new Vector3(1,1,1)
-        );
-        World.AttachComponent(initCam,collisionShape);
+        var initCam = World.CreateEntity("camera"); ;
         var cameraComp = (Camera3) World.CreateComponent(typeof(Camera3));
         cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
         World.AttachComponent(initCam,cameraComp);

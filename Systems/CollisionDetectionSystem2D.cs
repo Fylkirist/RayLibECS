@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using RayLibECS.Components;
-using RayLibECS.Interfaces;
 
 namespace RayLibECS.Systems;
 public class CollisionDetectionSystem2D : System
@@ -27,7 +26,8 @@ public class CollisionDetectionSystem2D : System
                 if(colliderMesh.Owner.Components.Any(c=>c.GetType() == typeof(CollisionEvent))) continue;
                 if (CheckMeshCollision(collisionMesh, colliderMesh))
                 {
-                    World.AttachComponent(collisionMesh.Owner,);
+                    var collisionEvent = (CollisionMesh2)World.CreateComponent(typeof(CollisionMesh2));
+                    World.AttachComponent(collisionMesh.Owner,collisionEvent);
                 };
             }
         }
