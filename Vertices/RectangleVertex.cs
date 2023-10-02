@@ -5,20 +5,17 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Raylib_cs;
-using RayLibECS.Interfaces;
 
 namespace RayLibECS.Vertices;
 
-internal class RectangleVertex : IVertex
+internal class RectangleVertex : Vertex2D
 {
     public Rectangle Vertex;
     public float Rotation;
-    public Vector2 Offset;
 
-    public RectangleVertex(Rectangle vertex, int rotation, Vector2 offset)
+    public RectangleVertex(Rectangle vertex, int rotation, Vector2 offset):base(offset)
     {
         Vertex = vertex;
         Rotation = rotation;
-        Offset = offset;
     }
 }
