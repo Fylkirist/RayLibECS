@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
+using Raylib_cs;
 using RayLibECS.Components;
+using RayLibECS.Vertices;
 
 namespace RayLibECS.Systems;
 public class CollisionDetectionSystem2D : System
@@ -35,6 +37,18 @@ public class CollisionDetectionSystem2D : System
 
     private bool CheckMeshCollision(CollisionMesh2 mesh1, CollisionMesh2 mesh2)
     {
+        if(!Raylib.CheckCollisionRecs(mesh1.GetBoundingRect(), mesh2.GetBoundingRect()))
+        {
+            return false;
+        }
+
+        foreach (var vertex1 in mesh1.Vertices)
+        {
+            foreach (var vertex2 in mesh2.Vertices)
+            {
+                
+            }
+        }
         return true;
     }
 

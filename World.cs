@@ -54,7 +54,10 @@ public class World
 
         foreach (var entity in _entitiesToDestroy)
         {
-            _components.RemoveAll(c => c.Owner == entity);
+            foreach (var component in entity.Components)
+            {
+                DetachComponent(component);
+            }
             _entities.Remove(entity);
             _entitiesToDestroy.Remove(entity);
         }
@@ -110,6 +113,23 @@ public class World
         throw new InvalidOperationException($"Type {type} is not a valid Component type.");
     }
 
+    public T CreateComponent<T>() where T : Component, new()
+    {
+        var cached = _cachedComponents.OfType<T>().FirstOrDefault();
+        if (cached != null)
+        {
+            _cachedComponents.Remove(cached);
+            return cached;
+        }
+
+        if (typeof(T).IsSubclassOf(typeof(Component)))
+        {
+            var newComponent = new T();
+            return newComponent;
+        }
+
+        throw new InvalidOperationException($"Type {typeof(T)} is not a valid Component type.");
+    }
 
     public void AttachComponent(Entity entity,Component component)
     {
@@ -126,6 +146,10 @@ public class World
     {
         _components.Remove(component);
         _cachedComponents.Add(component);
+        if (_cachedComponents.Count > 1000)
+        {
+            _cachedComponents.RemoveAt(0);
+        }
     }
 
     public void AddSystem(Systems.System system)

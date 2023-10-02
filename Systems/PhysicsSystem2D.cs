@@ -35,4 +35,14 @@ internal class PhysicsSystem2D : System
     {
         throw new NotImplementedException();
     }
+
+    private void HandleCollisions()
+    {
+
+    }
+
+    private void HandleGravity()
+    {
+
+    }
 }

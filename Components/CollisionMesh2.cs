@@ -18,9 +18,9 @@ internal class CollisionMesh2 : Component
         Vertices = new List<Vertex2D>();
     }
 
-    public Rectangle? GetBoundingRect()
+    public Rectangle GetBoundingRect()
     {
-        if (_boundingRect != null) return _boundingRect;
+        if (_boundingRect.HasValue) return _boundingRect.Value;
         var max = new Vector2();
         var min = new Vector2();
         foreach (var vertex in Vertices)
