@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Raylib_cs;
+using RayLibECS.Systems;
 using RayLibECS.Vertices;
 
 namespace RayLibECS.Components;
@@ -12,15 +13,15 @@ namespace RayLibECS.Components;
 internal class CollisionMesh2 : Component
 {
     public List<Vertex2D> Vertices;
-    private Rectangle? _boundingRect;
+    private Circle? _boundingCircle;
     public CollisionMesh2()
     {
         Vertices = new List<Vertex2D>();
     }
 
-    public Rectangle GetBoundingRect()
+    public Circle GetBoundingCircle()
     {
-        if (_boundingRect.HasValue) return _boundingRect.Value;
+        if (_boundingCircle.HasValue) return _boundingCircle.Value;
         var max = new Vector2();
         var min = new Vector2();
         foreach (var vertex in Vertices)
@@ -86,8 +87,9 @@ internal class CollisionMesh2 : Component
                     throw new NotImplementedException();
             }
         }
-        var rect = new Rectangle(min.X,min.Y,max.X-min.X,max.Y-min.Y);
-        _boundingRect = rect;
+
+        var rect = new Circle();
+        _boundingCircle = rect;
         return rect;
     }
 }
