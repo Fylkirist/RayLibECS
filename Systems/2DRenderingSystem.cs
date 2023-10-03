@@ -27,15 +27,21 @@ internal class RenderingSystem2D:System
         Raylib.BeginMode2D(activeCamera.Position);
         foreach (var component in World.GetComponents(RenderingModes.TwoD))
         {
+            var entity = component.Owner;
+            var position = entity.Components.OfType<Position2>().FirstOrDefault();
+
+            if (position == null)
+                break;
+            
             switch (component)
             {
                 case DrawableCircle circle:
-                    var circlePosition = Raylib.GetWorldToScreen2D(circle.Position, activeCamera.Position);
+                    var circlePosition = Raylib.GetWorldToScreen2D(circle.Position+position.Position, activeCamera.Position);
                     Raylib.DrawCircle((int)circlePosition.X, (int)circlePosition.Y,circle.Radius,circle.Colour);
                     break;
                 case DrawableRectangle rectangle:
                     var rectPosition =
-                        Raylib.GetWorldToScreen2D(new Vector2(rectangle.Rect.x, rectangle.Rect.y), activeCamera.Position);
+                        Raylib.GetWorldToScreen2D(new Vector2(rectangle.Rect.x, rectangle.Rect.y)+position.Position, activeCamera.Position);
                     Raylib.DrawRectangle((int)rectPosition.X,(int)rectPosition.Y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
                     break;
             }
@@ -82,7 +88,7 @@ internal class RenderingSystem2D:System
         var newCam = World.CreateEntity("camera");
         _currentCamera = newCam;
 
-        var camPosition = World.CreateComponent(typeof(Camera2)) as Camera2;
+        var camPosition = World.CreateComponent<Camera2>();
         camPosition.Position = new Camera2D(new Vector2(Raylib.GetScreenWidth()/2,Raylib.GetScreenHeight()/2), new Vector2(0,0), 0, 1);
         World.AttachComponent(newCam,camPosition);
         Raylib.BeginMode2D(camPosition.Position);
@@ -95,15 +101,8 @@ internal class RenderingSystem2D:System
 
     private Camera2 GetActiveCamera()
     {
-        foreach (var component in World.GetComponents(_currentCamera))
-        {
-            return component switch
-            {
-                Camera2 cam2 => cam2,
-            };
-        }
-
-        return new Camera2(_currentCamera);
+        var camera = World.GetComponents(_currentCamera).OfType<Camera2>().FirstOrDefault();
+        return camera ?? new Camera2(_currentCamera);
     }
 
     public RenderingSystem2D(World world) : base(world)

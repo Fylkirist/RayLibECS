@@ -17,4 +17,10 @@ internal class Camera3 : Component
         CameraPosition = new Camera3D();
         CameraMode = CameraMode.CAMERA_FREE;
     }
+
+    public Camera3()
+    {
+        CameraMode = CameraMode.CAMERA_FREE;
+        CameraPosition = new Camera3D();
+    }
 }

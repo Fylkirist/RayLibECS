@@ -3,7 +3,7 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-internal class Position2 : Component
+public class Position2 : Component
 {
     public Vector2 Speed;
     public float Rotation;

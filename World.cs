@@ -3,6 +3,7 @@ using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Systems;
+using RayLibECS.Vertices;
 
 namespace RayLibECS;
 
@@ -15,6 +16,7 @@ public enum RenderingModes
 public class World
 {
     private List<Entity> _entities;
+    public List<Entity> Entities => _entities;
     private List<Entity> _entitiesToDestroy;
     private List<Systems.System> _systems;
     private List<Component> _components;
@@ -32,13 +34,42 @@ public class World
     public void InitializeWorld()
     {
         var testEntity = CreateEntity("stuff");
-        var testRenderComponent = (DrawableCircle)CreateComponent(typeof(DrawableCircle));
+
+        var testRenderComponent = CreateComponent<DrawableCircle>();
         testRenderComponent.Position = Vector2.Zero;
         testRenderComponent.Radius = 200;
         testRenderComponent.Colour = Color.WHITE;
 
+        var testCollisionMesh1 = CreateComponent<CollisionMesh2>();
+        testCollisionMesh1.Vertices.Add(new CircleVertex(Vector2.Zero, 200,Vector2.Zero));
+
+        var testPosition1 = CreateComponent<Position2>();
+        testPosition1.Position = new Vector2(150,150);
+
+        var testEntity2 = CreateEntity("stuff");
+
+        var testRenderComponent2 = CreateComponent<DrawableCircle>();
+        testRenderComponent2.Position = Vector2.Zero;
+        testRenderComponent2.Radius = 200;
+        testRenderComponent2.Colour = Color.WHITE;
+
+        var testCollisionMesh2 = CreateComponent<CollisionMesh2>();
+        testCollisionMesh2.Vertices.Add(new CircleVertex(Vector2.Zero, 200, Vector2.Zero));
+
+        var testPosition2 = CreateComponent<Position2>();
+        testPosition2.Position = Vector2.Zero;
+
         AttachComponent(testEntity,testRenderComponent);
+        AttachComponent(testEntity,testCollisionMesh1);
+        AttachComponent(testEntity,testPosition1);
+
+        AttachComponent(testEntity2,testCollisionMesh2);
+        AttachComponent(testEntity2, testRenderComponent2);
+        AttachComponent(testEntity2,testPosition2);
+
         AddSystem(new RenderingSystem2D(this));
+        AddSystem(new CollisionDetectionSystem2D(this));
+
         foreach (var sys in _systems)
         {
             sys.Initialize();
@@ -95,24 +126,6 @@ public class World
         return entity;
     }
 
-    public Component CreateComponent(Type type)
-    {
-        var cached = _cachedComponents.FirstOrDefault(c => c.GetType() == type);
-        if (cached != null)
-        {
-            _cachedComponents.Remove(cached);
-            return cached;
-        }
-    
-        if (typeof(Component).IsAssignableFrom(type))
-        {
-            var newComponent = Activator.CreateInstance(type) as Component;
-            return newComponent;
-        }
-    
-        throw new InvalidOperationException($"Type {type} is not a valid Component type.");
-    }
-
     public T CreateComponent<T>() where T : Component, new()
     {
         var cached = _cachedComponents.OfType<T>().FirstOrDefault();
@@ -163,9 +176,9 @@ public class World
         
     }
 
-    public IEnumerable<Component> GetComponents(Type type)
+    public IEnumerable<T> GetComponents<T>()
     {
-        return _components.Where(component => component.GetType() == type);
+        return _components.OfType<T>();
     }
 
     public IEnumerable<Component> GetComponents(int id)

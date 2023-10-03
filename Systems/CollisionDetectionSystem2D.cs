@@ -19,28 +19,31 @@ public class CollisionDetectionSystem2D : System
 
     public override void Update(float delta,InputState input)
     {
-        var collisionMeshes = World.GetComponents(typeof(CollisionMesh2));
-        foreach (CollisionMesh2 collisionMesh in collisionMeshes.Cast<CollisionMesh2>())
+        if (!_active) return;
+        var mesh2ds = World.GetComponents<CollisionMesh2>().ToArray();
+        foreach (CollisionMesh2 collisionMesh in mesh2ds)
         {
-            foreach (var component in collisionMeshes)
+            foreach (CollisionMesh2 colliderMesh in mesh2ds)
             {
-                var colliderMesh = (CollisionMesh2)component;
+                
                 if(collisionMesh ==  colliderMesh) continue;
                 if(colliderMesh.Owner.Components.Any(c=>c.GetType() == typeof(CollisionEvent))) continue;
-                if (CheckMeshCollision(collisionMesh, colliderMesh))
+                if (CheckMeshCollision(collisionMesh, colliderMesh, out Vertex2D[] colliders))
                 {
-                    var collisionEvent = (CollisionMesh2)World.CreateComponent(typeof(CollisionMesh2));
-                    World.AttachComponent(collisionMesh.Owner,collisionEvent);
+                    var collisionEvent = World.CreateComponent<CollisionEvent>();
+                    collisionEvent.Vertices = colliders;
+                    collisionEvent.Collider = colliderMesh.Owner;
+                    World.AttachComponent(collisionMesh.Owner, collisionEvent);
                 };
             }
         }
     }
 
-    private bool CheckMeshCollision(CollisionMesh2 mesh1, CollisionMesh2 mesh2)
+    private bool CheckMeshCollision(CollisionMesh2 mesh1, CollisionMesh2 mesh2,out Vertex2D[] colliderVertices)
     {
         var mesh1Pos = mesh1.Owner.Components.OfType<Position2>().FirstOrDefault();
         var mesh2Pos = mesh2.Owner.Components.OfType<Position2>().FirstOrDefault();
-
+        colliderVertices = new Vertex2D[2];
         if (mesh1Pos == null || mesh2Pos == null)
             return false;
 
@@ -60,10 +63,36 @@ public class CollisionDetectionSystem2D : System
         {
             foreach (var vertex2 in mesh2.Vertices)
             {
-                
+                switch (vertex1)
+                {
+                    case CircleVertex circle:
+                        if (circle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
+                        {
+                            colliderVertices[0] = vertex1;
+                            colliderVertices[1] = vertex2;
+                            return true;
+                        }
+                        break;
+                    case TriangleVertex triangle:
+                        if (triangle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
+                        {
+                            colliderVertices[0] = vertex1;
+                            colliderVertices[1] = vertex2;
+                            return true;
+                        }
+                        break;
+                    case RectangleVertex rectangle:
+                        if (rectangle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
+                        {
+                            colliderVertices[0] = vertex1;
+                            colliderVertices[1] = vertex2;
+                            return true;
+                        }
+                        break;
+                }
             }
         }
-        return true;
+        return false;
     }
 
     public override void Detach()
@@ -76,7 +105,7 @@ public class CollisionDetectionSystem2D : System
         _active = true;
     }
 
-    private bool DetectVertexCollision(CircleVertex circle1, Position2 pos1, CircleVertex circle2, Position2 pos2)
+    public bool DetectVertexCollision(CircleVertex circle1, Position2 pos1, CircleVertex circle2, Position2 pos2)
     {
         
         return Raylib.CheckCollisionCircles(
@@ -90,19 +119,44 @@ public class CollisionDetectionSystem2D : System
             circle2.Radius);
     }
 
-    private bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, CircleVertex circle, Position2 pos2)
+    public bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, CircleVertex circle, Position2 pos2)
     {
+        Vector2[] triangleTransformed = new Vector2[3];
 
-        var circleCenter = ApplyRotationMatrix(
+        for (int i = 0; i < 3; i++)
+        {
+            triangleTransformed[i] = ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    triangle.Points[i] + triangle.Offset + pos1.Position,
+                    triangle.Offset,
+                    triangle.Rotation),
+                pos1.Position,
+                pos1.Rotation
+            );
+        }
+
+        var circleTransformed = ApplyRotationMatrix(
             circle.Center + circle.Offset + pos2.Position,
             pos2.Position,
             pos2.Rotation
             );
 
-        
+        Vector2 localCircleCenter = circleTransformed - triangleTransformed[0];
+        float u = ((triangleTransformed[1].Y - triangleTransformed[2].Y) * localCircleCenter.X + (triangleTransformed[2].X - triangleTransformed[1].X) * localCircleCenter.Y) /
+                  ((triangleTransformed[1].Y - triangleTransformed[2].Y) * (triangleTransformed[0].X - triangleTransformed[2].X) + (triangleTransformed[2].X - triangleTransformed[1].X) * (triangleTransformed[0].Y - triangleTransformed[2].Y));
+
+        float v = ((triangleTransformed[2].Y - triangleTransformed[0].Y) * localCircleCenter.X + (triangleTransformed[0].X - triangleTransformed[2].X) * localCircleCenter.Y) /
+                  ((triangleTransformed[1].Y - triangleTransformed[2].Y) * (triangleTransformed[0].X - triangleTransformed[2].X) + (triangleTransformed[2].X - triangleTransformed[1].X) * (triangleTransformed[0].Y - triangleTransformed[2].Y));
+
+        float w = 1 - u - v;
+
+        bool insideTriangle = (u >= 0 && u <= 1) && (v >= 0 && v <= 1) && (w >= 0 && w <= 1);
+        bool insideCircle = localCircleCenter.Length() <= circle.Radius;
+
+        return insideTriangle || insideCircle;
     }
 
-    private bool DetectVertexCollision(RectangleVertex rectangleVertex, Position2 pos1, CircleVertex circle, Position2 pos2)
+    public bool DetectVertexCollision(RectangleVertex rectangleVertex, Position2 pos1, CircleVertex circle, Position2 pos2)
     {
         var rectangleCenter = rectangleVertex.Offset + pos1.Position;
         var rectangle = new Rectangle(
@@ -118,12 +172,12 @@ public class CollisionDetectionSystem2D : System
                     pos2.Position,
                     pos2.Rotation),
                 rectangleCenter,
-                rectangleVertex.Rotation
+                -rectangleVertex.Rotation
             );
         return Raylib.CheckCollisionCircleRec(circleCenter, circle.Radius,rectangle);
     }
 
-    private bool DetectVertexCollision(TriangleVertex triangle1, Position2 pos1, TriangleVertex triangle2, Position2 pos2)
+    public bool DetectVertexCollision(TriangleVertex triangle1, Position2 pos1, TriangleVertex triangle2, Position2 pos2)
     {
         Vector2[] triangle1Transformed = new Vector2[3];
         for (int i = 0; i < 3; i++)
@@ -171,13 +225,108 @@ public class CollisionDetectionSystem2D : System
         return false;
     }
 
-    private bool DetectVertexCollision(RectangleVertex rect1, Position2 pos1, RectangleVertex rect2, Position2 pos2)
+    public bool DetectVertexCollision(RectangleVertex rect1, Position2 pos1, RectangleVertex rect2, Position2 pos2)
     {
+        var rect1Points = rect1.GetRectPoints();
+        var rect2Points = rect2.GetRectPoints();
+        for (int i = 0; i < 4; i++)
+        {
+            rect1Points[i] = ApplyRotationMatrix(rect1Points[i]+pos1.Position+rect1.Offset, pos1.Position, pos1.Rotation);
+            rect2Points[i] = ApplyRotationMatrix(rect2Points[i]+pos2.Position+rect2.Offset, pos2.Position, pos2.Rotation);
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            var edge = rect1Points[(i + 1) % 4] - rect1Points[i];
+
+            var axis = new Vector2(-edge.Y, edge.X);
+
+            float min1 = float.MaxValue, max1 = float.MinValue;
+            float min2 = float.MaxValue, max2 = float.MinValue;
+            for (int j = 0; j < 4; j++)
+            {
+                float dotProduct1 = Vector2.Dot(rect1Points[j], axis);
+                float dotProduct2 = Vector2.Dot(rect2Points[j], axis);
+
+                min1 = Math.Min(min1, dotProduct1);
+                max1 = Math.Max(max1, dotProduct1);
+                min2 = Math.Min(min2, dotProduct2);
+                max2 = Math.Max(max2, dotProduct2);
+            }
+
+            if (!(max1 >= min2 && max2 >= min1))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
-    private bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, RectangleVertex rect, Position2 pos2)
+    public bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, RectangleVertex rect, Position2 pos2)
     {
-        return true;
+        Vector2[] triangleTransformed = new Vector2[3];
+        for (int i = 0; i < 3; i++)
+        {
+            triangleTransformed[i] = ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    triangle.Points[i],
+                    new Vector2(),
+                    triangle.Rotation
+                    )+triangle.Offset+pos1.Position,
+                pos1.Position,
+                pos1.Rotation
+            );
+        }
+
+        Vector2[] rectangleTransformed =
+        {
+            ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    new Vector2(rect.Vertex.x,rect.Vertex.y),
+                    Vector2.Zero,
+                    rect.Rotation)+rect.Offset+pos2.Position,
+                pos2.Position,
+                pos2.Rotation
+                ),
+            ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    new Vector2(rect.Vertex.x+rect.Vertex.width,rect.Vertex.y),
+                    Vector2.Zero,
+                    rect.Rotation)+rect.Offset+pos2.Position,
+                pos2.Position,
+                pos2.Rotation
+            ),
+            ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    new Vector2(rect.Vertex.x+rect.Vertex.width,rect.Vertex.y+rect.Vertex.height),
+                    Vector2.Zero,
+                    rect.Rotation)+rect.Offset+pos2.Position,
+                pos2.Position,
+                pos2.Rotation
+            ),
+            ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    new Vector2(rect.Vertex.x,rect.Vertex.y+rect.Vertex.height),
+                    Vector2.Zero,
+                    rect.Rotation)+rect.Offset+pos2.Position,
+                pos2.Position,
+                pos2.Rotation
+            ),
+        };
+        
+        for (int i = 0; i < 5; i++)
+        {
+            var collisionPoint = new Vector2();
+            var endIdx = i < 3 ? i + 1 : 0;
+            if (Raylib.CheckCollisionLines(rectangleTransformed[i], rectangleTransformed[endIdx], triangleTransformed[0], triangleTransformed[1],ref collisionPoint) ||
+                Raylib.CheckCollisionLines(rectangleTransformed[i], rectangleTransformed[endIdx], triangleTransformed[1], triangleTransformed[2],ref collisionPoint) ||
+                Raylib.CheckCollisionLines(rectangleTransformed[i], rectangleTransformed[endIdx], triangleTransformed[2], triangleTransformed[0], ref collisionPoint))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static Vector2 ApplyRotationMatrix(Vector2 point,Vector2 center,float rotation)
