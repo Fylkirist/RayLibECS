@@ -7,10 +7,10 @@ using RayLibECS.Vertices;
 namespace RayLibECS.Systems;
 public class CollisionDetectionSystem2D : System
 {
-
+    private bool _active;
     public CollisionDetectionSystem2D(World world) : base(world)
     {
-
+        _active = false;
     }
     public override void Draw()
     {
@@ -68,68 +68,122 @@ public class CollisionDetectionSystem2D : System
 
     public override void Detach()
     {
-        throw new NotImplementedException();
+        _active = false;
     }
 
     public override void Initialize()
     {
-        throw new NotImplementedException();
+        _active = true;
     }
 
     private bool DetectVertexCollision(CircleVertex circle1, Position2 pos1, CircleVertex circle2, Position2 pos2)
     {
-        return Raylib.CheckCollisionCircles(circle1.Center + circle1.Offset + pos1.Position,
+        
+        return Raylib.CheckCollisionCircles(
+            ApplyRotationMatrix(
+                circle1.Center + circle1.Offset + pos1.Position,
+                pos1.Position,pos1.Rotation),
             circle1.Radius,
-            circle2.Center + circle1.Offset + pos2.Position,
+            ApplyRotationMatrix(
+                circle2.Center + circle1.Offset + pos2.Position,
+                pos2.Position,pos2.Rotation),
             circle2.Radius);
     }
 
     private bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, CircleVertex circle, Position2 pos2)
     {
-        var circleCenter = circle.Center + circle.Offset + pos2.Position;
-        foreach (var point in triangle.Points)
-        {
-            if (Raylib.CheckCollisionPointCircle(point + triangle.Offset + pos1.Position, circleCenter, circle.Radius))
-            {
-                return true;
-            }
-        }
-        return false;
+
+        var circleCenter = ApplyRotationMatrix(
+            circle.Center + circle.Offset + pos2.Position,
+            pos2.Position,
+            pos2.Rotation
+            );
+
+        
     }
 
     private bool DetectVertexCollision(RectangleVertex rectangleVertex, Position2 pos1, CircleVertex circle, Position2 pos2)
     {
-        return Raylib.CheckCollisionCircleRec(circle.Center+circle.Offset+pos2.Position,circle.Radius,rectangleVertex.Vertex);
+        var rectangleCenter = rectangleVertex.Offset + pos1.Position;
+        var rectangle = new Rectangle(
+            rectangleVertex.Vertex.x+rectangleVertex.Offset.X+pos1.Position.X,
+            rectangleVertex.Vertex.y+rectangleVertex.Offset.Y+pos1.Position.Y,
+            rectangleVertex.Vertex.width,
+            rectangleVertex.Vertex.height
+            );
+        var circleCenter =
+            ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    circle.Center + circle.Offset + pos2.Position,
+                    pos2.Position,
+                    pos2.Rotation),
+                rectangleCenter,
+                rectangleVertex.Rotation
+            );
+        return Raylib.CheckCollisionCircleRec(circleCenter, circle.Radius,rectangle);
     }
 
     private bool DetectVertexCollision(TriangleVertex triangle1, Position2 pos1, TriangleVertex triangle2, Position2 pos2)
     {
+        Vector2[] triangle1Transformed = new Vector2[3];
+        for (int i = 0; i < 3; i++)
+        {
+            triangle1Transformed[i] = ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    triangle1.Points[i] + triangle1.Offset + pos1.Position,
+                    triangle1.Offset+pos1.Position,
+                    triangle1.Rotation),
+                pos1.Position,
+                pos1.Rotation
+                );
+        }
+
         Vector2[] triangle2Transformed = new Vector2[3];
         for (int i = 0; i < 3; i++)
         {
-            triangle2Transformed[i] = triangle2.Points[i] + triangle2.Offset + pos2.Position;
+            triangle2Transformed[i] = ApplyRotationMatrix(
+                ApplyRotationMatrix(
+                    triangle2.Points[i] + triangle2.Offset + pos2.Position,
+                    triangle2.Offset + pos2.Position,
+                    triangle2.Rotation),
+                pos2.Position,
+                pos2.Rotation
+            );
         }
-        foreach (var point in triangle1.Points)
+
+        foreach (var point in triangle1Transformed)
         {
-            if (Raylib.CheckCollisionPointTriangle(point + triangle1.Offset + pos1.Position,
-                    triangle2Transformed[0],
-                    triangle2Transformed[1],
+            if (Raylib.CheckCollisionPointTriangle(point, triangle2Transformed[0], triangle2Transformed[1],
                     triangle2Transformed[2]))
             {
                 return true;
             }
         }
 
+        foreach (var point in triangle2Transformed)
+        {
+            if (Raylib.CheckCollisionPointTriangle(point, triangle1Transformed[0], triangle1Transformed[1],
+                    triangle1Transformed[2]))
+            {
+                return true;
+            }
+        }
         return false;
     }
 
     private bool DetectVertexCollision(RectangleVertex rect1, Position2 pos1, RectangleVertex rect2, Position2 pos2)
     {
-        
+        return true;
     }
     private bool DetectVertexCollision(TriangleVertex triangle, Position2 pos1, RectangleVertex rect, Position2 pos2)
     {
+        return true;
+    }
 
+    public static Vector2 ApplyRotationMatrix(Vector2 point,Vector2 center,float rotation)
+    {
+        var transformation = Matrix3x2.CreateRotation(rotation, center);
+        return Vector2.Transform(point, transformation);
     }
 }
 

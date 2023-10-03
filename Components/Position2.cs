@@ -3,15 +3,25 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-internal class Position2:Component
+internal class Position2 : Component
 {
-    public Vector2 Speed { get; set; }
-    public Vector2 Direction { get; set; }
-    public Vector2 Position { get; set; }
-    public Position2(Entity owner,Vector2 position, Vector2 direction, Vector2 speed) : base(owner)
+    public Vector2 Speed;
+    public float Rotation;
+    public float RotationSpeed;
+    public Vector2 Position;
+    public Position2(Entity owner,Vector2 position, float rotation,float rotationSpeed, Vector2 speed) : base(owner)
     {
         Position = position;
-        Direction = direction;
+        Rotation = rotation;
+        RotationSpeed = rotationSpeed;
         Speed = speed;
+    }
+
+    public Position2()
+    {
+        Speed = Vector2.Zero;
+        Rotation = 0f;
+        Position = Vector2.Zero;
+        RotationSpeed = 0f;
     }
 }
