@@ -9,9 +9,11 @@ namespace RayLibECS.Components;
 internal class RenderableComponent:Component
 {
     public RenderingModes RenderingMode;
+    public int Z;
 
-    public RenderableComponent() : base()
+    public RenderableComponent()
     {
         RenderingMode = RenderingModes.TwoD;
+        Z = 0;
     }
 }

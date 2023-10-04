@@ -25,13 +25,17 @@ internal class RenderingSystem2D:System
         if(!_active) return;
         var activeCamera = GetActiveCamera();
         Raylib.BeginMode2D(activeCamera.Position);
-        foreach (var component in World.GetComponents(RenderingModes.TwoD))
+        var renderables = World.GetComponents(RenderingModes.TwoD)
+            .Cast<RenderableComponent>()
+            .OrderBy(c => c.Z)
+            .ToArray();
+        foreach (var component in renderables)
         {
             var entity = component.Owner;
             var position = entity.Components.OfType<Position2>().FirstOrDefault();
 
             if (position == null)
-                break;
+                continue;
             
             switch (component)
             {
