@@ -35,6 +35,9 @@ public class World
     {
         var testEntity = CreateEntity("stuff");
 
+        var testMass = CreateComponent<Mass>();
+        testMass.Kgs = 100;
+
         var testRenderComponent = CreateComponent<DrawableCircle>();
         testRenderComponent.Position = Vector2.Zero;
         testRenderComponent.Radius = 200;
@@ -75,6 +78,7 @@ public class World
         AttachComponent(testEntity,testRenderComponent);
         AttachComponent(testEntity,testCollisionMesh1);
         AttachComponent(testEntity,testPosition1);
+        AttachComponent(testEntity,testMass);
 
         AttachComponent(testEntity2,testCollisionMesh2);
         AttachComponent(testEntity2, testRenderComponent2);
@@ -86,11 +90,6 @@ public class World
 
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
-
-        foreach (var sys in _systems)
-        {
-            sys.Initialize();
-        }
     }
 
     public void Update(float delta,InputState input)
@@ -223,5 +222,10 @@ public class World
     public IEnumerable<Component> GetCollisionShapes(Type[] collisionTypes)
     {
         return _components.Where(c=>collisionTypes.Contains(c.GetType()));
+    }
+
+    public IEnumerable<Entity> GetEntitiesWith<T>()
+    {
+        return _entities.Where(e => e.Components.OfType<T>().Any());
     }
 }

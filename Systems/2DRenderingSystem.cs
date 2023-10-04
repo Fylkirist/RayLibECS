@@ -95,7 +95,6 @@ internal class RenderingSystem2D:System
         var camPosition = World.CreateComponent<Camera2>();
         camPosition.Position = new Camera2D(new Vector2(Raylib.GetScreenWidth()/2,Raylib.GetScreenHeight()/2), new Vector2(0,0), 0, 1);
         World.AttachComponent(newCam,camPosition);
-        Raylib.BeginMode2D(camPosition.Position);
     }
 
     private void CleanupCameraEntity()
