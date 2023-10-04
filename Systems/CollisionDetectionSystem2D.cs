@@ -25,15 +25,15 @@ public class CollisionDetectionSystem2D : System
         {
             foreach (CollisionMesh2 colliderMesh in mesh2ds)
             {
-                
-                if(collisionMesh ==  colliderMesh) continue;
-                if(colliderMesh.Owner.Components.Any(c=>c.GetType() == typeof(CollisionEvent))) continue;
+                if(collisionMesh == colliderMesh) continue;
+                if(collisionMesh.Owner.Components.OfType<CollisionEvent>().Any()) break;
                 if (CheckMeshCollision(collisionMesh, colliderMesh, out Vertex2D[] colliders))
                 {
                     var collisionEvent = World.CreateComponent<CollisionEvent>();
                     collisionEvent.Vertices = colliders;
                     collisionEvent.Collider = colliderMesh.Owner;
                     World.AttachComponent(collisionMesh.Owner, collisionEvent);
+                    break;
                 };
             }
         }
@@ -63,33 +63,10 @@ public class CollisionDetectionSystem2D : System
         {
             foreach (var vertex2 in mesh2.Vertices)
             {
-                switch (vertex1)
-                {
-                    case CircleVertex circle:
-                        if (circle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
-                        {
-                            colliderVertices[0] = vertex1;
-                            colliderVertices[1] = vertex2;
-                            return true;
-                        }
-                        break;
-                    case TriangleVertex triangle:
-                        if (triangle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
-                        {
-                            colliderVertices[0] = vertex1;
-                            colliderVertices[1] = vertex2;
-                            return true;
-                        }
-                        break;
-                    case RectangleVertex rectangle:
-                        if (rectangle.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos))
-                        {
-                            colliderVertices[0] = vertex1;
-                            colliderVertices[1] = vertex2;
-                            return true;
-                        }
-                        break;
-                }
+                if (!vertex1.CollidesWith(this, mesh1Pos, vertex2, mesh2Pos)) continue;
+                colliderVertices[0] = vertex1;
+                colliderVertices[1] = vertex2;
+                return true;
             }
         }
         return false;
@@ -114,7 +91,7 @@ public class CollisionDetectionSystem2D : System
                 pos1.Position,pos1.Rotation),
             circle1.Radius,
             ApplyRotationMatrix(
-                circle2.Center + circle1.Offset + pos2.Position,
+                circle2.Center + circle2.Offset + pos2.Position,
                 pos2.Position,pos2.Rotation),
             circle2.Radius);
     }

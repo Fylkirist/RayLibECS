@@ -23,17 +23,17 @@ internal class PhysicsSystem2D : System
 
     public override void Draw()
     {
-        throw new NotImplementedException();
+        
     }
 
     public override void Update(float delta, InputState input)
     {
-        throw new NotImplementedException();
+        
     }
 
     public override void Detach()
     {
-        throw new NotImplementedException();
+        
     }
 
     private void HandleCollisions()

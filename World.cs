@@ -59,6 +59,19 @@ public class World
         var testPosition2 = CreateComponent<Position2>();
         testPosition2.Position = Vector2.Zero;
 
+        var testEntity3 = CreateEntity("stuff");
+
+        var testRenderComponent3 = CreateComponent<DrawableCircle>();
+        testRenderComponent3.Position = Vector2.Zero;
+        testRenderComponent3.Radius = 200;
+        testRenderComponent3.Colour = Color.RED;
+
+        var testCollisionMesh3 = CreateComponent<CollisionMesh2>();
+        testCollisionMesh3.Vertices.Add(new CircleVertex(Vector2.Zero, 200, Vector2.Zero));
+
+        var testPosition3 = CreateComponent<Position2>();
+        testPosition3.Position = new Vector2(300,300);
+
         AttachComponent(testEntity,testRenderComponent);
         AttachComponent(testEntity,testCollisionMesh1);
         AttachComponent(testEntity,testPosition1);
@@ -66,6 +79,10 @@ public class World
         AttachComponent(testEntity2,testCollisionMesh2);
         AttachComponent(testEntity2, testRenderComponent2);
         AttachComponent(testEntity2,testPosition2);
+
+        AttachComponent(testEntity3, testCollisionMesh3);
+        AttachComponent(testEntity3, testRenderComponent3);
+        AttachComponent(testEntity3, testPosition3);
 
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
@@ -146,7 +163,7 @@ public class World
 
     public void AttachComponent(Entity entity,Component component)
     {
-        if (_components.Any(c => c.Owner == entity && component.GetType() == c.GetType()))
+        if (entity.Components.Any(c=>c.GetType() == component.GetType()))
         {
             return;
         }
