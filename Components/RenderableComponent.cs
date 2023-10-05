@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RayLibECS.Components;
 
-internal class RenderableComponent:Component
+public class RenderableComponent:Component
 {
     public RenderingModes RenderingMode;
     public int Z;

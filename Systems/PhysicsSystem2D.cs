@@ -12,10 +12,12 @@ internal class PhysicsSystem2D : System
 {
     private float _gravity;
     private bool _active;
+    private float _scale;
     public PhysicsSystem2D(World world) : base(world)
     {
         _gravity = 9.82f;
         _active = false;
+        _scale = 100;
     }
 
     public override void Initialize()
@@ -51,9 +53,12 @@ internal class PhysicsSystem2D : System
 
     private void HandleCollisions(float delta)
     {
-        var collisions = World.GetComponents<CollisionEvent>().ToArray();
+        var collisions = World.GetComponents<CollisionEvent>();
         foreach (var collisionEvent in collisions)
         {
+            var ownerEntity = collisionEvent.Owner;
+            if(ownerEntity.Tag == "Kinematic") continue;
+            var colidee = collisionEvent.Collider;
             
         }
 
@@ -70,7 +75,7 @@ internal class PhysicsSystem2D : System
             {
                 continue;
             }
-            position.Speed.Y += _gravity * delta;
+            position.Speed.Y += _gravity * _scale * delta;
         }
     }
 }

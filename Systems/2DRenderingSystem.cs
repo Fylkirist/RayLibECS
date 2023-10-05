@@ -40,13 +40,13 @@ internal class RenderingSystem2D:System
             switch (component)
             {
                 case DrawableCircle circle:
-                    var circlePosition = Raylib.GetWorldToScreen2D(circle.Position+position.Position, activeCamera.Position);
-                    Raylib.DrawCircle((int)circlePosition.X, (int)circlePosition.Y,circle.Radius,circle.Colour);
+                    Raylib.DrawCircle((int)position.Position.X, (int)position.Position.Y,circle.Radius,circle.Colour);
                     break;
                 case DrawableRectangle rectangle:
-                    var rectPosition =
-                        Raylib.GetWorldToScreen2D(new Vector2(rectangle.Rect.x, rectangle.Rect.y)+position.Position, activeCamera.Position);
-                    Raylib.DrawRectangle((int)rectPosition.X,(int)rectPosition.Y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
+                    Raylib.DrawRectangle((int)rectangle.Rect.x,(int)rectangle.Rect.y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
+                    break;
+                case DrawableTriangle2D triangle:
+                    Raylib.DrawTriangle(triangle.Points[0],triangle.Points[1],triangle.Points[2],triangle.Colour);
                     break;
             }
         }
