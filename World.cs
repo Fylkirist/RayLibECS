@@ -91,6 +91,9 @@ public class World
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));
+
+
+        AddSystem(new MovementSystem(this));
     }
 
     public void Update(float delta,InputState input)

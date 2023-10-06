@@ -56,6 +56,7 @@ internal class RenderingSystem2D:System
 
     public override void Update(float delta, InputState input)
     {
+        
         if(!_active) return;
         var activeCam = GetActiveCamera();
         foreach (var key in input.PressedKeys)
