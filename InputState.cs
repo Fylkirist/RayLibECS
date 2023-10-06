@@ -11,8 +11,10 @@ public class InputState
     private HashSet<KeyboardKey> _releasedKeys;
     public HashSet<KeyboardKey> ReleasedKeys => _releasedKeys;
     public Vector2 MousePosition { get; private set; }
-    public bool IsMousePressed { get; private set; }
-    public bool IsMouseReleased { get; private set; }
+    public bool IsLeftMousePressed { get; private set; }
+    public bool IsLeftMouseReleased { get; private set; }
+    public bool IsRightMousePressed { get; private set; }
+    public bool IsRightMouseReleased { get; private set; }
     public float MouseWheelMove { get; private set; }
 
     public InputState()
@@ -40,8 +42,10 @@ public class InputState
         _pressedKeys = newKeys;
 
         MousePosition = Raylib.GetMousePosition();
-        IsMousePressed = Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT);
-        IsMouseReleased = Raylib.IsMouseButtonReleased(MouseButton.MOUSE_BUTTON_LEFT);
+        IsLeftMousePressed = Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT);
+        IsLeftMouseReleased = Raylib.IsMouseButtonReleased(MouseButton.MOUSE_BUTTON_LEFT);
+        IsRightMousePressed = Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT);
+        IsRightMouseReleased = Raylib.IsMouseButtonReleased(MouseButton.MOUSE_BUTTON_RIGHT);
         MouseWheelMove = Raylib.GetMouseWheelMove();
     }
 
