@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using RayLibECS.Components;
@@ -19,4 +20,6 @@ public abstract class Vertex2D
     }
 
     public abstract bool CollidesWith(CollisionDetectionSystem2D system, Position2 pos1, Vertex2D collider , Position2 pos2);
+
+    public abstract dynamic GetShapeAsType();
 }

@@ -15,4 +15,5 @@ public abstract class System
     public abstract void Update(float delta,InputState input);
 
     public abstract void Detach();
+    public abstract void Stop();
 }

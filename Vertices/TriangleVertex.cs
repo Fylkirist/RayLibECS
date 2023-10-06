@@ -31,4 +31,9 @@ public class TriangleVertex : Vertex2D
             _ => false
         };
     }
+
+    public override dynamic GetShapeAsType()
+    {
+        return this;
+    }
 }

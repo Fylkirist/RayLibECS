@@ -46,6 +46,11 @@ public class RenderingSystem3D : System
         CleanupCameraEntity();
     }
 
+    public override void Stop()
+    {
+        _active = false;
+    }
+
     private void InitializeNewCamera(){
         var initCam = World.CreateEntity("camera"); ;
         var cameraComp = World.CreateComponent<Camera3>();

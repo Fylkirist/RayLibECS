@@ -75,6 +75,12 @@ public class CollisionDetectionSystem2D : System
     public override void Detach()
     {
         _active = false;
+        World.RemoveSystem(this);
+    }
+
+    public override void Stop()
+    {
+        _active = false;
     }
 
     public override void Initialize()
