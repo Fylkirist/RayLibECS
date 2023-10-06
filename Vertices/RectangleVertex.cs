@@ -46,4 +46,9 @@ public class RectangleVertex : Vertex2D
             _ => false
         };
     }
+
+    public override dynamic GetShapeAsType()
+    {
+        return this;
+    }
 }

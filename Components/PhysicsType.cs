@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RayLibECS.Systems;
 
 namespace RayLibECS.Components;
 
-public class Mass : Component
+internal class PhysicsType : Component
 {
-    public double Kgs;
-    public Mass()
+    public PhysicsType2D Type;
+    public PhysicsType()
     {
-        Kgs = 0;
+        Type = PhysicsType2D.Dynamic;
     }
 }

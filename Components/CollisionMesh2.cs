@@ -16,10 +16,12 @@ internal class CollisionMesh2 : Component
     public List<Vertex2D> Vertices;
     private Circle? _boundingCircle;
     public float Rotation;
+    public float Absorption;
     public CollisionMesh2()
     {
         Vertices = new List<Vertex2D>();
         Rotation = 0;
+        Absorption = 0;
     }
 
     public Circle GetBoundingCircle()

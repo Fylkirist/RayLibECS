@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using RayLibECS.Components;
+using RayLibECS.Entities;
+using RayLibECS.Vertices;
 
 namespace RayLibECS.Systems;
 
@@ -42,6 +45,11 @@ internal class PhysicsSystem2D : System
         
     }
 
+    public override void Stop()
+    {
+        _active = false;
+    }
+
     private void HandleAcceleration(float delta)
     {
         foreach (var position in World.GetComponents<Position2>())
@@ -57,11 +65,54 @@ internal class PhysicsSystem2D : System
         foreach (var collisionEvent in collisions)
         {
             var ownerEntity = collisionEvent.Owner;
-            if(ownerEntity.Tag == "Kinematic") continue;
             var colidee = collisionEvent.Collider;
-            
+            var velocityDelta = (Vector2)CalculateCollisionPhysics(
+                collisionEvent.Vertices[0].GetShapeAsType(),
+                ownerEntity,
+                collisionEvent.Vertices[1].GetShapeAsType(),
+                colidee);
         }
+    }
 
+    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle1, Entity colliderEntity, TriangleVertex triangle2, Entity collideEntity)
+    {
+        
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle, Entity colliderEntity, CircleVertex circle, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle, Entity colliderEntity, RectangleVertex rectangle, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+
+    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle1, Entity colliderEntity, RectangleVertex rectangle2, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle, Entity colliderEntity, CircleVertex circle, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+
+    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle, Entity colliderEntity, TriangleVertex triangle,
+        Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(CircleVertex circle1, Entity colliderEntity, CircleVertex circle2, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(CircleVertex circle, Entity colliderEntity,RectangleVertex rectangle, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(CircleVertex circle, Entity colliderEntity, TriangleVertex triangle, Entity collideEntity)
+    {
+        return Vector2.Zero;
     }
 
     private void HandleGravity(float delta)
@@ -78,4 +129,12 @@ internal class PhysicsSystem2D : System
             position.Speed.Y += _gravity * _scale * delta;
         }
     }
+}
+
+
+public enum PhysicsType2D
+{
+    Kinematic,
+    Dynamic,
+    Static
 }

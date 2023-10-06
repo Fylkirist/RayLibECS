@@ -87,6 +87,11 @@ internal class RenderingSystem2D:System
         World.RemoveSystem(this);
     }
 
+    public override void Stop()
+    {
+        throw new NotImplementedException();
+    }
+
     private void Initialize2DCamera()
     {
         var newCam = World.CreateEntity("camera");

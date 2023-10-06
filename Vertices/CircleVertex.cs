@@ -31,4 +31,9 @@ public class CircleVertex : Vertex2D
             _ => false
         };
     }
+
+    public override dynamic GetShapeAsType()
+    {
+        return this;
+    }
 }

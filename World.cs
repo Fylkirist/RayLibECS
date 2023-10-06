@@ -193,6 +193,11 @@ public class World
         
     }
 
+    public void StopSystem<T>()
+    {
+        
+    }
+
     public IEnumerable<T> GetComponents<T>()
     {
         return _components.OfType<T>();
