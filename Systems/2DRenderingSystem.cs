@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
+using RayLibECS.Shapes;
 
 namespace RayLibECS.Systems;
 
-internal class RenderingSystem2D:System
+internal class RenderingSystem2D:SystemBase
 {
     private Entity _currentCamera;
     private bool _active;
@@ -25,41 +26,25 @@ internal class RenderingSystem2D:System
         if(!_active) return;
         var activeCamera = GetActiveCamera();
         Raylib.BeginMode2D(activeCamera.Position);
-        var renderables = World.GetComponents(RenderingModes.TwoD)
-            .Cast<RenderableComponent>()
-            .OrderBy(c => c.Z)
-            .ToArray();
-        foreach (var component in renderables)
+        var renderables = new List<RenderableComponent>();
+        renderables.AddRange(World.GetComponents<ColouredMesh2>());
+        foreach (var mesh in renderables)
         {
-            var entity = component.Owner;
-            var position = entity.Components.OfType<Position2>().FirstOrDefault();
-
-            if (position == null)
-                continue;
-            
-            switch (component)
+            switch (mesh)
             {
-                case DrawableCircle circle:
-                    Raylib.DrawCircle((int)position.Position.X, (int)position.Position.Y,circle.Radius,circle.Colour);
-                    break;
-                case DrawableRectangle rectangle:
-                    Raylib.DrawRectangle((int)rectangle.Rect.x,(int)rectangle.Rect.y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
-                    break;
-                case DrawableTriangle2D triangle:
-                    Raylib.DrawTriangle(triangle.Points[0],triangle.Points[1],triangle.Points[2],triangle.Colour);
+                case ColouredMesh2 mesh2:
+                    RenderMesh(mesh2);
                     break;
             }
         }
-
-        Raylib.EndMode2D();
     }
 
-    public override void Update(float delta, InputState input)
+    public override void Update(float delta)
     {
         
         if(!_active) return;
         var activeCam = GetActiveCamera();
-        foreach (var key in input.PressedKeys)
+        foreach (var key in World.InputState.PressedKeys)
         {
             if (key == KeyboardKey.KEY_RIGHT)
             {
@@ -110,7 +95,7 @@ internal class RenderingSystem2D:System
 
     private Camera2 GetActiveCamera()
     {
-        var camera = World.GetComponents(_currentCamera).OfType<Camera2>().FirstOrDefault();
+        var camera = World.QueryComponent<Camera2>(_currentCamera);
         return camera ?? new Camera2(_currentCamera);
     }
 
@@ -118,5 +103,27 @@ internal class RenderingSystem2D:System
     {
         _currentCamera = new Entity(0, "");
         _active = false;
+    }
+
+    private void RenderMesh(ColouredMesh2 mesh)
+    {
+        var position = World.QueryComponent<Physics2>(mesh.Owner);
+        if (position == null) return;
+        for (int i = 0; i < mesh.Mesh.Shapes.Count; i++)
+        {
+            var shape = mesh.Mesh.Shapes[i];
+            var colour = i < mesh.Colours.Count ? mesh.Colours[i] : mesh.Colours[^1];
+            switch (shape)
+            {
+                case CircleGeometry circle:
+                    var circleCenter = Vector2.Transform(position.Position + circle.Offset, Matrix3x2.CreateRotation(position.Rotation, position.Position));
+                    Raylib.DrawCircle((int)circleCenter.X,(int)circleCenter.Y,circle.Radius,colour);
+                    break;
+                case RectangleGeometry rectangle: 
+                    break;
+                case TriangleGeometry triangle:
+                    break;
+            }
+        }
     }
 }

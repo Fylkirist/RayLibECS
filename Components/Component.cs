@@ -13,6 +13,6 @@ public abstract class Component
 
     protected Component()
     {
-        Owner = new Entity(0, "");
+        Owner = Entity.Placeholder;
     }
 }

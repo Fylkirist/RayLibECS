@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using RayLibECS.Components;
 using RayLibECS.Entities;
-using RayLibECS.Vertices;
+using RayLibECS.Shapes;
 
 namespace RayLibECS.Systems;
 
-internal class PhysicsSystem2D : System
+internal class PhysicsSystem2D : SystemBase
 {
     private float _gravity;
     private bool _active;
@@ -33,7 +33,7 @@ internal class PhysicsSystem2D : System
         
     }
 
-    public override void Update(float delta, InputState input)
+    public override void Update(float delta)
     {
         if (!_active) return; 
         HandleCollisions(delta);
@@ -52,10 +52,10 @@ internal class PhysicsSystem2D : System
 
     private void HandleAcceleration(float delta)
     {
-        foreach (var position in World.GetComponents<Position2>())
+        foreach (var position in World.GetComponents<Physics2>())
         {
-            position.Position.Y += position.Speed.Y * delta;
-            position.Position.X += position.Speed.X * delta;
+            position.Position.Y += position.Velocity.Y * delta;
+            position.Position.X += position.Velocity.X * delta;
         }
     }
 
@@ -74,67 +74,56 @@ internal class PhysicsSystem2D : System
         }
     }
 
-    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle1, Entity colliderEntity, TriangleVertex triangle2, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(TriangleGeometry triangle1, Entity colliderEntity, TriangleGeometry triangle2, Entity collideEntity)
     {
         
         return Vector2.Zero;
     }
-    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle, Entity colliderEntity, CircleVertex circle, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(TriangleGeometry triangle, Entity colliderEntity, CircleGeometry circle, Entity collideEntity)
     {
         return Vector2.Zero;
     }
-    private Vector2 CalculateCollisionPhysics(TriangleVertex triangle, Entity colliderEntity, RectangleVertex rectangle, Entity collideEntity)
-    {
-        return Vector2.Zero;
-    }
-
-    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle1, Entity colliderEntity, RectangleVertex rectangle2, Entity collideEntity)
-    {
-        return Vector2.Zero;
-    }
-    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle, Entity colliderEntity, CircleVertex circle, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(TriangleGeometry triangle, Entity colliderEntity, RectangleGeometry rectangle, Entity collideEntity)
     {
         return Vector2.Zero;
     }
 
-    private Vector2 CalculateCollisionPhysics(RectangleVertex rectangle, Entity colliderEntity, TriangleVertex triangle,
+    private Vector2 CalculateCollisionPhysics(RectangleGeometry rectangle1, Entity colliderEntity, RectangleGeometry rectangle2, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+    private Vector2 CalculateCollisionPhysics(RectangleGeometry rectangle, Entity colliderEntity, CircleGeometry circle, Entity collideEntity)
+    {
+        return Vector2.Zero;
+    }
+
+    private Vector2 CalculateCollisionPhysics(RectangleGeometry rectangle, Entity colliderEntity, TriangleGeometry triangle,
         Entity collideEntity)
     {
         return Vector2.Zero;
     }
-    private Vector2 CalculateCollisionPhysics(CircleVertex circle1, Entity colliderEntity, CircleVertex circle2, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(CircleGeometry circle1, Entity colliderEntity, CircleGeometry circle2, Entity collideEntity)
     {
-        var circle1Pos = colliderEntity.Components.OfType<Position2>().First();
-        var circle1Mass = colliderEntity.Components.OfType<Mass>().FirstOrDefault();
-        var circle1Type = colliderEntity.Components.OfType<PhysicsType2>().FirstOrDefault();
-        
-        var circle2Pos = collideEntity.Components.OfType<Position2>().First();
-        var circle2mass = collideEntity.Components.OfType<Mass>().FirstOrDefault();
-        var circle2Type = collideEntity.Components.OfType<PhysicsType2>().FirstOrDefault();
 
         return Vector2.Zero;
     }
-    private Vector2 CalculateCollisionPhysics(CircleVertex circle, Entity colliderEntity,RectangleVertex rectangle, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity,RectangleGeometry rectangle, Entity collideEntity)
     {
         return Vector2.Zero;
     }
-    private Vector2 CalculateCollisionPhysics(CircleVertex circle, Entity colliderEntity, TriangleVertex triangle, Entity collideEntity)
+    private Vector2 CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity, TriangleGeometry triangle, Entity collideEntity)
     {
         return Vector2.Zero;
     }
 
     private void HandleGravity(float delta)
     {
-        var massiveEntities = World.GetEntitiesWith<Mass>();
-        foreach (var entity in massiveEntities)
+        foreach (var physics in World.GetComponents<Physics2>())
         {
-            var mass = entity.Components.OfType<Mass>().FirstOrDefault();
-            var position = entity.Components.OfType<Position2>().FirstOrDefault();
-            if (mass == null || position == null)
+            if (physics.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic)
             {
-                continue;
+                physics.Velocity.Y += _gravity * _scale * delta;
             }
-            position.Speed.Y += _gravity * _scale * delta;
         }
     }
 }
@@ -144,5 +133,6 @@ public enum PhysicsType2D
 {
     Kinematic,
     Dynamic,
-    Static
+    Static,
+    Ethereal
 }
