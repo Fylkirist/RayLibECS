@@ -31,7 +31,7 @@ public class CollisionDetectionSystem2D : SystemBase
                     var collisionEvent = World.CreateComponent<CollisionEvent>();
                     collisionEvent.Vertices = colliders;
                     collisionEvent.Collider = colliderMesh.Owner;
-                    World.AttachComponent(collisionMesh.Owner, collisionEvent);
+                    World.AttachComponents(collisionMesh.Owner, collisionEvent);
                     break;
                 };
             }

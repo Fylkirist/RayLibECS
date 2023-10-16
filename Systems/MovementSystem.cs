@@ -20,7 +20,7 @@ public class MovementSystem : SystemBase
         var entity = World.CreateEntity("Moveable");
         var moveable = World.CreateComponent<Moveable>();
 
-        World.AttachComponent(entity, moveable);
+        World.AttachComponents(entity, moveable);
     }
 
     public override void Draw()

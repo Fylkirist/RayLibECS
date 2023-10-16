@@ -21,9 +21,9 @@ public class World
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
 
-    private List<Systems.SystemBase> _systems;
+    private List<SystemBase> _systems;
 
-    private List<Component> _cachedComponents;
+    private List<Component> _componentCache;
 
     private InputState _inputState;
     public InputState InputState => _inputState;
@@ -33,19 +33,35 @@ public class World
     {
         _componentTable = new Dictionary<Type, Component?[]>();
         _entities = new List<Entity>();
-        _systems = new List<Systems.SystemBase>();
-        _cachedComponents = new List<Component>();
+        _systems = new List<SystemBase>();
+        _componentCache = new List<Component>();
         _inputState = new InputState();
         _entityLimit = 1000;
     }
 
     public void InitializeWorld()
     {
+        var testEntity1 = CreateEntity("");
+
+        var testRender1 = CreateComponent<ColouredMesh2>();
+        
+        testRender1.Colours.Add(Color.WHITE);
+        testRender1.Colours.Add(Color.BLUE);
+
+        testRender1.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        testRender1.Mesh.Shapes.Add(new CircleGeometry(200, new Vector2(200, 200)));
+
+        var testPhysics1 = CreateComponent<Physics2>();
+
+        testPhysics1.PhysicsType = PhysicsType2D.Static;
+        testPhysics1.Rotation = 160f;
+        testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(400,Vector2.Zero));
+
+        AttachComponents(testEntity1,CreateComponent<Moveable>(),testPhysics1,testRender1);
+
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));
-
-
         AddSystem(new MovementSystem(this));
     }
 
@@ -93,7 +109,7 @@ public class World
             usedIds.Add(e.Id);
         }
 
-        int newId = 1;
+        int newId = 0;
         while (usedIds.Contains(newId))
         {
             newId++;
@@ -105,10 +121,10 @@ public class World
 
     public T CreateComponent<T>() where T : Component, new()
     {
-        var cached = _cachedComponents.OfType<T>().FirstOrDefault();
+        var cached = _componentCache.OfType<T>().FirstOrDefault();
         if (cached != null)
         {
-            _cachedComponents.Remove(cached);
+            _componentCache.Remove(cached);
             return cached;
         }
 
@@ -121,33 +137,36 @@ public class World
         throw new InvalidOperationException($"Type {typeof(T)} is not a valid Component type.");
     }
 
-    public void AttachComponent(Entity entity,Component component)
+    public void AttachComponents(Entity entity,params Component[] components)
     {
-        component.Owner = entity;
-        if (!_componentTable.ContainsKey(component.GetType()))
+        foreach (var component in components)
         {
-            _componentTable.Add(component.GetType(),new Component[_entityLimit]);
+            component.Owner = entity;
+            if (!_componentTable.ContainsKey(component.GetType()))
+            {
+                _componentTable.Add(component.GetType(),new Component[_entityLimit]);
+            }
+            _componentTable[component.GetType()][entity.Id] = component;
         }
-        _componentTable[component.GetType()][entity.Id] = component;
     }
 
     public void DetachComponent(Component component)
     {
         _componentTable[component.GetType()][component.Owner.Id] = null;
-        _cachedComponents.Add(component);
-        if (_cachedComponents.Count > 1000)
+        _componentCache.Add(component);
+        if (_componentCache.Count > 1000)
         {
-            _cachedComponents.RemoveAt(0);
+            _componentCache.RemoveAt(0);
         }
     }
 
-    public void AddSystem(Systems.SystemBase systemBase)
+    public void AddSystem(SystemBase system)
     {
-        _systems.Add(systemBase);
-        systemBase.Initialize();
+        _systems.Add(system);
+        system.Initialize();
     }
 
-    public void RemoveSystem(Systems.SystemBase systemBase)
+    public void RemoveSystem(SystemBase system)
     {
         
     }
@@ -170,7 +189,7 @@ public class World
 
     public IEnumerable<T> GetComponents<T>()
     {
-        return _componentTable[typeof(T)].Cast<T>().Where(e=>e!=null);
+        return !_componentTable.ContainsKey(typeof(T)) ? Array.Empty<T>() : _componentTable[typeof(T)].Cast<T>().Where(e=>e!=null);
     }
 
     public IEnumerable<Component> GetComponents(int id)

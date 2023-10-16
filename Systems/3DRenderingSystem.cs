@@ -57,7 +57,7 @@ public class RenderingSystem3D : SystemBase
         var initCam = World.CreateEntity("camera"); ;
         var cameraComp = World.CreateComponent<Camera3>();
         cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
-        World.AttachComponent(initCam,cameraComp);
+        World.AttachComponents(initCam,cameraComp);
         _currentCamera = initCam;
     }
 
