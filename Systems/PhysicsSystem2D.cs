@@ -104,6 +104,14 @@ internal class PhysicsSystem2D : System
     }
     private Vector2 CalculateCollisionPhysics(CircleVertex circle1, Entity colliderEntity, CircleVertex circle2, Entity collideEntity)
     {
+        var circle1Pos = colliderEntity.Components.OfType<Position2>().First();
+        var circle1Mass = colliderEntity.Components.OfType<Mass>().FirstOrDefault();
+        var circle1Type = colliderEntity.Components.OfType<PhysicsType2>().FirstOrDefault();
+        
+        var circle2Pos = collideEntity.Components.OfType<Position2>().First();
+        var circle2mass = collideEntity.Components.OfType<Mass>().FirstOrDefault();
+        var circle2Type = collideEntity.Components.OfType<PhysicsType2>().FirstOrDefault();
+
         return Vector2.Zero;
     }
     private Vector2 CalculateCollisionPhysics(CircleVertex circle, Entity colliderEntity,RectangleVertex rectangle, Entity collideEntity)

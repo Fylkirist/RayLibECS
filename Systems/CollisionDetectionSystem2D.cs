@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Vertices;

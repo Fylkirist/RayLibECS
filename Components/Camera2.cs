@@ -16,7 +16,7 @@ internal class Camera2 : Component
         Position = new Camera2D();
     }
 
-    public Camera2() : base()
+    public Camera2()
     {
         Position = new Camera2D();
     }

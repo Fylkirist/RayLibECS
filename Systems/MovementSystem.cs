@@ -39,6 +39,11 @@ public class MovementSystem : System
         
     }
 
+    public override void Stop()
+    {
+
+    }
+
     public override void Update(float delta, InputState input)
     {
         var moveables = World.GetEntitiesWith<Moveable>();
