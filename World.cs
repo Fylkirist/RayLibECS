@@ -50,14 +50,30 @@ public class World
 
         testRender1.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
         testRender1.Mesh.Shapes.Add(new CircleGeometry(200, new Vector2(200, 200)));
+        testRender1.Mesh.Shapes.Add(new TriangleGeometry(new Vector2[]
+        {
+            new (0,0),
+            new (-100,-100),
+            new (-100,0)
+        },
+            new Vector2(-100,-100),
+            0
+        ));
+        testRender1.Mesh.Shapes.Add(new RectangleGeometry(new Rectangle(0,0,200,200),2,new Vector2(-500,0)));
 
         var testPhysics1 = CreateComponent<Physics2>();
 
         testPhysics1.PhysicsType = PhysicsType2D.Static;
-        testPhysics1.Rotation = 160f;
+        testPhysics1.Rotation = 0f;
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(400,Vector2.Zero));
+        testPhysics1.RotationSpeed = 1f;
 
-        AttachComponents(testEntity1,CreateComponent<Moveable>(),testPhysics1,testRender1);
+        AttachComponents(
+            testEntity1,
+            CreateComponent<Moveable>(),
+            testPhysics1,
+            testRender1
+            );
 
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));

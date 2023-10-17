@@ -49,23 +49,21 @@ internal class RenderingSystem2D:SystemBase
         var activeCam = GetActiveCamera();
         foreach (var key in World.InputState.PressedKeys)
         {
-            if (key == KeyboardKey.KEY_RIGHT)
+            switch (key)
             {
-                activeCam.Position.target.X += delta*100;
+                case KeyboardKey.KEY_RIGHT:
+                    activeCam.Position.target.X += delta*1000;
+                    break;
+                case KeyboardKey.KEY_LEFT:
+                    activeCam.Position.target.X -= delta*1000;
+                    break;
+                case KeyboardKey.KEY_UP:
+                    activeCam.Position.target.Y -= delta*1000;
+                    break;
+                case KeyboardKey.KEY_DOWN:
+                    activeCam.Position.target.Y += delta*1000;
+                    break;
             }
-
-            if (key == KeyboardKey.KEY_LEFT)
-            {
-                activeCam.Position.target.X -= delta*100;
-            }
-
-            if (key == KeyboardKey.KEY_UP)
-            {
-                activeCam.Position.target.Y -= delta*100;
-            }
-
-            if (key == KeyboardKey.KEY_DOWN)
-                activeCam.Position.target.Y += delta*100;
         }
     }
 
@@ -110,7 +108,15 @@ internal class RenderingSystem2D:SystemBase
         for (int i = 0; i < mesh.Mesh.Shapes.Count; i++)
         {
             var shape = mesh.Mesh.Shapes[i];
-            var colour = i < mesh.Colours.Count ? mesh.Colours[i] : mesh.Colours[^1];
+            Color colour;
+            if (mesh.Colours.Count == 0)
+            {
+                colour = Color.WHITE;
+            }
+            else
+            {
+                colour = i < mesh.Colours.Count ? mesh.Colours[i] : mesh.Colours[^1];
+            }
             switch (shape)
             {
                 case CircleGeometry circle:
@@ -118,21 +124,36 @@ internal class RenderingSystem2D:SystemBase
                     Raylib.DrawCircle((int)circleCenter.X,(int)circleCenter.Y,circle.Radius,colour);
                     break;
                 case RectangleGeometry rectangle:
-                    var rectangleCenter = Vector2.Transform(position.Position + rectangle.Offset,
-                        Matrix3x2.CreateRotation(position.Rotation, position.Position));
-                    Raylib.DrawRectanglePro(
-                        new Rectangle(rectangleCenter.X,rectangleCenter.Y,rectangle.Vertex.width,rectangle.Vertex.height),
-                        rectangleCenter,
-                        rectangle.Rotation+position.Rotation,
-                        colour);
+                    var rectangleCenter = Vector2.Transform(rectangle.Offset + position.Position,Matrix3x2.CreateRotation(position.Rotation,position.Position));
+
+                    var topLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation+rectangle.Rotation,rectangleCenter));
+                    
+                    var topRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+                    
+                    var bottomRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+                    
+                    var bottomLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+
+                    Raylib.DrawTriangle(topLeft,bottomRight,topRight,colour);
+                    Raylib.DrawTriangle(bottomLeft,bottomRight ,topLeft , colour);
+
                     break;
                 case TriangleGeometry triangle:
                     var triangleCenter = Vector2.Transform(position.Position + triangle.Offset,
-                        Matrix3x2.CreateRotation(position.Rotation));
+                        Matrix3x2.CreateRotation(position.Rotation,position.Position));
+
                     var transformedTriangle = new Vector2[3];
                     for (int j = 0; j < triangle.Points.Length; j++)
                     {
-                        transformedTriangle[j] = Vector2.Transform(triangle.Points[j]+triangleCenter,Matrix3x2.CreateRotation(triangle.Rotation,triangleCenter));
+                        transformedTriangle[j] = Vector2.Transform(triangle.Points[j]+triangleCenter,Matrix3x2.CreateRotation(triangle.Rotation+position.Rotation,triangleCenter));
                     }
                     Raylib.DrawTriangle(transformedTriangle[0], transformedTriangle[1], transformedTriangle[2],colour);
                     break;

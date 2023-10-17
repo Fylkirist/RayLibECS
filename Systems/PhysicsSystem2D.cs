@@ -56,6 +56,8 @@ internal class PhysicsSystem2D : SystemBase
         {
             position.Position.Y += position.Velocity.Y * delta;
             position.Position.X += position.Velocity.X * delta;
+            position.Rotation += position.RotationSpeed * delta;
+            if (position.Rotation > Math.PI * 2) position.Rotation -= (float)Math.PI * 2;
         }
     }
 
