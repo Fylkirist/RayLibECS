@@ -35,6 +35,9 @@ internal class RenderingSystem2D:SystemBase
                 case ColouredMesh2 mesh2:
                     RenderMesh(mesh2);
                     break;
+                case AnimatedSprite2 anim2:
+                    RenderSprite(anim2);
+                    break;
             }
         }
     }
@@ -69,7 +72,7 @@ internal class RenderingSystem2D:SystemBase
     public override void Detach()
     {
         _active = false;
-        CleanupCameraEntity();
+        World.DestroyEntity(_currentCamera);
         World.RemoveSystem(this);
     }
 
@@ -88,11 +91,6 @@ internal class RenderingSystem2D:SystemBase
         World.AttachComponents(newCam,camPosition);
     }
 
-    private void CleanupCameraEntity()
-    {
-        World.DestroyEntity(_currentCamera);
-    }
-
     private Camera2 GetActiveCamera()
     {
         var camera = World.QueryComponent<Camera2>(_currentCamera);
@@ -101,7 +99,7 @@ internal class RenderingSystem2D:SystemBase
 
     public RenderingSystem2D(World world) : base(world)
     {
-        _currentCamera = new Entity(0, "");
+        _currentCamera = Entity.Placeholder;
         _active = false;
     }
 
@@ -119,11 +117,32 @@ internal class RenderingSystem2D:SystemBase
                     var circleCenter = Vector2.Transform(position.Position + circle.Offset, Matrix3x2.CreateRotation(position.Rotation, position.Position));
                     Raylib.DrawCircle((int)circleCenter.X,(int)circleCenter.Y,circle.Radius,colour);
                     break;
-                case RectangleGeometry rectangle: 
+                case RectangleGeometry rectangle:
+                    var rectangleCenter = Vector2.Transform(position.Position + rectangle.Offset,
+                        Matrix3x2.CreateRotation(position.Rotation, position.Position));
+                    Raylib.DrawRectanglePro(
+                        new Rectangle(rectangleCenter.X,rectangleCenter.Y,rectangle.Vertex.width,rectangle.Vertex.height),
+                        rectangleCenter,
+                        rectangle.Rotation+position.Rotation,
+                        colour);
                     break;
                 case TriangleGeometry triangle:
+                    var triangleCenter = Vector2.Transform(position.Position + triangle.Offset,
+                        Matrix3x2.CreateRotation(position.Rotation));
+                    var transformedTriangle = new Vector2[3];
+                    for (int j = 0; j < triangle.Points.Length; j++)
+                    {
+                        transformedTriangle[j] = Vector2.Transform(triangle.Points[j]+triangleCenter,Matrix3x2.CreateRotation(triangle.Rotation,triangleCenter));
+                    }
+                    Raylib.DrawTriangle(transformedTriangle[0], transformedTriangle[1], transformedTriangle[2],colour);
                     break;
             }
         }
+    }
+    
+    private void RenderSprite(AnimatedSprite2 sprite){
+        var position = World.QueryComponent<Physics2>(sprite.Owner);
+        if(position==null) return;
+        Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState],sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
     }
 }
