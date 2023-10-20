@@ -25,7 +25,7 @@ public class CollisionDetectionSystem2D : SystemBase
             foreach (Physics2 colliderMesh in physicsComponents)
             {
                 if(collisionMesh == colliderMesh) continue;
-                if(World.QueryComponent<CollisionEvent>(collisionMesh.Owner) != null) break;
+                if(World.QueryComponent<CollisionEvent>(collisionMesh.Owner) != null) continue;
                 if (CheckMeshCollision(collisionMesh, colliderMesh, out Geometry2D[] colliders))
                 {
                     var collisionEvent = World.CreateComponent<CollisionEvent>();
