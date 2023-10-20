@@ -118,16 +118,14 @@ internal class PhysicsSystem2D : SystemBase
         }
 
         var circle1Center = Vector2.Transform(physicsComponent1.Position + circle1.Offset,
-            Matrix3x2.CreateRotation(physicsComponent1.Rotation) *
-            Matrix3x2.CreateTranslation(physicsComponent1.Position));
+            Matrix3x2.CreateRotation(physicsComponent1.Rotation,physicsComponent1.Position));
 
         var circle2Center = Vector2.Transform(physicsComponent2.Position + circle2.Offset,
-            Matrix3x2.CreateRotation(physicsComponent2.Rotation) *
-            Matrix3x2.CreateTranslation(physicsComponent2.Position));
+            Matrix3x2.CreateRotation(physicsComponent2.Rotation,physicsComponent2.Position));
 
         var collisionNormal = Vector2.Normalize(circle1Center - circle2Center);
         var relativeVelocity = physicsComponent1.Velocity - physicsComponent2.Velocity;
-        var overlap = ((circle1Center - circle2Center).Length() - (circle1.Radius + circle2.Radius));
+        var overlap = -((circle1Center - circle2Center).Length() - (circle1.Radius + circle2.Radius));
         if (overlap > 0)
         {
             var movement = (0.5f * collisionNormal) * overlap;
