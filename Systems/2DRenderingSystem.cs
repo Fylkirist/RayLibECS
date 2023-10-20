@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
+using RayLibECS.Shapes;
 
 namespace RayLibECS.Systems;
 
-internal class RenderingSystem2D:System
+internal class RenderingSystem2D:SystemBase
 {
     private Entity _currentCamera;
     private bool _active;
@@ -25,66 +26,51 @@ internal class RenderingSystem2D:System
         if(!_active) return;
         var activeCamera = GetActiveCamera();
         Raylib.BeginMode2D(activeCamera.Position);
-        var renderables = World.GetComponents(RenderingModes.TwoD)
-            .Cast<RenderableComponent>()
-            .OrderBy(c => c.Z)
-            .ToArray();
-        foreach (var component in renderables)
+        var renderables = new List<RenderableComponent>();
+        renderables.AddRange(World.GetComponents<ColouredMesh2>());
+        foreach (var mesh in renderables)
         {
-            var entity = component.Owner;
-            var position = entity.Components.OfType<Position2>().FirstOrDefault();
-
-            if (position == null)
-                continue;
-            
-            switch (component)
+            switch (mesh)
             {
-                case DrawableCircle circle:
-                    Raylib.DrawCircle((int)position.Position.X, (int)position.Position.Y,circle.Radius,circle.Colour);
+                case ColouredMesh2 mesh2:
+                    RenderMesh(mesh2);
                     break;
-                case DrawableRectangle rectangle:
-                    Raylib.DrawRectangle((int)rectangle.Rect.x,(int)rectangle.Rect.y,(int)rectangle.Rect.width,(int)rectangle.Rect.height,rectangle.Colour);
-                    break;
-                case DrawableTriangle2D triangle:
-                    Raylib.DrawTriangle(triangle.Points[0],triangle.Points[1],triangle.Points[2],triangle.Colour);
+                case AnimatedSprite2 anim2:
+                    RenderSprite(anim2);
                     break;
             }
         }
-
-        Raylib.EndMode2D();
     }
 
-    public override void Update(float delta, InputState input)
+    public override void Update(float delta)
     {
         
         if(!_active) return;
         var activeCam = GetActiveCamera();
-        foreach (var key in input.PressedKeys)
+        foreach (var key in World.InputState.PressedKeys)
         {
-            if (key == KeyboardKey.KEY_RIGHT)
+            switch (key)
             {
-                activeCam.Position.target.X += delta*100;
+                case KeyboardKey.KEY_RIGHT:
+                    activeCam.Position.target.X += delta*1000;
+                    break;
+                case KeyboardKey.KEY_LEFT:
+                    activeCam.Position.target.X -= delta*1000;
+                    break;
+                case KeyboardKey.KEY_UP:
+                    activeCam.Position.target.Y -= delta*1000;
+                    break;
+                case KeyboardKey.KEY_DOWN:
+                    activeCam.Position.target.Y += delta*1000;
+                    break;
             }
-
-            if (key == KeyboardKey.KEY_LEFT)
-            {
-                activeCam.Position.target.X -= delta*100;
-            }
-
-            if (key == KeyboardKey.KEY_UP)
-            {
-                activeCam.Position.target.Y -= delta*100;
-            }
-
-            if (key == KeyboardKey.KEY_DOWN)
-                activeCam.Position.target.Y += delta*100;
         }
     }
 
     public override void Detach()
     {
         _active = false;
-        CleanupCameraEntity();
+        World.DestroyEntity(_currentCamera);
         World.RemoveSystem(this);
     }
 
@@ -100,23 +86,84 @@ internal class RenderingSystem2D:System
 
         var camPosition = World.CreateComponent<Camera2>();
         camPosition.Position = new Camera2D(new Vector2(Raylib.GetScreenWidth()/2,Raylib.GetScreenHeight()/2), new Vector2(0,0), 0, 1);
-        World.AttachComponent(newCam,camPosition);
-    }
-
-    private void CleanupCameraEntity()
-    {
-        World.DestroyEntity(_currentCamera);
+        World.AttachComponents(newCam,camPosition);
     }
 
     private Camera2 GetActiveCamera()
     {
-        var camera = World.GetComponents(_currentCamera).OfType<Camera2>().FirstOrDefault();
+        var camera = World.QueryComponent<Camera2>(_currentCamera);
         return camera ?? new Camera2(_currentCamera);
     }
 
     public RenderingSystem2D(World world) : base(world)
     {
-        _currentCamera = new Entity(0, "");
+        _currentCamera = Entity.Placeholder;
         _active = false;
+    }
+
+    private void RenderMesh(ColouredMesh2 mesh)
+    {
+        var position = World.QueryComponent<Physics2>(mesh.Owner);
+        if (position == null) return;
+        for (int i = 0; i < mesh.Mesh.Shapes.Count; i++)
+        {
+            var shape = mesh.Mesh.Shapes[i];
+            Color colour;
+            if (mesh.Colours.Count == 0)
+            {
+                colour = Color.WHITE;
+            }
+            else
+            {
+                colour = i < mesh.Colours.Count ? mesh.Colours[i] : mesh.Colours[^1];
+            }
+            switch (shape)
+            {
+                case CircleGeometry circle:
+                    var circleCenter = Vector2.Transform(position.Position + circle.Offset, Matrix3x2.CreateRotation(position.Rotation, position.Position));
+                    Raylib.DrawCircle((int)circleCenter.X,(int)circleCenter.Y,circle.Radius,colour);
+                    break;
+                case RectangleGeometry rectangle:
+                    var rectangleCenter = Vector2.Transform(rectangle.Offset + position.Position,Matrix3x2.CreateRotation(position.Rotation,position.Position));
+
+                    var topLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation+rectangle.Rotation,rectangleCenter));
+                    
+                    var topRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+                    
+                    var bottomRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+                    
+                    var bottomLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
+                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
+
+                    Raylib.DrawTriangle(topLeft,bottomRight,topRight,colour);
+                    Raylib.DrawTriangle(bottomLeft,bottomRight ,topLeft , colour);
+
+                    break;
+                case TriangleGeometry triangle:
+                    var triangleCenter = Vector2.Transform(position.Position + triangle.Offset,
+                        Matrix3x2.CreateRotation(position.Rotation,position.Position));
+
+                    var transformedTriangle = new Vector2[3];
+                    for (int j = 0; j < triangle.Points.Length; j++)
+                    {
+                        transformedTriangle[j] = Vector2.Transform(triangle.Points[j]+triangleCenter,Matrix3x2.CreateRotation(triangle.Rotation+position.Rotation,triangleCenter));
+                    }
+                    Raylib.DrawTriangle(transformedTriangle[0], transformedTriangle[1], transformedTriangle[2],colour);
+                    break;
+            }
+        }
+    }
+    
+    private void RenderSprite(AnimatedSprite2 sprite){
+        var position = World.QueryComponent<Physics2>(sprite.Owner);
+        if(position==null) return;
+        Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState],sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
     }
 }

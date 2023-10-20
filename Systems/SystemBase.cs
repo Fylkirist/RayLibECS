@@ -1,10 +1,10 @@
 ﻿namespace RayLibECS.Systems;
 
-public abstract class System
+public abstract class SystemBase
 {
     protected World World;
 
-    protected System(World world)
+    protected SystemBase(World world)
     {
         World = world;
     }
@@ -12,7 +12,7 @@ public abstract class System
 
     public abstract void Draw();
 
-    public abstract void Update(float delta,InputState input);
+    public abstract void Update(float delta);
 
     public abstract void Detach();
     public abstract void Stop();

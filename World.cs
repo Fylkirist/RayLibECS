@@ -2,8 +2,8 @@
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
+using RayLibECS.Shapes;
 using RayLibECS.Systems;
-using RayLibECS.Vertices;
 
 namespace RayLibECS;
 
@@ -15,102 +15,115 @@ public enum RenderingModes
 }
 public class World
 {
+    private Dictionary<Type, Component?[]> _componentTable;
+    public Dictionary<Type, Component?[]> ComponentTable => _componentTable;
+
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
-    private List<Entity> _entitiesToDestroy;
-    private List<Systems.System> _systems;
-    private List<Component> _components;
-    private List<Component> _cachedComponents;
 
+    private List<SystemBase> _systems;
+
+    private List<Component> _componentCache;
+
+    private InputState _inputState;
+    public InputState InputState => _inputState;
+
+    private int _entityLimit;
     public World()
     {
+        _componentTable = new Dictionary<Type, Component?[]>();
         _entities = new List<Entity>();
-        _entitiesToDestroy = new List<Entity>();
-        _systems = new List<Systems.System>();
-        _components = new List<Component>();
-        _cachedComponents = new List<Component>();
+        _systems = new List<SystemBase>();
+        _componentCache = new List<Component>();
+        _inputState = new InputState();
+        _entityLimit = 1000;
     }
 
     public void InitializeWorld()
     {
-        var testEntity = CreateEntity("stuff");
+        var testEntity1 = CreateEntity("");
 
-        var testMass = CreateComponent<Mass>();
-        testMass.Kgs = 100;
+        var testRender1 = CreateComponent<ColouredMesh2>();
+        
+        testRender1.Colours.Add(Color.WHITE);
+        testRender1.Colours.Add(Color.BLUE);
 
-        var testRenderComponent = CreateComponent<DrawableCircle>();
-        testRenderComponent.Position = Vector2.Zero;
-        testRenderComponent.Radius = 200;
-        testRenderComponent.Colour = Color.WHITE;
+        testRender1.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        testRender1.Mesh.Shapes.Add(new TriangleGeometry(
+                    new Vector2[]{
+                        new(-200,-200),
+                        new(-200,0),
+                        new(0,0)
+                    },
+                    new Vector2(-400,0),
+                    2f
+                ));
+        var testPhysics1 = CreateComponent<Physics2>();
+        
+        testPhysics1.Velocity = new Vector2(0,0);
+        testPhysics1.PhysicsType = PhysicsType2D.Static;
+        testPhysics1.Rotation = 0f;
+        testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
+        testPhysics1.RotationSpeed = 1f;
+        testPhysics1.Position = new Vector2(-400,0);
+        testPhysics1.Mass = 10f;
 
-        var testCollisionMesh1 = CreateComponent<CollisionMesh2>();
-        testCollisionMesh1.Vertices.Add(new CircleVertex(Vector2.Zero, 200,Vector2.Zero));
-
-        var testPosition1 = CreateComponent<Position2>();
-        testPosition1.Position = new Vector2(150,150);
-
-        var testEntity2 = CreateEntity("stuff");
-
-        var testRenderComponent2 = CreateComponent<DrawableCircle>();
-        testRenderComponent2.Position = Vector2.Zero;
-        testRenderComponent2.Radius = 200;
-        testRenderComponent2.Colour = Color.WHITE;
-
-        var testCollisionMesh2 = CreateComponent<CollisionMesh2>();
-        testCollisionMesh2.Vertices.Add(new CircleVertex(Vector2.Zero, 200, Vector2.Zero));
-
-        var testPosition2 = CreateComponent<Position2>();
-        testPosition2.Position = Vector2.Zero;
-
-        var testEntity3 = CreateEntity("stuff");
-
-        var testRenderComponent3 = CreateComponent<DrawableCircle>();
-        testRenderComponent3.Position = Vector2.Zero;
-        testRenderComponent3.Radius = 200;
-        testRenderComponent3.Colour = Color.RED;
-
-        var testCollisionMesh3 = CreateComponent<CollisionMesh2>();
-        testCollisionMesh3.Vertices.Add(new CircleVertex(Vector2.Zero, 200, Vector2.Zero));
-
-        var testPosition3 = CreateComponent<Position2>();
-        testPosition3.Position = new Vector2(300,300);
-
-        AttachComponent(testEntity,testRenderComponent);
-        AttachComponent(testEntity,testCollisionMesh1);
-        AttachComponent(testEntity,testPosition1);
-        AttachComponent(testEntity,testMass);
-
-        AttachComponent(testEntity2,testCollisionMesh2);
-        AttachComponent(testEntity2, testRenderComponent2);
-        AttachComponent(testEntity2,testPosition2);
-
-        AttachComponent(testEntity3, testCollisionMesh3);
-        AttachComponent(testEntity3, testRenderComponent3);
-        AttachComponent(testEntity3, testPosition3);
+        AttachComponents(
+            testEntity1,
+            CreateComponent<Moveable>(),
+            testPhysics1,
+            testRender1
+            );
+        
+        var testEntity2 = CreateEntity("");
+        
+        var testRender2 = CreateComponent<ColouredMesh2>();
+        testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        
+        
+        testRender2.Colours.Add(Color.BLUE);
+        
+        var testPhysics2 = CreateComponent<Physics2>();
+        
+        testPhysics2.Velocity = new Vector2(0,0);
+        testPhysics2.Position = new Vector2(300,100);
+        testPhysics2.PhysicsType = PhysicsType2D.Static;
+        testPhysics2.Rotation = 0f;
+        testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
+        testPhysics2.Mass = 10f;
+        
+        AttachComponents(
+                testEntity2,
+                testPhysics2,
+                testRender2
+                );
+        
 
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));
-
-
         AddSystem(new MovementSystem(this));
     }
 
-    public void Update(float delta,InputState input)
+    public void Update(float delta)
     {
+        _inputState.Update();
         foreach (var system in _systems)
         {
-            system.Update(delta,input);
+            system.Update(delta);
         }
 
-        foreach (var entity in _entitiesToDestroy)
+        foreach (var entity in _entities.Where(entity => entity.ToBeDestroyed))
         {
-            foreach (var component in entity.Components)
+            foreach (var array in _componentTable)
             {
-                DetachComponent(component);
+                var component = array.Value[entity.Id];
+                if (component != null)
+                { 
+                    DetachComponent(component);
+                }
             }
             _entities.Remove(entity);
-            _entitiesToDestroy.Remove(entity);
         }
     }
 
@@ -125,7 +138,7 @@ public class World
 
     public void DestroyEntity(Entity entity)
     {
-        _entitiesToDestroy.Add(entity);
+        entity.ToBeDestroyed = true;
     }
 
     public Entity CreateEntity(string tag)
@@ -136,7 +149,7 @@ public class World
             usedIds.Add(e.Id);
         }
 
-        int newId = 1;
+        int newId = 0;
         while (usedIds.Contains(newId))
         {
             newId++;
@@ -148,10 +161,10 @@ public class World
 
     public T CreateComponent<T>() where T : Component, new()
     {
-        var cached = _cachedComponents.OfType<T>().FirstOrDefault();
+        var cached = _componentCache.OfType<T>().FirstOrDefault();
         if (cached != null)
         {
-            _cachedComponents.Remove(cached);
+            _componentCache.Remove(cached);
             return cached;
         }
 
@@ -164,77 +177,101 @@ public class World
         throw new InvalidOperationException($"Type {typeof(T)} is not a valid Component type.");
     }
 
-    public void AttachComponent(Entity entity,Component component)
+    public void AttachComponents(Entity entity,params Component[] components)
     {
-        if (entity.Components.Any(c=>c.GetType() == component.GetType()))
+        foreach (var component in components)
         {
-            return;
+            component.Owner = entity;
+            if (!_componentTable.ContainsKey(component.GetType()))
+            {
+                _componentTable.Add(component.GetType(),new Component[_entityLimit]);
+            }
+            _componentTable[component.GetType()][entity.Id] = component;
         }
-        component.Owner = entity;
-        _components.Add(component);
-        entity.Components.Add(component);
     }
 
     public void DetachComponent(Component component)
     {
-        _components.Remove(component);
-        _cachedComponents.Add(component);
-        if (_cachedComponents.Count > 1000)
+        _componentTable[component.GetType()][component.Owner.Id] = null;
+        _componentCache.Add(component);
+        if (_componentCache.Count > 1000)
         {
-            _cachedComponents.RemoveAt(0);
+            _componentCache.RemoveAt(0);
         }
     }
 
-    public void AddSystem(Systems.System system)
+    public void AddSystem(SystemBase system)
     {
         _systems.Add(system);
         system.Initialize();
     }
 
-    public void RemoveSystem(Systems.System system)
+    public void RemoveSystem(SystemBase system)
     {
         
     }
 
-    public void StopSystem<T>()
+    public void StopSystem<T>() where T: SystemBase
     {
         
+    }
+
+    public T? QueryComponent<T>(Entity entity) where T : Component
+    {
+        if( !_componentTable.ContainsKey(typeof(T))) return null;
+        var component = _componentTable[typeof(T)][entity.Id];
+        if (component == null)
+        {
+            return null;
+        }
+        return (T)component;
     }
 
     public IEnumerable<T> GetComponents<T>()
     {
-        return _components.OfType<T>();
+        return !_componentTable.ContainsKey(typeof(T)) ? Array.Empty<T>() : _componentTable[typeof(T)].Cast<T>().Where(e=>e!=null);
     }
 
     public IEnumerable<Component> GetComponents(int id)
     {
-        return _components.Where(c => c.Owner.Id == id);
+        var components = new List<Component>();
+        foreach (var array in _componentTable)
+        {
+            var component = array.Value[id];
+            if (component != null)
+            {
+                components.Add(component);
+            }
+        }
+        return components;
     }
 
     public IEnumerable<Component> GetComponents(string tag)
     {
-        return _components.Where(c => c.Owner.Tag == tag);
+        var components = new List<Component>();
+        foreach (var entity in Entities.Where(e => e.Tag == tag))
+        {
+            components.AddRange(GetComponents(entity));
+        }
+        return components;
     }
 
     public IEnumerable<Component> GetComponents(Entity entity)
     {
-        return entity.Components;
-    }
-
-    public IEnumerable<Component> GetComponents(RenderingModes renderMode)
-    {
-        return _components
-            .OfType<RenderableComponent>()
-            .Where(c => c.RenderingMode == renderMode);
-    }
-
-    public IEnumerable<Component> GetCollisionShapes(Type[] collisionTypes)
-    {
-        return _components.Where(c=>collisionTypes.Contains(c.GetType()));
+        var components = new List<Component>();
+        foreach (var array in _componentTable)
+        {
+            var component = array.Value[entity.Id];
+            if (component != null)
+            {
+                components.Add(component);
+            }
+        }
+        return components;
     }
 
     public IEnumerable<Entity> GetEntitiesWith<T>()
     {
-        return _entities.Where(e => e.Components.OfType<T>().Any());
+        return _entities.Where(e => _componentTable[typeof(T)][e.Id] != null);
     }
 }

@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RayLibECS.Entities;
-using RayLibECS.Vertices;
+using RayLibECS.Shapes;
 
 namespace RayLibECS.Components;
 
 internal class CollisionEvent : Component
 {
     public Entity? Collider;
-    public Vertex2D[] Vertices;
+    public Geometry2D[] Vertices;
 
     public CollisionEvent()
     {
         Collider = null;
-        Vertices = new Vertex2D[2];
+        Vertices = new Geometry2D[2];
     }
 }

@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Systems;
 
-namespace RayLibECS.Vertices;
+namespace RayLibECS.Shapes;
 
-public class RectangleVertex : Vertex2D
+public class RectangleGeometry : Geometry2D
 {
     public Rectangle Vertex;
     public float Rotation;
 
-    public RectangleVertex(Rectangle vertex, int rotation, Vector2 offset):base(offset)
+    public RectangleGeometry(Rectangle vertex, int rotation, Vector2 offset):base(offset)
     {
         Vertex = vertex;
         Rotation = rotation;
@@ -36,13 +31,13 @@ public class RectangleVertex : Vertex2D
     }
 
 
-    public override bool CollidesWith(CollisionDetectionSystem2D system, Position2 pos1, Vertex2D collider, Position2 pos2)
+    public override bool CollidesWith(CollisionDetectionSystem2D systemBase, Physics2 pos1, Geometry2D collider, Physics2 pos2)
     {
         return collider switch
         {
-            CircleVertex circle => system.DetectVertexCollision(this, pos1, circle, pos2),
-            RectangleVertex rectangle => system.DetectVertexCollision(this, pos1, rectangle, pos2),
-            TriangleVertex triangle => system.DetectVertexCollision(triangle, pos2, this, pos1),
+            CircleGeometry circle => systemBase.DetectVertexCollision(this, pos1, circle, pos2),
+            RectangleGeometry rectangle => systemBase.DetectVertexCollision(this, pos1, rectangle, pos2),
+            TriangleGeometry triangle => systemBase.DetectVertexCollision(triangle, pos2, this, pos1),
             _ => false
         };
     }

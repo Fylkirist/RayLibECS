@@ -6,13 +6,11 @@ namespace RayLibECS;
 internal class Game
 {
     private bool _running;
-    private InputState _inputState;
     private World _world;
     internal Game()
     {
         _world = new World();
         _running = true;
-        _inputState = new InputState();
     }
 
     public void Initialize()
@@ -60,8 +58,7 @@ internal class Game
 
     public void Update(float delta)
     {
-        _inputState.Update();
         if (Raylib.WindowShouldClose()) _running = false;
-        _world.Update(delta,_inputState);
+        _world.Update(delta);
     }
 }

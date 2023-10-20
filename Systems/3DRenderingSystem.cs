@@ -6,7 +6,7 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Systems;
 
-public class RenderingSystem3D : System
+public class RenderingSystem3D : SystemBase
 {
     private Entity? _currentCamera;
     private bool _active;
@@ -17,6 +17,7 @@ public class RenderingSystem3D : System
     public override void Draw()
     {
         if (!_active) return;
+        if (_currentCamera == null) return;
         var cameraComponents = World.GetComponents(_currentCamera.Id);
         foreach (var component in cameraComponents)
         {
@@ -34,9 +35,10 @@ public class RenderingSystem3D : System
         _active = true;
     }
 
-    public override void Update(float delta, InputState input)
+    public override void Update(float delta)
     {
         if(!_active) return;
+        if(_currentCamera == null) return;
         var cameraComponents = World.GetComponents(_currentCamera);
     }
 
@@ -55,12 +57,15 @@ public class RenderingSystem3D : System
         var initCam = World.CreateEntity("camera"); ;
         var cameraComp = World.CreateComponent<Camera3>();
         cameraComp.CameraMode = CameraMode.CAMERA_THIRD_PERSON;
-        World.AttachComponent(initCam,cameraComp);
+        World.AttachComponents(initCam,cameraComp);
         _currentCamera = initCam;
     }
 
     private void CleanupCameraEntity()
     {
-        World.DestroyEntity(_currentCamera);
+        if (_currentCamera != null)
+        {
+            World.DestroyEntity(_currentCamera);
+        }
     }
 }

@@ -6,12 +6,14 @@ public class Entity
 {
     public int Id;
     public string Tag;
-    public List<Component> Components;
+    public bool ToBeDestroyed;
+    private static Entity? _placeholder;
+    public static Entity Placeholder => _placeholder ??= new Entity(0,"");
 
     public Entity(int id, string tag)
     {
         Id = id;
         Tag = tag;
-        Components = new List<Component>();
+        ToBeDestroyed = false;
     }
 }

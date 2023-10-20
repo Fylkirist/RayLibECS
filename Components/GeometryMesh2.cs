@@ -4,24 +4,21 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic;
 using Raylib_cs;
+using RayLibECS.Shapes;
 using RayLibECS.Systems;
-using RayLibECS.Vertices;
 
 namespace RayLibECS.Components;
 
-internal class CollisionMesh2 : Component
+public class GeometryMesh2
 {
-    public List<Vertex2D> Vertices;
+    public List<Geometry2D> Shapes;
     private Circle? _boundingCircle;
     public float Rotation;
-    public float Absorption;
-    public CollisionMesh2()
+    public GeometryMesh2()
     {
-        Vertices = new List<Vertex2D>();
+        Shapes = new List<Geometry2D>();
         Rotation = 0;
-        Absorption = 0;
     }
 
     public Circle GetBoundingCircle()
@@ -29,17 +26,17 @@ internal class CollisionMesh2 : Component
         if (_boundingCircle.HasValue) return _boundingCircle.Value;
         var meshCentre = new Vector2(0, 0);
         var meshRadius = 0f;
-        foreach (var vertex in Vertices)
+        foreach (var vertex in Shapes)
         {
             switch (vertex)
             {
-                case CircleVertex circle:
-                    var distance = Vector2.Distance(meshCentre, circle.Center + circle.Offset) + circle.Radius;
+                case CircleGeometry circle:
+                    var distance = Vector2.Distance(meshCentre, Vector2.Zero + circle.Offset) + circle.Radius;
                     if (distance > meshRadius)
                         meshRadius = distance;
                     break;
 
-                case RectangleVertex rectangle:
+                case RectangleGeometry rectangle:
                     Vector2[] points = new Vector2[4]
                     {
                         new Vector2(rectangle.Vertex.x, rectangle.Vertex.y) + rectangle.Offset,
@@ -57,7 +54,7 @@ internal class CollisionMesh2 : Component
                     
                     break;
 
-                case TriangleVertex triangle:
+                case TriangleGeometry triangle:
                     foreach (var point in triangle.Points)
                     {
                         var pointDistance = Vector2.Distance(meshCentre, CollisionDetectionSystem2D.ApplyRotationMatrix(point+triangle.Offset,
