@@ -11,6 +11,7 @@ public class CollisionDetectionSystem2D : SystemBase
     {
         _active = false;
     }
+
     public override void Draw()
     {
         
@@ -19,13 +20,17 @@ public class CollisionDetectionSystem2D : SystemBase
     public override void Update(float delta)
     {
         if (!_active) return;
+        foreach(var leftover in World.GetComponents<CollisionEvent>()){
+            World.DetachComponent(leftover);
+        }
         var physicsComponents = World.GetComponents<Physics2>().ToList();
         foreach (Physics2 collisionMesh in physicsComponents)
         {
             foreach (Physics2 colliderMesh in physicsComponents)
             {
-                if(collisionMesh == colliderMesh) continue;
-                if(World.QueryComponent<CollisionEvent>(collisionMesh.Owner) != null) continue;
+                if(collisionMesh == colliderMesh || colliderMesh.Z != collisionMesh.Z) continue;
+                if(World.QueryComponent<CollisionEvent>(collisionMesh.Owner) != null) break;
+                if(World.QueryComponent<CollisionEvent>(colliderMesh.Owner) != null) continue;
                 if (CheckMeshCollision(collisionMesh, colliderMesh, out Geometry2D[] colliders))
                 {
                     var collisionEvent = World.CreateComponent<CollisionEvent>();

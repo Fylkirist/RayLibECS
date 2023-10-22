@@ -17,11 +17,13 @@ internal class PhysicsSystem2D : SystemBase
     private float _gravity;
     private bool _active;
     private float _scale;
+    private double _simulationDistance;
     public PhysicsSystem2D(World world) : base(world)
     {
         _gravity = 9.82f;
         _active = false;
         _scale = 50;
+        _simulationDistance = 2000;
     }
 
     public override void Initialize()
@@ -74,8 +76,6 @@ internal class PhysicsSystem2D : SystemBase
                 ownerEntity,
                 collisionEvent.Vertices[1].GetShapeAsType(),
                 colidee);
-
-            World.DetachComponent(collisionEvent);
         }
     }
 
@@ -148,12 +148,33 @@ internal class PhysicsSystem2D : SystemBase
         var radiusVector1 = new Vector3(circle1Center.X - physicsComponent1.Position.X, circle1Center.Y - physicsComponent1.Position.Y, 0);
         var radiusVector2 = new Vector3(circle2Center.X - physicsComponent2.Position.X, circle2Center.Y - physicsComponent2.Position.Y, 0);
 
-        physicsComponent1.RotationSpeed += impulse * Vector3.Cross(radiusVector1, new Vector3(collisionNormal, 0)).Z / physicsComponent1.Mass;
-        physicsComponent2.RotationSpeed -= impulse * Vector3.Cross(radiusVector2, new Vector3(collisionNormal, 0)).Z / physicsComponent2.Mass;
+        physicsComponent1.RotationSpeed += (impulse * Vector3.Cross(radiusVector1, new Vector3(collisionNormal, 0)).Z / physicsComponent1.Mass);
+        physicsComponent2.RotationSpeed -= (impulse * Vector3.Cross(radiusVector2, new Vector3(collisionNormal, 0)).Z / physicsComponent2.Mass);
 
     }
     private void CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity,RectangleGeometry rectangle, Entity collideEntity)
     {
+        var physicsComponent1 = World.QueryComponent<Physics2>(colliderEntity);
+        var physicsComponent2 = World.QueryComponent<Physics2>(collideEntity);
+
+        if (physicsComponent1 == null || physicsComponent2 == null || physicsComponent1.PhysicsType is PhysicsType2D.Ethereal)
+        {
+            return;
+        }
+
+        var circleCenter = Vector2.Transform(physicsComponent1.Position + circle.Offset,Matrix3x2.CreateRotation(physicsComponent1.Rotation,physicsComponent1.Position));
+        var rectangleCenter = Vector2.Transform(physicsComponent2.Position + rectangle.Offset,Matrix3x2.CreateRotation(physicsComponent2.Rotation,physicsComponent2.Position));
+        
+        var distance = circleCenter - rectangleCenter;
+        var collisionNormal = Vector2.Normalize(distance);
+
+        var relativeVelocity = physicsComponent1.Velocity - physicsComponent2.Velocity;
+
+        var relativeSpeed = Vector2.Dot(relativeVelocity,collisionNormal);
+
+        var impulse = -2 * relativeSpeed / (1/physicsComponent1.Mass + 1/physicsComponent2.Mass);
+
+
 
     }
     private void CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity, TriangleGeometry triangle, Entity collideEntity)

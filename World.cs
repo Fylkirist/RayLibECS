@@ -49,6 +49,7 @@ public class World
         testRender1.Colours.Add(Color.BLUE);
 
         testRender1.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        testRender1.Mesh.Shapes.Add(new CircleGeometry(200, new Vector2(180, 50)));
         testRender1.Mesh.Shapes.Add(new TriangleGeometry(
                     new Vector2[]{
                         new(-200,-200),
@@ -60,10 +61,11 @@ public class World
                 ));
         var testPhysics1 = CreateComponent<Physics2>();
         
-        testPhysics1.Velocity = new Vector2(0,0);
-        testPhysics1.PhysicsType = PhysicsType2D.Static;
+        testPhysics1.Velocity = new Vector2(200,-100);
+        testPhysics1.PhysicsType = PhysicsType2D.Dynamic;
         testPhysics1.Rotation = 0f;
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
+        testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,new Vector2(180,50)));
         testPhysics1.RotationSpeed = 1f;
         testPhysics1.Position = new Vector2(-400,0);
         testPhysics1.Mass = 10f;
@@ -79,15 +81,16 @@ public class World
         
         var testRender2 = CreateComponent<ColouredMesh2>();
         testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
         
-        
+        testRender2.Colours.Add(Color.RED);
         testRender2.Colours.Add(Color.BLUE);
         
         var testPhysics2 = CreateComponent<Physics2>();
         
-        testPhysics2.Velocity = new Vector2(0,0);
+        testPhysics2.Velocity = new Vector2(-200,-100);
         testPhysics2.Position = new Vector2(300,100);
-        testPhysics2.PhysicsType = PhysicsType2D.Static;
+        testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
         testPhysics2.Rotation = 0f;
         testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
         testPhysics2.Mass = 10f;
@@ -193,6 +196,7 @@ public class World
     public void DetachComponent(Component component)
     {
         _componentTable[component.GetType()][component.Owner.Id] = null;
+        component.Owner=Entity.Placeholder;
         _componentCache.Add(component);
         if (_componentCache.Count > 1000)
         {

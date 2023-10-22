@@ -14,6 +14,7 @@ public class Physics2:Component
     public GeometryMesh2 CollisionMesh;
     public float Absorbtion;
     public float Friction;
+    public int Z;
 
     public Physics2()
     {
@@ -26,5 +27,6 @@ public class Physics2:Component
         CollisionMesh = new GeometryMesh2();
         Absorbtion = 0f;
         Friction = 0f;
+        Z = 0;
     }
 }

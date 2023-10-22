@@ -10,12 +10,12 @@ namespace RayLibECS.Components;
 
 internal class CollisionEvent : Component
 {
-    public Entity? Collider;
+    public Entity Collider;
     public Geometry2D[] Vertices;
 
     public CollisionEvent()
     {
-        Collider = null;
+        Collider = Entity.Placeholder;
         Vertices = new Geometry2D[2];
     }
 }
