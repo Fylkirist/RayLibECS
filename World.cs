@@ -61,14 +61,14 @@ public class World
                 ));
         var testPhysics1 = CreateComponent<Physics2>();
         
-        testPhysics1.Velocity = new Vector2(200,-100);
+        testPhysics1.Velocity = new Vector2(200,-300);
         testPhysics1.PhysicsType = PhysicsType2D.Dynamic;
         testPhysics1.Rotation = 0f;
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,new Vector2(180,50)));
         testPhysics1.RotationSpeed = 1f;
         testPhysics1.Position = new Vector2(-400,0);
-        testPhysics1.Mass = 10f;
+        testPhysics1.Mass = 20f;
 
         AttachComponents(
             testEntity1,
@@ -79,6 +79,7 @@ public class World
         
         var testEntity2 = CreateEntity("");
         
+        /*
         var testRender2 = CreateComponent<ColouredMesh2>();
         testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
         testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
@@ -88,19 +89,45 @@ public class World
         
         var testPhysics2 = CreateComponent<Physics2>();
         
-        testPhysics2.Velocity = new Vector2(-200,-100);
+        testPhysics2.Velocity = new Vector2(-200,-300);
         testPhysics2.Position = new Vector2(300,100);
         testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
         testPhysics2.Rotation = 0f;
         testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
         testPhysics2.Mass = 10f;
-        
+
         AttachComponents(
                 testEntity2,
                 testPhysics2,
                 testRender2
                 );
+        */
+        var testEntity3 = CreateEntity("");
+
+        var testRender3 = CreateComponent<ColouredMesh2>();
+        testRender3.Colours.Add(Color.SKYBLUE);
+        testRender3.Mesh.Shapes.Add(new RectangleGeometry(
+                    new Rectangle(0,0,1000,200),
+                    0,
+                    new Vector2(0,0)
+                    )
+                );
+
         
+        var testPhysics3 = CreateComponent<Physics2>();
+        testPhysics3.Mass = 30f;
+        testPhysics3.Velocity = new Vector2(0,-500);
+        testPhysics3.Position = new Vector2(0,500);
+        testPhysics3.PhysicsType = PhysicsType2D.Dynamic;
+        testPhysics3.CollisionMesh.Shapes.Add(new RectangleGeometry(
+                    new Rectangle(0,0,1000,200),
+                    0,
+                    Vector2.Zero
+                    ));
+        
+        AttachComponents(testEntity3,
+                testRender3,
+                testPhysics3);
 
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));

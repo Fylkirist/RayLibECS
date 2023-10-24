@@ -155,7 +155,7 @@ public class CollisionDetectionSystem2D : SystemBase
                     pos2.Position,
                     pos2.Rotation),
                 rectangleCenter,
-                -rectangleGeometry.Rotation
+                rectangleGeometry.Rotation
             );
         return Raylib.CheckCollisionCircleRec(circleCenter, circle.Radius,rectangle);
     }
