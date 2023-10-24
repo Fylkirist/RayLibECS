@@ -141,13 +141,14 @@ public class CollisionDetectionSystem2D : SystemBase
 
     public bool DetectVertexCollision(RectangleGeometry rectangleGeometry, Physics2 pos1, CircleGeometry circle, Physics2 pos2)
     {
+        
         var rectangleCenter = rectangleGeometry.Offset + pos1.Position;
         var rectangle = new Rectangle(
-            rectangleGeometry.Vertex.x+rectangleGeometry.Offset.X+pos1.Position.X,
-            rectangleGeometry.Vertex.y+rectangleGeometry.Offset.Y+pos1.Position.Y,
+            rectangleCenter.X - rectangleGeometry.Vertex.width/2,
+            rectangleCenter.Y - rectangleGeometry.Vertex.height/2,
             rectangleGeometry.Vertex.width,
             rectangleGeometry.Vertex.height
-            );
+        );
         var circleCenter =
             ApplyRotationMatrix(
                 ApplyRotationMatrix(
@@ -155,9 +156,10 @@ public class CollisionDetectionSystem2D : SystemBase
                     pos2.Position,
                     pos2.Rotation),
                 rectangleCenter,
-                rectangleGeometry.Rotation
+                -rectangleGeometry.Rotation
             );
         return Raylib.CheckCollisionCircleRec(circleCenter, circle.Radius,rectangle);
+        
     }
 
     public bool DetectVertexCollision(TriangleGeometry triangle1, Physics2 pos1, TriangleGeometry triangle2, Physics2 pos2)

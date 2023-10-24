@@ -79,7 +79,6 @@ public class World
         
         var testEntity2 = CreateEntity("");
         
-        /*
         var testRender2 = CreateComponent<ColouredMesh2>();
         testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
         testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
@@ -101,7 +100,7 @@ public class World
                 testPhysics2,
                 testRender2
                 );
-        */
+        
         var testEntity3 = CreateEntity("");
 
         var testRender3 = CreateComponent<ColouredMesh2>();
@@ -113,7 +112,6 @@ public class World
                     )
                 );
 
-        
         var testPhysics3 = CreateComponent<Physics2>();
         testPhysics3.Mass = 30f;
         testPhysics3.Velocity = new Vector2(0,-500);
@@ -128,7 +126,7 @@ public class World
         AttachComponents(testEntity3,
                 testRender3,
                 testPhysics3);
-
+        
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));
