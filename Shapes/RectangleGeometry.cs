@@ -7,6 +7,7 @@ namespace RayLibECS.Shapes;
 
 public class RectangleGeometry : Geometry2D
 {
+    public Vector2[] Vertices = new Vector2[4];
     public Rectangle Vertex;
     public float Rotation;
 
@@ -19,7 +20,7 @@ public class RectangleGeometry : Geometry2D
     public Vector2[] GetRectPoints()
     {
         var points = new Vector2[4];
-        points[0] = new Vector2(Vertex.x, Vertex.y);
+        points[0] = new Vector2(Vertex.x-Vertex.width/2, Vertex.y-Vertex.height);
         points[1] = new Vector2(Vertex.x+Vertex.width, Vertex.y);
         points[2] = new Vector2(Vertex.x+Vertex.width, Vertex.y+Vertex.height);
         points[3] = new Vector2(Vertex.x, Vertex.y+Vertex.height);

@@ -77,29 +77,29 @@ public class World
             testRender1
             );
         
-        var testEntity2 = CreateEntity("");
-        
-        var testRender2 = CreateComponent<ColouredMesh2>();
-        testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
-        testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
-        
-        testRender2.Colours.Add(Color.RED);
-        testRender2.Colours.Add(Color.BLUE);
-        
-        var testPhysics2 = CreateComponent<Physics2>();
-        
-        testPhysics2.Velocity = new Vector2(-200,-300);
-        testPhysics2.Position = new Vector2(300,100);
-        testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
-        testPhysics2.Rotation = 0f;
-        testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
-        testPhysics2.Mass = 10f;
-
-        AttachComponents(
-                testEntity2,
-                testPhysics2,
-                testRender2
-                );
+        // var testEntity2 = CreateEntity("");
+        //
+        // var testRender2 = CreateComponent<ColouredMesh2>();
+        // testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
+        // testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
+        //
+        // testRender2.Colours.Add(Color.RED);
+        // testRender2.Colours.Add(Color.BLUE);
+        //
+        // var testPhysics2 = CreateComponent<Physics2>();
+        //
+        // testPhysics2.Velocity = new Vector2(-200,-300);
+        // testPhysics2.Position = new Vector2(300,100);
+        // testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
+        // testPhysics2.Rotation = 0f;
+        // testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
+        // testPhysics2.Mass = 10f;
+        //
+        // AttachComponents(
+        //         testEntity2,
+        //         testPhysics2,
+        //         testRender2
+        //         );
         
         var testEntity3 = CreateEntity("");
 
