@@ -7,30 +7,20 @@ namespace RayLibECS.Shapes;
 
 public class RectangleGeometry : Geometry2D
 {
-    public Vector2[] Vertices = new Vector2[4];
-    public Rectangle Vertex;
+    public Vector2[] Vertices;
     public float Rotation;
 
     public RectangleGeometry(Rectangle vertex, int rotation, Vector2 offset):base(offset)
     {
-        Vertex = vertex;
         Rotation = rotation;
-    }
-
-    public Vector2[] GetRectPoints()
-    {
-        var points = new Vector2[4];
-        points[0] = new Vector2(Vertex.x-Vertex.width/2, Vertex.y-Vertex.height);
-        points[1] = new Vector2(Vertex.x+Vertex.width, Vertex.y);
-        points[2] = new Vector2(Vertex.x+Vertex.width, Vertex.y+Vertex.height);
-        points[3] = new Vector2(Vertex.x, Vertex.y+Vertex.height);
-        for (int i = 0;i<4;i++)
+        Vertices = new Vector2[4]
         {
-            points[i] = CollisionDetectionSystem2D.ApplyRotationMatrix(points[i], Vector2.Zero, Rotation);
-        }
-        return points;
+            new(-vertex.width/2,-vertex.height/2),
+            new(vertex.width/2,-vertex.height/2),
+            new(vertex.width/2,vertex.height/2),
+            new(-vertex.width/2,vertex.height/2),
+        };
     }
-
 
     public override bool CollidesWith(CollisionDetectionSystem2D systemBase, Physics2 pos1, Geometry2D collider, Physics2 pos2)
     {
@@ -41,6 +31,11 @@ public class RectangleGeometry : Geometry2D
             TriangleGeometry triangle => systemBase.DetectVertexCollision(triangle, pos2, this, pos1),
             _ => false
         };
+    }
+
+    public Vector2 WidthAndHeight()
+    {
+        return new Vector2(Vertices[2].X - Vertices[0].X, Vertices[3].Y - Vertices[0].Y);
     }
 
     public override dynamic GetShapeAsType()

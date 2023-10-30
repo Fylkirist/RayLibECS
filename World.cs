@@ -77,56 +77,64 @@ public class World
             testRender1
             );
         
-        // var testEntity2 = CreateEntity("");
-        //
-        // var testRender2 = CreateComponent<ColouredMesh2>();
-        // testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
-        // testRender2.Mesh.Shapes.Add(new CircleGeometry(50,new Vector2(190,0)));
-        //
-        // testRender2.Colours.Add(Color.RED);
-        // testRender2.Colours.Add(Color.BLUE);
-        //
-        // var testPhysics2 = CreateComponent<Physics2>();
-        //
-        // testPhysics2.Velocity = new Vector2(-200,-300);
-        // testPhysics2.Position = new Vector2(300,100);
-        // testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
-        // testPhysics2.Rotation = 0f;
-        // testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
-        // testPhysics2.Mass = 10f;
-        //
-        // AttachComponents(
-        //         testEntity2,
-        //         testPhysics2,
-        //         testRender2
-        //         );
+        var testEntity2 = CreateEntity("");
+
+        var testRender2 = CreateComponent<ColouredMesh2>();
+        testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0))); 
+
+        testRender2.Colours.Add(Color.RED);
+        testRender2.Colours.Add(Color.BLUE);
+
+        var testPhysics2 = CreateComponent<Physics2>();
+
+        testPhysics2.Velocity = new Vector2(-200,-300);
+        testPhysics2.Position = new Vector2(300,100);
+        testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
+        testPhysics2.Rotation = 0f;
+        testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
+        testPhysics2.Mass = 10f;
+
+        AttachComponents(
+                testEntity2,
+                testPhysics2,
+                testRender2
+                );
         
         var testEntity3 = CreateEntity("");
 
         var testRender3 = CreateComponent<ColouredMesh2>();
         testRender3.Colours.Add(Color.SKYBLUE);
-        testRender3.Mesh.Shapes.Add(new RectangleGeometry(
-                    new Rectangle(0,0,1000,200),
-                    0,
-                    new Vector2(0,0)
-                    )
-                );
+        testRender3.Mesh.Shapes.Add(new CircleGeometry(300, Vector2.Zero));
 
         var testPhysics3 = CreateComponent<Physics2>();
         testPhysics3.Mass = 30f;
-        testPhysics3.Velocity = new Vector2(0,-500);
-        testPhysics3.Position = new Vector2(0,500);
+        testPhysics3.Velocity = new Vector2(0,-600);
+        testPhysics3.Position = new Vector2(0,800);
         testPhysics3.PhysicsType = PhysicsType2D.Dynamic;
-        testPhysics3.CollisionMesh.Shapes.Add(new RectangleGeometry(
-                    new Rectangle(0,0,1000,200),
-                    0,
-                    Vector2.Zero
-                    ));
+        testPhysics3.CollisionMesh.Shapes.Add(new CircleGeometry(300, Vector2.Zero));
         
         AttachComponents(testEntity3,
                 testRender3,
                 testPhysics3);
         
+        var testEntity4 = CreateEntity("");
+
+        var testRender4 = CreateComponent<ColouredMesh2>();
+        testRender4.Colours.Add(Color.SKYBLUE);
+        testRender4.Mesh.Shapes.Add(new CircleGeometry(50, Vector2.Zero));
+
+        var testPhysics4 = CreateComponent<Physics2>();
+        testPhysics4.Mass = 5f;
+        testPhysics4.Velocity = new Vector2(0,300);
+        testPhysics4.Position = new Vector2(300,-500);
+        testPhysics4.PhysicsType = PhysicsType2D.Dynamic;
+        testPhysics4.CollisionMesh.Shapes.Add(new CircleGeometry(50, Vector2.Zero));
+        
+        AttachComponents(testEntity4,
+                testRender4,
+                testPhysics4);
+
+
         AddSystem(new RenderingSystem2D(this));
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));

@@ -240,8 +240,8 @@ internal class PhysicsSystem2D : SystemBase
         var relativeSpeed = Vector2.Dot(relativeVelocity, collisionNormal);
         
         var clampedDistance = new Vector2(
-            Math.Clamp(distance.X, -rectangle.Vertex.width / 2, rectangle.Vertex.width / 2),
-            Math.Clamp(distance.Y, -rectangle.Vertex.height / 2, rectangle.Vertex.height / 2)
+            Math.Clamp(distance.X, -rectangle.WidthAndHeight().X / 2, rectangle.WidthAndHeight().X / 2),
+            Math.Clamp(distance.Y, -rectangle.WidthAndHeight().Y / 2, rectangle.WidthAndHeight().Y / 2)
         );
 
         var impulse = -2 * relativeSpeed / (1 / physicsComponent1.Mass + 1 / physicsComponent2.Mass);

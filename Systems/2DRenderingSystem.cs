@@ -126,20 +126,16 @@ internal class RenderingSystem2D:SystemBase
                 case RectangleGeometry rectangle:
                     var rectangleCenter = Vector2.Transform(rectangle.Offset + position.Position,Matrix3x2.CreateRotation(position.Rotation,position.Position));
 
-                    var topLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
-                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
-                        Matrix3x2.CreateRotation(position.Rotation+rectangle.Rotation,rectangleCenter));
+                    var topLeft = Vector2.Transform(rectangleCenter + rectangle.Vertices[0] + rectangle.Offset,
+                        Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation,rectangleCenter));
                     
-                    var topRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
-                        rectangleCenter.Y - 0.5f * rectangle.Vertex.height),
+                    var topRight = Vector2.Transform(rectangleCenter + rectangle.Vertices[1] + rectangle.Offset,
                         Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
                     
-                    var bottomRight = Vector2.Transform(new Vector2(rectangleCenter.X + 0.5f * rectangle.Vertex.width,
-                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                    var bottomRight = Vector2.Transform(rectangleCenter + rectangle.Vertices[2] + rectangle.Offset,
                         Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
                     
-                    var bottomLeft = Vector2.Transform(new Vector2(rectangleCenter.X - 0.5f * rectangle.Vertex.width,
-                        rectangleCenter.Y + 0.5f * rectangle.Vertex.height),
+                    var bottomLeft = Vector2.Transform(rectangleCenter + rectangle.Vertices[3] + rectangle.Offset,
                         Matrix3x2.CreateRotation(position.Rotation + rectangle.Rotation, rectangleCenter));
 
                     Raylib.DrawTriangle(topLeft,bottomRight,topRight,colour);

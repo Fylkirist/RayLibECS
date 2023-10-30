@@ -39,10 +39,10 @@ public class GeometryMesh2
                 case RectangleGeometry rectangle:
                     Vector2[] points = new Vector2[4]
                     {
-                        new Vector2(rectangle.Vertex.x, rectangle.Vertex.y) + rectangle.Offset,
-                        new Vector2(rectangle.Vertex.x + rectangle.Vertex.width, rectangle.Vertex.y) + rectangle.Offset,
-                        new Vector2(rectangle.Vertex.x+rectangle.Vertex.width, rectangle.Vertex.y+rectangle.Vertex.width) + rectangle.Offset,
-                        new Vector2(rectangle.Vertex.x, rectangle.Vertex.y + rectangle.Vertex.width) + rectangle.Offset
+                        rectangle.Vertices[0] + rectangle.Offset,
+                        rectangle.Vertices[1] + rectangle.Offset,
+                        rectangle.Vertices[2] + rectangle.Offset,
+                        rectangle.Vertices[3] + rectangle.Offset
                     };
                     
                     foreach (var vector in points)

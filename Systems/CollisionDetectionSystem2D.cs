@@ -144,10 +144,10 @@ public class CollisionDetectionSystem2D : SystemBase
         
         var rectangleCenter = rectangleGeometry.Offset + pos1.Position;
         var rectangle = new Rectangle(
-            rectangleCenter.X - rectangleGeometry.Vertex.width/2,
-            rectangleCenter.Y - rectangleGeometry.Vertex.height/2,
-            rectangleGeometry.Vertex.width,
-            rectangleGeometry.Vertex.height
+            rectangleGeometry.Vertices[0].X,
+            rectangleGeometry.Vertices[0].Y,
+            rectangleGeometry.Vertices[1].X - rectangleGeometry.Vertices[0].X,
+            rectangleGeometry.Vertices[3].Y - rectangleGeometry.Vertices[0].Y
         );
         var circleCenter =
             ApplyRotationMatrix(
@@ -212,8 +212,8 @@ public class CollisionDetectionSystem2D : SystemBase
 
     public bool DetectVertexCollision(RectangleGeometry rect1, Physics2 pos1, RectangleGeometry rect2, Physics2 pos2)
     {
-        var rect1Points = rect1.GetRectPoints();
-        var rect2Points = rect2.GetRectPoints();
+        var rect1Points = rect1.Vertices;
+        var rect2Points = rect2.Vertices;
         for (int i = 0; i < 4; i++)
         {
             rect1Points[i] = ApplyRotationMatrix(rect1Points[i]+pos1.Position+rect1.Offset, pos1.Position, pos1.Rotation);
@@ -267,7 +267,7 @@ public class CollisionDetectionSystem2D : SystemBase
         {
             ApplyRotationMatrix(
                 ApplyRotationMatrix(
-                    new Vector2(rect.Vertex.x,rect.Vertex.y),
+                    rect.Vertices[0],
                     Vector2.Zero,
                     rect.Rotation)+rect.Offset+pos2.Position,
                 pos2.Position,
@@ -275,7 +275,7 @@ public class CollisionDetectionSystem2D : SystemBase
                 ),
             ApplyRotationMatrix(
                 ApplyRotationMatrix(
-                    new Vector2(rect.Vertex.x+rect.Vertex.width,rect.Vertex.y),
+                    rect.Vertices[1],
                     Vector2.Zero,
                     rect.Rotation)+rect.Offset+pos2.Position,
                 pos2.Position,
@@ -283,7 +283,7 @@ public class CollisionDetectionSystem2D : SystemBase
             ),
             ApplyRotationMatrix(
                 ApplyRotationMatrix(
-                    new Vector2(rect.Vertex.x+rect.Vertex.width,rect.Vertex.y+rect.Vertex.height),
+                    rect.Vertices[2],
                     Vector2.Zero,
                     rect.Rotation)+rect.Offset+pos2.Position,
                 pos2.Position,
@@ -291,7 +291,7 @@ public class CollisionDetectionSystem2D : SystemBase
             ),
             ApplyRotationMatrix(
                 ApplyRotationMatrix(
-                    new Vector2(rect.Vertex.x,rect.Vertex.y+rect.Vertex.height),
+                    rect.Vertices[3],
                     Vector2.Zero,
                     rect.Rotation)+rect.Offset+pos2.Position,
                 pos2.Position,

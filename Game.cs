@@ -40,7 +40,7 @@ internal class Game
         while (_running)
         {
             long currentTime = stopwatch.ElapsedMilliseconds;
-            float deltaTime = (currentTime - previousTime) / 1000f; // Convert to seconds
+            float deltaTime = (currentTime - previousTime) / 1000f;
 
             Update(deltaTime);
 
