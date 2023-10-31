@@ -14,6 +14,11 @@ internal class ComponentManager
         return !_liveComponents.ContainsKey(typeof(T)) && _liveComponents[typeof(T)].Contains(id);
     }
 
+    public bool IsComponentActive(Type type,int id)
+    {
+        return !_liveComponents.ContainsKey(type) && _liveComponents[type].Contains(id);
+    }
+
     public void ActivateComponent<T>(int id)
     {
         if (!_liveComponents.ContainsKey(typeof(T)))
@@ -26,6 +31,10 @@ internal class ComponentManager
 
     public void ActivateComponent(Type type, int id)
     {
+        if (!_liveComponents.ContainsKey(type))
+        {
+            _liveComponents.Add(type,new HashSet<int>());
+        }
         _liveComponents[type].Add(id);
     }
 
@@ -36,6 +45,9 @@ internal class ComponentManager
 
     public void DetachAll<T>()
     {
-        _liveComponents[typeof(T)].Clear();
+        if (_liveComponents.ContainsKey(typeof(T)))
+        {
+            _liveComponents[typeof(T)].Clear();
+        }
     }
 }

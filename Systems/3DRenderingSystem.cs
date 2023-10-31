@@ -38,8 +38,6 @@ public class RenderingSystem3D : SystemBase
     public override void Update(float delta)
     {
         if(!_active) return;
-        if(_currentCamera == null) return;
-        var cameraComponents = World.GetComponents(_currentCamera.Value);
     }
 
     public override void Detach()

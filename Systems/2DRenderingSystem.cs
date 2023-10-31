@@ -25,7 +25,8 @@ internal class RenderingSystem2D : SystemBase
     public override void Draw()
     {
         if(!_active) return;
-        var activeCamera = World.GetComponents(_currentCamera).OfType<Camera2>().First();
+        if(!World.IsComponentActive<Camera2>(_currentCamera.Id)) return;
+        var activeCamera = World.GetComponents<Camera2>()[_currentCamera.Id];
         Raylib.BeginMode2D(activeCamera.Position);
         var colouredMeshes = World.GetComponents<ColouredMesh2>().OrderBy(e=>e.Z).ToArray();
         var animatedSprites = World.GetComponents<AnimatedSprite2>().OrderBy(e=>e.Z).ToArray();
@@ -50,7 +51,8 @@ internal class RenderingSystem2D : SystemBase
     {
         
         if(!_active) return;
-        var activeCam = World.GetComponents(_currentCamera).OfType<Camera2>().First();
+        if (!World.IsComponentActive<Camera2>(_currentCamera.Id)) return;
+        var activeCam = World.GetComponents<Camera2>()[_currentCamera.Id];
         foreach (var key in World.InputState.PressedKeys)
         {
             switch (key)
@@ -95,7 +97,7 @@ internal class RenderingSystem2D : SystemBase
 
     public RenderingSystem2D(World world) : base(world)
     {
-        _currentCamera = Entity.Placeholder;
+        _currentCamera = new Entity(-1, "Placeholder");
         _active = false;
     }
 

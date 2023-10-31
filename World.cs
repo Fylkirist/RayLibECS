@@ -194,19 +194,12 @@ public class World
             newId++;
         }
         var entity = new Entity(newId,tag);
-        _entities[newId] = entity;
+        _entities.Add(entity);
         return entity;
     }
 
     public T CreateComponent<T>() where T : new()
     {
-        var cached = _componentCache.OfType<T>().FirstOrDefault();
-        if (cached != null)
-        {
-            _componentCache.Remove(cached);
-            return cached;
-        }
-
         var newComponent = new T();
         return newComponent;
     }
@@ -269,38 +262,23 @@ public class World
     {
         return _componentManager.IsComponentActive<T>(id);
     }
+    public bool IsComponentActive(Type type,int id)
+    {
+        return _componentManager.IsComponentActive(type,id);
+    }
 
     public IEnumerable<dynamic> GetComponents(int id)
     {
         return from array in _componentTable where array.Value[id] select array.Value[id];
     }
 
-    public IEnumerable<dynamic> GetComponents(string tag)
+    public IEnumerable<Entity> GetEntities(string tag)
     {
-        var components = new List<dynamic>();
-        foreach (var entity in Entities.Where(e => e.Tag == tag))
-        {
-            components.AddRange(GetComponents(entity));
-        }
-        return components;
-    }
-
-    public IEnumerable<dynamic> GetComponents(Entity entity)
-    {
-        var components = new List<dynamic>();
-        foreach (var array in _componentTable)
-        {
-            var component = array.Value[entity.Id];
-            if (component != null)
-            {
-                components.Add(component);
-            }
-        }
-        return components;
+        return _entities.Where(e => e.Tag == tag);
     }
 
     public IEnumerable<Entity> GetEntitiesWith<T>()
     {
-        return _entities.Where(e => _componentTable[typeof(T)][e.Id] != null);
+        return _entities.Where(e => IsComponentActive<T>(e.Id));
     }
 }
