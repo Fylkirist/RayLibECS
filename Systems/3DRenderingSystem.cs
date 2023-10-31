@@ -18,7 +18,7 @@ public class RenderingSystem3D : SystemBase
     {
         if (!_active) return;
         if (_currentCamera == null) return;
-        var cameraComponents = World.GetComponents(_currentCamera.Id);
+        var cameraComponents = World.GetComponents(_currentCamera.Value.Id);
         foreach (var component in cameraComponents)
         {
             switch (component.GetType())
@@ -39,7 +39,7 @@ public class RenderingSystem3D : SystemBase
     {
         if(!_active) return;
         if(_currentCamera == null) return;
-        var cameraComponents = World.GetComponents(_currentCamera);
+        var cameraComponents = World.GetComponents(_currentCamera.Value);
     }
 
     public override void Detach()
@@ -65,7 +65,7 @@ public class RenderingSystem3D : SystemBase
     {
         if (_currentCamera != null)
         {
-            World.DestroyEntity(_currentCamera);
+            World.DestroyEntity(_currentCamera.Value);
         }
     }
 }

@@ -1,7 +1,6 @@
 using RayLibECS.Entities;
-using RayLibECS;
 
-namespace Interfaces;
+namespace RayLibECS.Interfaces;
 
 public abstract class CharacterState
 {

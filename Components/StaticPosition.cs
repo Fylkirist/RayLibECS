@@ -3,11 +3,13 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-internal class StaticPosition:Component
+internal struct StaticPosition
 {
-    public Vector2 Position { get; set; }
-    public StaticPosition(Entity owner,Vector2 position) : base(owner)
+    public int Owner;
+    public Vector2 Position;
+    public StaticPosition(int owner,Vector2 position)
     {
+        Owner = owner;
         Position = position;
     }
 }

@@ -20,23 +20,22 @@ public class CollisionDetectionSystem2D : SystemBase
     public override void Update(float delta)
     {
         if (!_active) return;
-        foreach(var leftover in World.GetComponents<CollisionEvent>()){
-            World.DetachComponent(leftover);
-        }
-        var physicsComponents = World.GetComponents<Physics2>().ToList();
-        foreach (Physics2 collisionMesh in physicsComponents)
+        World.ClearComponents<CollisionEvent>();
+
+        var physicsComponents = World.GetComponents<Physics2>();
+        for(var i = 0; i<physicsComponents.Length; i++)
         {
-            foreach (Physics2 colliderMesh in physicsComponents)
+            for(var j = 0; j<physicsComponents.Length;j++)
             {
-                if(collisionMesh == colliderMesh || colliderMesh.Z != collisionMesh.Z) continue;
-                if(World.QueryComponent<CollisionEvent>(collisionMesh.Owner) != null) break;
-                if(World.QueryComponent<CollisionEvent>(colliderMesh.Owner) != null) continue;
-                if (CheckMeshCollision(collisionMesh, colliderMesh, out Geometry2D[] colliders))
+                if(i == j || physicsComponents[i].Z != physicsComponents[j].Z) continue;
+                if(World.IsComponentActive<CollisionEvent>(i)) break;
+                if(World.IsComponentActive<CollisionEvent>(j)) continue;
+                if (CheckMeshCollision(physicsComponents[i], physicsComponents[j], out Geometry2D[] colliders))
                 {
                     var collisionEvent = World.CreateComponent<CollisionEvent>();
                     collisionEvent.Vertices = colliders;
-                    collisionEvent.Collider = colliderMesh.Owner;
-                    World.AttachComponents(collisionMesh.Owner, collisionEvent);
+                    collisionEvent.Collider = j;
+                    World.AttachComponents(World.Entities[i], collisionEvent);
                     break;
                 };
             }

@@ -26,7 +26,7 @@ internal class RenderingSystem2D:SystemBase
         if(!_active) return;
         var activeCamera = GetActiveCamera();
         Raylib.BeginMode2D(activeCamera.Position);
-        var renderables = new List<RenderableComponent>();
+        var renderables = new List<dynamic>();
         renderables.AddRange(World.GetComponents<ColouredMesh2>());
         foreach (var mesh in renderables)
         {

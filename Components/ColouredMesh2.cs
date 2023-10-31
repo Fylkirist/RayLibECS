@@ -8,13 +8,17 @@ using Raylib_cs;
 
 namespace RayLibECS.Components;
 
-internal class ColouredMesh2:RenderableComponent
+internal struct ColouredMesh2
 {
     public GeometryMesh2 Mesh;
     public List<Color> Colours;
+    public RenderingModes RenderingMode;
+    public int Z;
 
     public ColouredMesh2()
     {
+        Z = 0;
+        RenderingMode = RenderingModes.TwoD;
         Mesh = new GeometryMesh2();
         Colours = new List<Color>();
     }

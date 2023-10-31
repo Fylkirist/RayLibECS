@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RayLibECS.Entities;
-using RayLibECS.Shapes;
+﻿using RayLibECS.Shapes;
 
 namespace RayLibECS.Components;
 
-internal class CollisionEvent : Component
+internal struct CollisionEvent
 {
-    public Entity Collider;
+    public int Owner;
+    public int Collider;
     public Geometry2D[] Vertices;
 
     public CollisionEvent()
     {
-        Collider = Entity.Placeholder;
+        Owner = 0;
+        Collider = 0;
         Vertices = new Geometry2D[2];
     }
 }

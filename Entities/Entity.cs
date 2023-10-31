@@ -1,14 +1,12 @@
-﻿using RayLibECS.Components;
+﻿namespace RayLibECS.Entities;
 
-namespace RayLibECS.Entities;
-
-public class Entity
+public struct Entity
 {
     public int Id;
     public string Tag;
     public bool ToBeDestroyed;
     private static Entity? _placeholder;
-    public static Entity Placeholder => _placeholder ??= new Entity(0,"");
+    public static Entity Placeholder => _placeholder ??= new Entity(-1,"");
 
     public Entity(int id, string tag)
     {

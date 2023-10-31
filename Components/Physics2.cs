@@ -3,8 +3,9 @@ using RayLibECS.Systems;
 
 namespace RayLibECS.Components;
 
-public class Physics2:Component
+public struct Physics2
 {
+    public int Owner;
     public Vector2 Position;
     public Vector2 Velocity;
     public float Rotation;
@@ -18,6 +19,7 @@ public class Physics2:Component
 
     public Physics2()
     {
+        Owner = 0;
         Position = new Vector2();
         Velocity = new Vector2();
         Rotation = 0f;

@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Raylib_cs;
-using RayLibECS.Entities;
+﻿using Raylib_cs;
 
 namespace RayLibECS.Components;
 
-internal class Camera2 : Component
+internal struct Camera2
 {
+    public int Owner;
     public Camera2D Position;
-    public Camera2(Entity owner) : base(owner)
+    public Camera2(int owner)
     {
         Position = new Camera2D();
+        Owner = owner;
     }
 
     public Camera2()

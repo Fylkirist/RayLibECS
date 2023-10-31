@@ -8,12 +8,14 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-internal class Camera3 : Component
+internal struct Camera3
 {
     public Camera3D CameraPosition;
     public CameraMode CameraMode;
-    public Camera3(Entity owner) : base(owner)
+    public int Owner;
+    public Camera3(int owner)
     {
+        Owner = owner;
         CameraPosition = new Camera3D();
         CameraMode = CameraMode.CAMERA_FREE;
     }

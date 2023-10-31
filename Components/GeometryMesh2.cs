@@ -10,7 +10,7 @@ using RayLibECS.Systems;
 
 namespace RayLibECS.Components;
 
-public class GeometryMesh2
+public struct GeometryMesh2
 {
     public List<Geometry2D> Shapes;
     private Circle? _boundingCircle;

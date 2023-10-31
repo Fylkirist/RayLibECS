@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -15,27 +17,30 @@ public enum RenderingModes
 }
 public class World
 {
-    private Dictionary<Type, Component?[]> _componentTable;
-    public Dictionary<Type, Component?[]> ComponentTable => _componentTable;
+    private Dictionary<Type, dynamic[]> _componentTable;
+    public Dictionary<Type, dynamic[]> ComponentTable => _componentTable;
 
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
 
     private List<SystemBase> _systems;
 
-    private List<Component> _componentCache;
+    private List<dynamic> _componentCache;
 
     private InputState _inputState;
     public InputState InputState => _inputState;
 
     private int _entityLimit;
+
+    private ComponentManager _componentManager;
     public World()
     {
+        _componentManager = new ComponentManager();
         _entityLimit = 1000;
-        _componentTable = new Dictionary<Type, Component?[]>();
+        _componentTable = new Dictionary<Type, dynamic[]>();
         _entities = new List<Entity>();
         _systems = new List<SystemBase>();
-        _componentCache = new List<Component>();
+        _componentCache = new List<dynamic>();
         _inputState = new InputState();
     }
 
@@ -191,11 +196,11 @@ public class World
             newId++;
         }
         var entity = new Entity(newId,tag);
-        _entities.Add(entity);
+        _entities[newId] = entity;
         return entity;
     }
 
-    public T CreateComponent<T>() where T : Component, new()
+    public T CreateComponent<T>() where T : new()
     {
         var cached = _componentCache.OfType<T>().FirstOrDefault();
         if (cached != null)
@@ -204,37 +209,33 @@ public class World
             return cached;
         }
 
-        if (typeof(T).IsSubclassOf(typeof(Component)))
-        {
-            var newComponent = new T();
-            return newComponent;
-        }
-
-        throw new InvalidOperationException($"Type {typeof(T)} is not a valid Component type.");
+        var newComponent = new T();
+        return newComponent;
     }
 
-    public void AttachComponents(Entity entity,params Component[] components)
+    public void AttachComponents(Entity entity,params dynamic[] components)
     {
         foreach (var component in components)
         {
-            component.Owner = entity;
+            component.Owner = entity.Id;
             if (!_componentTable.ContainsKey(component.GetType()))
             {
-                _componentTable.Add(component.GetType(),new Component[_entityLimit]);
+                _componentTable.Add(component.GetType(),new dynamic[_entityLimit]);
             }
             _componentTable[component.GetType()][entity.Id] = component;
+            var type = component.GetType();
+            _componentManager.ActivateComponent(type,entity.Id);
         }
     }
 
-    public void DetachComponent(Component component)
+    public void DetachComponent<T>(int id)
     {
-        _componentTable[component.GetType()][component.Owner.Id] = null;
-        component.Owner=Entity.Placeholder;
-        _componentCache.Add(component);
-        if (_componentCache.Count > 1000)
-        {
-            _componentCache.RemoveAt(0);
-        }
+        _componentManager.DeactivateComponent<T>(id);
+    }
+
+    public void ClearComponents<T>()
+    {
+        _componentManager.DetachAll<T>();
     }
 
     public void AddSystem(SystemBase system)
@@ -253,39 +254,32 @@ public class World
         
     }
 
-    public T? QueryComponent<T>(Entity entity) where T : Component
+    public T[] GetComponents<T>()
     {
-        if( !_componentTable.ContainsKey(typeof(T))) return null;
-        var component = _componentTable[typeof(T)][entity.Id];
-        if (component == null)
+        if (_componentTable.TryGetValue(typeof(T), out var componentArray))
         {
-            return null;
-        }
-        return (T)component;
-    }
-
-    public IEnumerable<T> GetComponents<T>()
-    {
-        return !_componentTable.ContainsKey(typeof(T)) ? Array.Empty<T>() : _componentTable[typeof(T)].Cast<T>().Where(e=>e!=null);
-    }
-
-    public IEnumerable<Component> GetComponents(int id)
-    {
-        var components = new List<Component>();
-        foreach (var array in _componentTable)
-        {
-            var component = array.Value[id];
-            if (component != null)
+            if (componentArray is T[] typedArray)
             {
-                components.Add(component);
+                return typedArray;
             }
         }
-        return components;
+
+        return Array.Empty<T>();
     }
 
-    public IEnumerable<Component> GetComponents(string tag)
+    public bool IsComponentActive<T>(int id)
     {
-        var components = new List<Component>();
+        return _componentManager.IsComponentActive<T>(id);
+    }
+
+    public IEnumerable<dynamic> GetComponents(int id)
+    {
+        return from array in _componentTable where array.Value[id] select array.Value[id];
+    }
+
+    public IEnumerable<dynamic> GetComponents(string tag)
+    {
+        var components = new List<dynamic>();
         foreach (var entity in Entities.Where(e => e.Tag == tag))
         {
             components.AddRange(GetComponents(entity));
@@ -293,9 +287,9 @@ public class World
         return components;
     }
 
-    public IEnumerable<Component> GetComponents(Entity entity)
+    public IEnumerable<dynamic> GetComponents(Entity entity)
     {
-        var components = new List<Component>();
+        var components = new List<dynamic>();
         foreach (var array in _componentTable)
         {
             var component = array.Value[entity.Id];
