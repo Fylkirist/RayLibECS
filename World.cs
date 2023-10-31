@@ -31,12 +31,12 @@ public class World
     private int _entityLimit;
     public World()
     {
+        _entityLimit = 1000;
         _componentTable = new Dictionary<Type, Component?[]>();
         _entities = new List<Entity>();
         _systems = new List<SystemBase>();
         _componentCache = new List<Component>();
         _inputState = new InputState();
-        _entityLimit = 1000;
     }
 
     public void InitializeWorld()

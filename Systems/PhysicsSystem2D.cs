@@ -59,8 +59,7 @@ internal class PhysicsSystem2D : SystemBase
 
     private void HandleCollisions(float delta)
     {
-        var collisions = World.GetComponents<CollisionEvent>();
-        foreach (var collisionEvent in collisions)
+        foreach (var collisionEvent in World.GetComponents<CollisionEvent>())
         {
             var ownerEntity = collisionEvent.Owner;
             var colidee = collisionEvent.Collider;
