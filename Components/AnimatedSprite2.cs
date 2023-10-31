@@ -5,6 +5,7 @@ namespace RayLibECS.Components;
 
 public struct AnimatedSprite2
 {
+    public int Owner;
     public Vector2 Offset;
     public float Scale;
     public string AnimationState;
@@ -13,7 +14,9 @@ public struct AnimatedSprite2
     public RenderingModes RenderingMode;
     public int Z;
 
-    public AnimatedSprite2(){
+    public AnimatedSprite2()
+    {
+        Owner = 0;
         Offset = new Vector2();
         Scale = 0f;
         AnimationState = "";

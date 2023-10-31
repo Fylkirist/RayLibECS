@@ -6,7 +6,7 @@ public struct Entity
     public string Tag;
     public bool ToBeDestroyed;
     private static Entity? _placeholder;
-    public static Entity Placeholder => _placeholder ??= new Entity(-1,"");
+    public static Entity Placeholder => _placeholder ??= new Entity(-1,"Placeholder");
 
     public Entity(int id, string tag)
     {

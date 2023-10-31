@@ -10,6 +10,7 @@ namespace RayLibECS.Components;
 
 internal struct ColouredMesh2
 {
+    public int Owner;
     public GeometryMesh2 Mesh;
     public List<Color> Colours;
     public RenderingModes RenderingMode;
@@ -17,6 +18,7 @@ internal struct ColouredMesh2
 
     public ColouredMesh2()
     {
+        Owner = 0;
         Z = 0;
         RenderingMode = RenderingModes.TwoD;
         Mesh = new GeometryMesh2();

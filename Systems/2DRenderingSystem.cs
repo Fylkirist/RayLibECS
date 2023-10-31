@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Raylib_cs;
@@ -11,7 +12,7 @@ using RayLibECS.Shapes;
 
 namespace RayLibECS.Systems;
 
-internal class RenderingSystem2D:SystemBase
+internal class RenderingSystem2D : SystemBase
 {
     private Entity _currentCamera;
     private bool _active;
@@ -24,20 +25,23 @@ internal class RenderingSystem2D:SystemBase
     public override void Draw()
     {
         if(!_active) return;
-        var activeCamera = GetActiveCamera();
+        var activeCamera = World.GetComponents(_currentCamera).OfType<Camera2>().First();
         Raylib.BeginMode2D(activeCamera.Position);
-        var renderables = new List<dynamic>();
-        renderables.AddRange(World.GetComponents<ColouredMesh2>());
-        foreach (var mesh in renderables)
+        var colouredMeshes = World.GetComponents<ColouredMesh2>().OrderBy(e=>e.Z).ToArray();
+        var animatedSprites = World.GetComponents<AnimatedSprite2>().OrderBy(e=>e.Z).ToArray();
+        var meshPointer = 0;
+        var spritePointer = 0;
+        while (meshPointer < colouredMeshes.Length || spritePointer < animatedSprites.Length)
         {
-            switch (mesh)
+            if (meshPointer < colouredMeshes.Length && colouredMeshes[meshPointer].Z >= animatedSprites[spritePointer].Z && World.IsComponentActive<ColouredMesh2>(colouredMeshes[meshPointer].Owner))
             {
-                case ColouredMesh2 mesh2:
-                    RenderMesh(mesh2);
-                    break;
-                case AnimatedSprite2 anim2:
-                    RenderSprite(anim2);
-                    break;
+                RenderMesh(colouredMeshes[meshPointer]);
+                spritePointer++;
+            }
+            else if(spritePointer < animatedSprites.Length && World.IsComponentActive<AnimatedSprite2>(animatedSprites[spritePointer].Owner))
+            {
+                RenderSprite(animatedSprites[spritePointer]);
+                spritePointer++;
             }
         }
     }
@@ -46,7 +50,7 @@ internal class RenderingSystem2D:SystemBase
     {
         
         if(!_active) return;
-        var activeCam = GetActiveCamera();
+        var activeCam = World.GetComponents(_currentCamera).OfType<Camera2>().First();
         foreach (var key in World.InputState.PressedKeys)
         {
             switch (key)
@@ -89,12 +93,6 @@ internal class RenderingSystem2D:SystemBase
         World.AttachComponents(newCam,camPosition);
     }
 
-    private Camera2 GetActiveCamera()
-    {
-        var camera = World.QueryComponent<Camera2>(_currentCamera);
-        return camera ?? new Camera2(_currentCamera);
-    }
-
     public RenderingSystem2D(World world) : base(world)
     {
         _currentCamera = Entity.Placeholder;
@@ -103,8 +101,8 @@ internal class RenderingSystem2D:SystemBase
 
     private void RenderMesh(ColouredMesh2 mesh)
     {
-        var position = World.QueryComponent<Physics2>(mesh.Owner);
-        if (position == null) return;
+        if (!World.IsComponentActive<Physics2>(mesh.Owner)) return;
+        var position = World.GetComponents<Physics2>()[mesh.Owner];
         for (int i = 0; i < mesh.Mesh.Shapes.Count; i++)
         {
             var shape = mesh.Mesh.Shapes[i];
@@ -157,9 +155,10 @@ internal class RenderingSystem2D:SystemBase
         }
     }
     
-    private void RenderSprite(AnimatedSprite2 sprite){
-        var position = World.QueryComponent<Physics2>(sprite.Owner);
-        if(position==null) return;
+    private void RenderSprite(AnimatedSprite2 sprite)
+    {
+        if(!World.IsComponentActive<Physics2>(sprite.Owner)) return;
+        var position = World.GetComponents<Physics2>()[sprite.Owner];
         Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState],sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
     }
 }

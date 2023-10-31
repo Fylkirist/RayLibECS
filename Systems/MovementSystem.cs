@@ -39,8 +39,8 @@ public class MovementSystem : SystemBase
         var input = World.InputState;
         foreach (var moveable in moveables)
         {
-            var position = World.QueryComponent<Physics2>(moveable);
-            if (position == null) continue;
+            var position = World.GetComponents<Physics2>()[moveable.Id];
+            if (!World.IsComponentActive<Physics2>(moveable.Id)) continue;
                 if (input.PressedKeys.Contains(KeyboardKey.KEY_A)) position.Position.X -= 100 * delta;
                 if (input.PressedKeys.Contains(KeyboardKey.KEY_D)) position.Position.X += 100 * delta;
                 if (input.PressedKeys.Contains(KeyboardKey.KEY_W)) position.Position.Y -= 100 * delta;
