@@ -23,6 +23,6 @@ public struct AnimatedSprite2
         TextureStateMap = new Dictionary<string,Texture2D>();
         Tint = Color.BLANK;
         RenderingMode = RenderingModes.TwoD;
-        Z = 0;
+        Z = 100;
     }
 }

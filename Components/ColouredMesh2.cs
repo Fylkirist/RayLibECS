@@ -19,7 +19,7 @@ internal struct ColouredMesh2
     public ColouredMesh2()
     {
         Owner = 0;
-        Z = 0;
+        Z = 100;
         RenderingMode = RenderingModes.TwoD;
         Mesh = new GeometryMesh2();
         Colours = new List<Color>();

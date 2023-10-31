@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -28,22 +22,21 @@ internal class RenderingSystem2D : SystemBase
         if(!World.IsComponentActive<Camera2>(_currentCamera.Id)) return;
         var activeCamera = World.GetComponents<Camera2>()[_currentCamera.Id];
         Raylib.BeginMode2D(activeCamera.Position);
-        var colouredMeshes = World.GetComponents<ColouredMesh2>().OrderBy(e=>e.Z).ToArray();
-        var animatedSprites = World.GetComponents<AnimatedSprite2>().OrderBy(e=>e.Z).ToArray();
+        var colouredMeshes = World.GetComponents<ColouredMesh2>()
+            .Where(e => World.IsComponentActive<ColouredMesh2>(e.Owner) && e.Z<100)
+            .OrderBy(e=>e.Z)
+            .ToArray();
+        var animatedSprites = World.GetComponents<AnimatedSprite2>()
+            .Where(e => World.IsComponentActive<AnimatedSprite2>(e.Owner) && e.Z<100)
+            .OrderBy(e=>e.Z)
+            .ToArray();
         var meshPointer = 0;
         var spritePointer = 0;
         while (meshPointer < colouredMeshes.Length || spritePointer < animatedSprites.Length)
         {
-            if (meshPointer < colouredMeshes.Length && colouredMeshes[meshPointer].Z >= animatedSprites[spritePointer].Z && World.IsComponentActive<ColouredMesh2>(colouredMeshes[meshPointer].Owner))
-            {
-                RenderMesh(colouredMeshes[meshPointer]);
-                spritePointer++;
-            }
-            else if(spritePointer < animatedSprites.Length && World.IsComponentActive<AnimatedSprite2>(animatedSprites[spritePointer].Owner))
-            {
-                RenderSprite(animatedSprites[spritePointer]);
-                spritePointer++;
-            }
+            var meshesLeft = meshPointer < colouredMeshes.Length;
+            var spritesLeft = spritePointer < animatedSprites.Length;
+
         }
     }
 

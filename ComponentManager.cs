@@ -11,12 +11,12 @@ internal class ComponentManager
 
     public bool IsComponentActive<T>(int id)
     {
-        return !_liveComponents.ContainsKey(typeof(T)) && _liveComponents[typeof(T)].Contains(id);
+        return _liveComponents.ContainsKey(typeof(T)) && _liveComponents[typeof(T)].Contains(id);
     }
 
     public bool IsComponentActive(Type type,int id)
     {
-        return !_liveComponents.ContainsKey(type) && _liveComponents[type].Contains(id);
+        return _liveComponents.ContainsKey(type) && _liveComponents[type].Contains(id);
     }
 
     public void ActivateComponent<T>(int id)
@@ -41,6 +41,11 @@ internal class ComponentManager
     public void DeactivateComponent<T>(int id)
     {
         _liveComponents[typeof(T)].Remove(id);
+    }
+
+    public void DeactivateComponent(Type type, int id)
+    {
+        _liveComponents[type].Remove(id);
     }
 
     public void DetachAll<T>()

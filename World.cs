@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -15,8 +16,8 @@ public enum RenderingModes
 }
 public class World
 {
-    private Dictionary<Type, dynamic[]> _componentTable;
-    public Dictionary<Type, dynamic[]> ComponentTable => _componentTable;
+    private Dictionary<Type, object> _componentTable;
+    public Dictionary<Type, object> ComponentTable => _componentTable;
 
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
@@ -35,7 +36,7 @@ public class World
     {
         _componentManager = new ComponentManager();
         _entityLimit = 1000;
-        _componentTable = new Dictionary<Type, dynamic[]>();
+        _componentTable = new Dictionary<Type, object>();
         _entities = new List<Entity>();
         _systems = new List<SystemBase>();
         _componentCache = new List<dynamic>();
@@ -156,11 +157,7 @@ public class World
         {
             foreach (var array in _componentTable)
             {
-                var component = array.Value[entity.Id];
-                if (component != null)
-                { 
-                    DetachComponent(component);
-                }
+                DetachComponent(array.Key,entity.Id);
             }
             _entities.Remove(entity);
         }
@@ -211,7 +208,8 @@ public class World
             component.Owner = entity.Id;
             if (!_componentTable.ContainsKey(component.GetType()))
             {
-                _componentTable.Add(component.GetType(),new dynamic[_entityLimit]);
+                _componentTable.Add(component.GetType(), Array.CreateInstance(component.GetType(),_entityLimit));
+                _componentTable[component.GetType()].Initialize();
             }
             _componentTable[component.GetType()][entity.Id] = component;
             var type = component.GetType();
@@ -222,6 +220,11 @@ public class World
     public void DetachComponent<T>(int id)
     {
         _componentManager.DeactivateComponent<T>(id);
+    }
+
+    public void DetachComponent(Type type, int id)
+    {
+        _componentManager.DeactivateComponent(type,id);
     }
 
     public void ClearComponents<T>()
@@ -249,14 +252,12 @@ public class World
     {
         if (_componentTable.TryGetValue(typeof(T), out var componentArray))
         {
-            if (componentArray is T[] typedArray)
-            {
-                return typedArray;
-            }
+            return (T[])_componentTable[typeof(T)];
         }
 
         return Array.Empty<T>();
     }
+
 
     public bool IsComponentActive<T>(int id)
     {
@@ -269,7 +270,7 @@ public class World
 
     public IEnumerable<dynamic> GetComponents(int id)
     {
-        return from array in _componentTable where array.Value[id] select array.Value[id];
+        return Array.Empty<dynamic>();
     }
 
     public IEnumerable<Entity> GetEntities(string tag)
