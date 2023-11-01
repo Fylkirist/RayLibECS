@@ -18,8 +18,8 @@ internal struct ColouredMesh2
 
     public ColouredMesh2()
     {
-        Owner = 0;
-        Z = 100;
+        Owner = -1;
+        Z = -1;
         RenderingMode = RenderingModes.TwoD;
         Mesh = new GeometryMesh2();
         Colours = new List<Color>();

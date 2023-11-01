@@ -10,8 +10,8 @@ internal struct CollisionEvent
 
     public CollisionEvent()
     {
-        Owner = 0;
-        Collider = 0;
+        Owner = -1;
+        Collider = -1;
         Vertices = new Geometry2D[2];
     }
 }

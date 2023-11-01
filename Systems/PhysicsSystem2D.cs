@@ -48,7 +48,7 @@ internal class PhysicsSystem2D : SystemBase
 
     private void HandleAcceleration(float delta)
     {
-        var positions = (Physics2[])World.GetComponents<Physics2>();
+        var positions = World.GetComponents<Physics2>();
         for(var i =0; i < positions.Length;i++)
         {
             positions[i].Position.Y += positions[i].Velocity.Y * delta;
@@ -60,7 +60,7 @@ internal class PhysicsSystem2D : SystemBase
 
     private void HandleCollisions(float delta)
     {
-        foreach (var collisionEvent in (CollisionEvent[])World.GetComponents<CollisionEvent>())
+        foreach (var collisionEvent in World.GetComponents<CollisionEvent>().Where(e=>World.IsComponentActive<CollisionEvent>(e.Owner)))
         {
             var ownerEntity = collisionEvent.Owner;
             var colidee = collisionEvent.Collider;
@@ -74,8 +74,8 @@ internal class PhysicsSystem2D : SystemBase
 
     private void CalculateCollisionPhysics(TriangleGeometry triangle1, Entity colliderEntity, TriangleGeometry triangle2, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -146,8 +146,8 @@ internal class PhysicsSystem2D : SystemBase
 
     private void CalculateCollisionPhysics(RectangleGeometry rectangle1, Entity colliderEntity, RectangleGeometry rectangle2, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -161,8 +161,8 @@ internal class PhysicsSystem2D : SystemBase
 
     private void CalculateCollisionPhysics(RectangleGeometry rectangle, Entity colliderEntity, TriangleGeometry triangle, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -172,8 +172,8 @@ internal class PhysicsSystem2D : SystemBase
 
     private void CalculateCollisionPhysics(CircleGeometry circle1, Entity colliderEntity, CircleGeometry circle2, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -220,8 +220,8 @@ internal class PhysicsSystem2D : SystemBase
     }
     private void CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity,RectangleGeometry rectangle, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -268,8 +268,8 @@ internal class PhysicsSystem2D : SystemBase
 
     private void CalculateCollisionPhysics(CircleGeometry circle, Entity colliderEntity, TriangleGeometry triangle, Entity collideEntity)
     {
-        var physicsComponent1 = ((Physics2[])World.GetComponents<Physics2>())[colliderEntity.Id];
-        var physicsComponent2 = ((Physics2[])World.GetComponents<Physics2>())[collideEntity.Id];
+        var physicsComponent1 = World.GetComponents<Physics2>()[colliderEntity.Id];
+        var physicsComponent2 = World.GetComponents<Physics2>()[collideEntity.Id];
 
         if (World.IsComponentActive<Physics2>(colliderEntity.Id) == false || World.IsComponentActive<Physics2>(collideEntity.Id) == false || physicsComponent1.PhysicsType == PhysicsType2D.Ethereal || physicsComponent2.PhysicsType == PhysicsType2D.Ethereal)
         {
@@ -302,7 +302,7 @@ internal class PhysicsSystem2D : SystemBase
 
     private void HandleGravity(float delta)
     {
-        var components = (Physics2[])World.GetComponents<Physics2>();
+        var components = World.GetComponents<Physics2>();
         for(var i = 0; i < components.Length; i++) 
         {
             if (components[i].PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic)

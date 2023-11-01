@@ -23,20 +23,31 @@ internal class RenderingSystem2D : SystemBase
         var activeCamera = World.GetComponents<Camera2>()[_currentCamera.Id];
         Raylib.BeginMode2D(activeCamera.Position);
         var colouredMeshes = World.GetComponents<ColouredMesh2>()
-            .Where(e => World.IsComponentActive<ColouredMesh2>(e.Owner) && e.Z<100)
-            .OrderBy(e=>e.Z)
-            .ToArray();
-        var animatedSprites = World.GetComponents<AnimatedSprite2>()
-            .Where(e => World.IsComponentActive<AnimatedSprite2>(e.Owner) && e.Z<100)
-            .OrderBy(e=>e.Z)
-            .ToArray();
-        var meshPointer = 0;
-        var spritePointer = 0;
-        while (meshPointer < colouredMeshes.Length || spritePointer < animatedSprites.Length)
-        {
-            var meshesLeft = meshPointer < colouredMeshes.Length;
-            var spritesLeft = spritePointer < animatedSprites.Length;
+            .Where(e => World.IsComponentActive<ColouredMesh2>(e.Owner));
 
+        var animatedSprites = World.GetComponents<AnimatedSprite2>()
+            .Where(e => World.IsComponentActive<AnimatedSprite2>(e.Owner));
+
+        var combinedEnumerable = colouredMeshes
+            .Cast<object>()
+            .Concat(animatedSprites.Cast<object>())
+            .OrderBy(item =>
+            {
+                return item switch
+                {
+                    ColouredMesh2 colouredMesh => colouredMesh.Z,
+                    AnimatedSprite2 animatedSprite => animatedSprite.Z,
+                    _ => throw new InvalidOperationException("Unknown type in combinedEnumerable")
+                };
+            }).ToArray();
+        foreach (var renderable in combinedEnumerable)
+        {
+            if(renderable is ColouredMesh2 mesh){
+                RenderMesh(mesh);
+            }
+            else if (renderable is AnimatedSprite2 sprite){
+                RenderSprite(sprite);
+            }
         }
     }
 

@@ -16,13 +16,13 @@ public struct AnimatedSprite2
 
     public AnimatedSprite2()
     {
-        Owner = 0;
+        Owner = -1;
         Offset = new Vector2();
         Scale = 0f;
         AnimationState = "";
         TextureStateMap = new Dictionary<string,Texture2D>();
         Tint = Color.BLANK;
         RenderingMode = RenderingModes.TwoD;
-        Z = 100;
+        Z = -1;
     }
 }
