@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Raylib_cs;
 using RayLibECS.Components;
@@ -248,14 +249,13 @@ public class World
         
     }
 
-    public T[] GetComponents<T>()
+    public ref T[] GetComponents<T>()
     {
-        if (_componentTable.TryGetValue(typeof(T), out var componentArray))
+        if (!_componentTable.ContainsKey(typeof(T)))
         {
-            return (T[])_componentTable[typeof(T)];
+            _componentTable.Add(typeof(T),new T[_entityLimit]);
         }
-
-        return Array.Empty<T>();
+        return ref Unsafe.AsRef((T[])_componentTable[typeof(T)]);
     }
 
 

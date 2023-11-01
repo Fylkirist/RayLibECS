@@ -22,33 +22,13 @@ internal class RenderingSystem2D : SystemBase
         if(!World.IsComponentActive<Camera2>(_currentCamera.Id)) return;
         var activeCamera = World.GetComponents<Camera2>()[_currentCamera.Id];
         Raylib.BeginMode2D(activeCamera.Position);
-        var colouredMeshes = World.GetComponents<ColouredMesh2>()
-            .Where(e => World.IsComponentActive<ColouredMesh2>(e.Owner));
-
-        var animatedSprites = World.GetComponents<AnimatedSprite2>()
-            .Where(e => World.IsComponentActive<AnimatedSprite2>(e.Owner));
-
-        var combinedEnumerable = colouredMeshes
-            .Cast<object>()
-            .Concat(animatedSprites.Cast<object>())
-            .OrderBy(item =>
-            {
-                return item switch
-                {
-                    ColouredMesh2 colouredMesh => colouredMesh.Z,
-                    AnimatedSprite2 animatedSprite => animatedSprite.Z,
-                    _ => throw new InvalidOperationException("Unknown type in combinedEnumerable")
-                };
-            }).ToArray();
-        foreach (var renderable in combinedEnumerable)
+        var colouredMeshes = World.GetComponents<ColouredMesh2>();
+        var animatedSprites = World.GetComponents<AnimatedSprite2>();
+        foreach (var VARIABLE in colouredMeshes)
         {
-            if(renderable is ColouredMesh2 mesh){
-                RenderMesh(mesh);
-            }
-            else if (renderable is AnimatedSprite2 sprite){
-                RenderSprite(sprite);
-            }
+            RenderMesh(VARIABLE);
         }
+        
     }
 
     public override void Update(float delta)
