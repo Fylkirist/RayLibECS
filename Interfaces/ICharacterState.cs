@@ -1,19 +1,9 @@
 using RayLibECS.Entities;
-using RayLibECS;
 
-namespace Interfaces;
+namespace RayLibECS.Interfaces;
 
-public abstract class CharacterState
+public interface ICharacterState
 {
-    public string[] ValidSuccessors;
-    
-    public string State;
-
-    protected CharacterState(string[] successors, string state)
-    {
-        ValidSuccessors = successors;
-        State = state;
-    }
 
     public abstract void EnterState(World world, Entity entity);
 

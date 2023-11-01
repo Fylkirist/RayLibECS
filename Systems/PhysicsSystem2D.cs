@@ -84,14 +84,14 @@ internal class PhysicsSystem2D : SystemBase
         var triangle1Center = Vector2.Transform(triangle1.Offset + physicsComponent1.Position, Matrix3x2.CreateRotation(physicsComponent1.Rotation, physicsComponent1.Position));
         var triangle2Center = Vector2.Transform(triangle2.Offset + physicsComponent2.Position, Matrix3x2.CreateRotation(physicsComponent2.Rotation, physicsComponent2.Position));
 
-        var triangle1Transformed = new Vector2[]
+        var triangle1Transformed = new[]
         {
             Vector2.Transform(triangle1.Points[0]+triangle1Center,Matrix3x2.CreateRotation(triangle1.Rotation + physicsComponent1.Rotation,triangle1Center)),
             Vector2.Transform(triangle1.Points[1]+triangle1Center,Matrix3x2.CreateRotation(triangle1.Rotation + physicsComponent1.Rotation,triangle1Center)),
             Vector2.Transform(triangle1.Points[2]+triangle1Center,Matrix3x2.CreateRotation(triangle1.Rotation + physicsComponent1.Rotation,triangle1Center))
         };
 
-        var triangle2Transformed = new Vector2[]
+        var triangle2Transformed = new[]
         {
             Vector2.Transform(triangle2.Points[0]+triangle2Center,Matrix3x2.CreateRotation(triangle2.Rotation + physicsComponent2.Rotation,triangle2Center)),
             Vector2.Transform(triangle2.Points[1]+triangle2Center,Matrix3x2.CreateRotation(triangle2.Rotation + physicsComponent2.Rotation,triangle2Center)),
@@ -278,7 +278,7 @@ internal class PhysicsSystem2D : SystemBase
         var circleCenter = Vector2.Transform(circle.Offset+physicsComponent1.Position,Matrix3x2.CreateRotation(physicsComponent1.Rotation,physicsComponent1.Position));
         var triangleCenter = Vector2.Transform(triangle.Offset+physicsComponent2.Position,Matrix3x2.CreateRotation(physicsComponent2.Rotation,physicsComponent2.Position));
 
-        var triangleTransformed = new Vector2[]
+        var triangleTransformed = new[]
         {
             Vector2.Transform(triangle.Points[0]+triangleCenter, Matrix3x2.CreateRotation(physicsComponent2.Rotation + triangle.Rotation,triangleCenter)),
             Vector2.Transform(triangle.Points[1]+triangleCenter, Matrix3x2.CreateRotation(physicsComponent2.Rotation + triangle.Rotation,triangleCenter)),
