@@ -41,6 +41,12 @@ public class World
 
     public void InitializeWorld()
     {
+
+        AddSystem(new RenderingSystem2D(this));
+        AddSystem(new CollisionDetectionSystem2D(this));
+        AddSystem(new PhysicsSystem2D(this));
+        AddSystem(new MovementSystem(this));
+
         var testEntity1 = CreateEntity("");
 
         var testRender1 = CreateComponent<ColouredMesh2>();
@@ -133,12 +139,6 @@ public class World
         AttachComponents(testEntity4,
                 testRender4,
                 testPhysics4);
-
-
-        AddSystem(new RenderingSystem2D(this));
-        AddSystem(new CollisionDetectionSystem2D(this));
-        AddSystem(new PhysicsSystem2D(this));
-        AddSystem(new MovementSystem(this));
     }
 
     public void Update(float delta)
@@ -163,6 +163,11 @@ public class World
         }
     }
 
+    public void AllocateComponentArray<T>()
+    {
+        if (_componentTable.ContainsKey(typeof(T))) return;
+        _componentTable.Add(typeof(T),new Component[_entityLimit]);
+    }
     public void Draw()
     {
         Raylib.ClearBackground(Color.BLACK);

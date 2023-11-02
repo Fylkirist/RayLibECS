@@ -21,6 +21,7 @@ internal class PhysicsSystem2D : SystemBase
 
     public override void Initialize()
     {
+        World.AllocateComponentArray<Physics2>();
         _active = true;
     }
 

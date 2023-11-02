@@ -19,6 +19,8 @@ internal class RenderingSystem2D:SystemBase
     {
         Initialize2DCamera();
         _active = true;
+        World.AllocateComponentArray<ColouredMesh2>();
+        World.AllocateComponentArray<AnimatedSprite2>();
     }
 
     public override void Draw()

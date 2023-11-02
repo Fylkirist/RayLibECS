@@ -17,10 +17,7 @@ public class MovementSystem : SystemBase
 
     public override void Initialize()
     {
-        var entity = World.CreateEntity("Moveable");
-        var moveable = World.CreateComponent<Moveable>();
-
-        World.AttachComponents(entity, moveable);
+        World.AllocateComponentArray<Moveable>();
     }
 
     public override void Draw()

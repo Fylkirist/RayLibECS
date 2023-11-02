@@ -85,6 +85,8 @@ public class CollisionDetectionSystem2D : SystemBase
 
     public override void Initialize()
     {
+        World.AllocateComponentArray<CollisionEvent>();
+        World.AllocateComponentArray<Physics2>();
         _active = true;
     }
 
