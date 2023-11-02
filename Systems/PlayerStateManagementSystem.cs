@@ -1,13 +1,16 @@
+using RayLibECS.Interfaces;
+
 namespace RayLibECS.Systems;
 
 
 public class EntityStateManagementSystem:SystemBase
 {
 
-    
+    private Dictionary<string,IStateFactory> _factoryDict;
+
     public EntityStateManagementSystem(World world):base(world)
     {
-
+        _factoryDict = new Dictionary<string, IStateFactory>();
     }
 
     public override void Draw()
