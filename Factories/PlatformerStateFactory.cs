@@ -16,6 +16,8 @@ internal class PlatformerStateFactory : IStateFactory
         switch(state){
             case "idle":
                 return _cachedStates.ContainsKey("idle")? _cachedStates["idle"]: new IdleState();
+            case "running":
+                return _cachedStates.ContainsKey("running")? _cachedStates["running"]: new RunningState();
 
             
         }
