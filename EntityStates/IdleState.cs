@@ -1,10 +1,9 @@
 using System.Numerics;
-using RayLibECS;
 using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Interfaces;
 
-namespace EntityStates;
+namespace RayLibECS.EntityStates;
 
 public class IdleState : IEntityState
 {
@@ -24,7 +23,7 @@ public class IdleState : IEntityState
 
     public void ExitState(World world, Entity entity)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void Update(World world, Entity entity, InputState input, float delta)

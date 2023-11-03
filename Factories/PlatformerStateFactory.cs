@@ -1,4 +1,4 @@
-﻿using EntityStates;
+﻿using RayLibECS.EntityStates;
 using RayLibECS.Interfaces;
 
 namespace RayLibECS.Factories;

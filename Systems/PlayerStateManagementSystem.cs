@@ -1,3 +1,4 @@
+using RayLibECS.Components;
 using RayLibECS.Interfaces;
 
 namespace RayLibECS.Systems;
@@ -7,10 +8,12 @@ public class EntityStateManagementSystem:SystemBase
 {
 
     private Dictionary<string,IStateFactory> _factoryDict;
+    private bool _active;
 
     public EntityStateManagementSystem(World world):base(world)
     {
         _factoryDict = new Dictionary<string, IStateFactory>();
+        _active = false;
     }
 
     public override void Draw()
@@ -20,12 +23,21 @@ public class EntityStateManagementSystem:SystemBase
 
     public override void Stop()
     {
-        throw new NotImplementedException();
+        _active = false;
     }
 
     public override void Update(float delta)
     {
-            
+        foreach(var entityState in World.GetComponents<EntityState>()){
+            var state = _factoryDict[entityState.EntityCategory].CreateState(entityState.CurrentState);
+            if(entityState.CurrentState != entityState.LastUpdate){
+                var oldState = _factoryDict[entityState.EntityCategory].CreateState(entityState.LastUpdate);
+                oldState.ExitState(World,entityState.Owner);
+                state.EnterState(World,entityState.Owner);
+            }
+            state.Update(World,entityState.Owner, World.InputState, delta);
+            entityState.LastUpdate = entityState.CurrentState;
+        }
     }
 
     public override void Detach()
@@ -35,6 +47,7 @@ public class EntityStateManagementSystem:SystemBase
 
     public override void Initialize()
     {
-
+        World.AllocateComponentArray<EntityState>();
+        _active = true;
     }
 }
