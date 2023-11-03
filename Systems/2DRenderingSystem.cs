@@ -67,6 +67,18 @@ internal class RenderingSystem2D:SystemBase
                     break;
             }
         }
+        foreach(var sprite in World.GetComponents<AnimatedSprite2>()){
+            UpdateSpriteAnimation(delta,sprite);
+        }
+    }
+
+    public void UpdateSpriteAnimation(float delta, AnimatedSprite2 sprite){
+        var animDuration = 0f;
+        for(int i = 0; i<sprite.TextureStateMap[sprite.AnimationState].Length; i++){
+            animDuration += sprite.TextureStateMap[sprite.AnimationState][i].Key;
+        }
+
+        sprite.AnimationTimer = sprite.AnimationTimer <= animDuration? sprite.AnimationTimer + delta: 0 + delta;
     }
 
     public override void Detach()
@@ -162,6 +174,10 @@ internal class RenderingSystem2D:SystemBase
     private void RenderSprite(AnimatedSprite2 sprite){
         var position = World.QueryComponent<Physics2>(sprite.Owner);
         if(position==null) return;
-        Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState],sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
+        int frameIndex = 0;
+        for(int i = 0; i<sprite.TextureStateMap[sprite.AnimationState].Length; i++){
+            frameIndex = sprite.AnimationTimer > sprite.TextureStateMap[sprite.AnimationState][i].Key? i: frameIndex;
+        }
+        Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState][frameIndex].Value,sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
     }
 }

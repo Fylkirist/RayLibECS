@@ -8,6 +8,7 @@ public class AnimatedSprite2:RenderableComponent
     public Vector2 Offset;
     public float Scale;
     public string AnimationState;
+    public float AnimationTimer;
     public Dictionary<string,KeyValuePair<float,Texture2D>[]> TextureStateMap;
     public Color Tint;
   
@@ -17,5 +18,6 @@ public class AnimatedSprite2:RenderableComponent
         AnimationState = "";
         TextureStateMap = new Dictionary<string,KeyValuePair<float,Texture2D>[]>();
         Tint = Color.BLANK;
+        AnimationTimer = 0f;
     }
 }
