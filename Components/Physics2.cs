@@ -15,7 +15,6 @@ public class Physics2:Component
     public float Absorbtion;
     public float Friction;
     public int Z;
-
     public Physics2()
     {
         Position = new Vector2();

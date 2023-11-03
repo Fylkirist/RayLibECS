@@ -1,3 +1,5 @@
+using System.Numerics;
+using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Interfaces;
 
@@ -17,6 +19,20 @@ public class RunningState : IEntityState
 
     public void Update(World world, Entity entity, InputState input, float delta)
     {
-        throw new NotImplementedException();
+	    var charPhysics = world.QueryComponent<Physics2>(entity);
+        var charState = world.QueryComponent<EntityState>(entity);
+        if(charPhysics == null || charState == null){
+            return;
+        }
+        if(input.PressedKeys.Contains(Raylib_cs.KeyboardKey.KEY_RIGHT)){
+            charPhysics.Velocity += 100 * delta * new Vector2(1,0);
+        }
+        if(input.PressedKeys.Contains(Raylib_cs.KeyboardKey.KEY_LEFT)){
+            charPhysics.Velocity -= 100 * delta * new Vector2(1,0);
+        }
+        if(input.PressedKeys.Contains(Raylib_cs.KeyboardKey.KEY_SPACE)){
+            charState.CurrentState = "jump";
+        }
+
     }
 }

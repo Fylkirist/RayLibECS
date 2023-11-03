@@ -11,8 +11,10 @@ public class AnimatedSprite2:RenderableComponent
     public float AnimationTimer;
     public Dictionary<string,KeyValuePair<float,Texture2D>[]> TextureStateMap;
     public Color Tint;
+    public Vector2 Facing;
   
     public AnimatedSprite2(){
+        Facing = new Vector2();
         Offset = new Vector2();
         Scale = 0f;
         AnimationState = "";
