@@ -1,4 +1,5 @@
-﻿using RayLibECS.Interfaces;
+﻿using EntityStates;
+using RayLibECS.Interfaces;
 
 namespace RayLibECS.Factories;
 
@@ -12,6 +13,12 @@ internal class PlatformerStateFactory : IStateFactory
     }
     public IEntityState CreateState(string state)
     {
-        throw new NotImplementedException();
+        switch(state){
+            case "idle":
+                return _cachedStates.ContainsKey("idle")? _cachedStates["idle"]: new IdleState();
+
+            
+        }
+        throw new Exception("invalid state");
     }
 }
