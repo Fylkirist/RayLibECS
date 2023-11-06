@@ -10,9 +10,9 @@ public class EntityStateManagementSystem:SystemBase
     private Dictionary<string,IStateFactory> _factoryDict;
     private bool _active;
 
-    public EntityStateManagementSystem(World world):base(world)
+    public EntityStateManagementSystem(World world, Dictionary<string,IStateFactory> stateFactories):base(world)
     {
-        _factoryDict = new Dictionary<string, IStateFactory>();
+        _factoryDict = stateFactories;
         _active = false;
     }
 

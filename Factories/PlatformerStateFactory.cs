@@ -15,12 +15,25 @@ internal class PlatformerStateFactory : IStateFactory
     {
         switch(state){
             case "idle":
-                return _cachedStates.ContainsKey("idle")? _cachedStates["idle"]: new IdleState();
+                return _cachedStates.ContainsKey("idle")
+                    ? _cachedStates["idle"]
+                    : NewState("idle", new IdleState());
             case "running":
-                return _cachedStates.ContainsKey("running")? _cachedStates["running"]: new RunningState();
+                return _cachedStates.ContainsKey("running")
+                    ? _cachedStates["running"]
+                    : NewState("running", new RunningState());
+            case "jumping":
+                return _cachedStates.ContainsKey("jumping")
+                    ? _cachedStates["jumping"]
+                    : NewState("jumping", new JumpingState());
 
-            
         }
         throw new Exception("invalid state");
+    }
+
+    public IEntityState NewState(string key,IEntityState state)
+    {
+        _cachedStates.Add(key,state);
+        return _cachedStates[key];
     }
 }
