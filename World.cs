@@ -4,6 +4,8 @@ using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Shapes;
 using RayLibECS.Systems;
+using RayLibECS.Factories;
+using RayLibECS.Interfaces;
 
 namespace RayLibECS;
 
@@ -46,6 +48,10 @@ public class World
         AddSystem(new CollisionDetectionSystem2D(this));
         AddSystem(new PhysicsSystem2D(this));
         AddSystem(new MovementSystem(this));
+        AddSystem(new EntityStateManagementSystem(this,
+                    new Dictionary<string, IStateFactory>{
+                        {"character", new PlatformerStateFactory()}
+                    }));
 
         var testEntity1 = CreateEntity("");
 
@@ -75,10 +81,12 @@ public class World
         testPhysics1.RotationSpeed = 1f;
         testPhysics1.Position = new Vector2(-400,0);
         testPhysics1.Mass = 20f;
+        
+        var testState1 = CreateComponent<EntityState>();
+        testState1.EntityCategory = "character";
 
         AttachComponents(
             testEntity1,
-            CreateComponent<Moveable>(),
             testPhysics1,
             testRender1
             );
