@@ -13,15 +13,16 @@ public class JumpingState : IEntityState
         var charPhysics = world.QueryComponent<Physics2>(entity);
         var entityState = world.QueryComponent<EntityState>(entity);
         var charAnim = world.QueryComponent<AnimatedSprite2>(entity);
-        if(charPhysics == null || entityState == null || charAnim == null){
+        var charStats = world.QueryComponent<CharacterStats>(entity);
+        if(charPhysics == null || entityState == null || charAnim == null || charStats == null){
             return;
         }
         
         charAnim.AnimationState = "jumping";
         charAnim.AnimationTimer = 0f;
 
-        charPhysics.Velocity.Y -= 100;
-        charPhysics.PhysicsType = Systems.PhysicsType2D.Dynamic;
+        charPhysics.Velocity.Y -= charStats.JumpHeight;
+        charPhysics.PhysicsType = Systems.PhysicsType2D.Kinematic;
 
         entityState.LastUpdate = "jumping";
     }
@@ -43,6 +44,8 @@ public class JumpingState : IEntityState
         if(charPhysics == null || anim == null || charStats == null){
             return;
         }
+
+        charPhysics.Velocity.Y += 100*9.81f*delta;
         
         if(input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT)){
             charPhysics.Velocity.X = charPhysics.Velocity.X<charStats.Speed? charPhysics.Velocity.X + 100 * delta : charStats.Speed;

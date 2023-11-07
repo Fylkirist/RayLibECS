@@ -49,24 +49,24 @@ internal class RenderingSystem2D:SystemBase
         
         if(!_active) return;
         var activeCam = GetActiveCamera();
-        foreach (var key in World.InputState.PressedKeys)
-        {
-            switch (key)
-            {
-                case KeyboardKey.KEY_RIGHT:
-                    activeCam.Position.target.X += delta*1000;
-                    break;
-                case KeyboardKey.KEY_LEFT:
-                    activeCam.Position.target.X -= delta*1000;
-                    break;
-                case KeyboardKey.KEY_UP:
-                    activeCam.Position.target.Y -= delta*1000;
-                    break;
-                case KeyboardKey.KEY_DOWN:
-                    activeCam.Position.target.Y += delta*1000;
-                    break;
-            }
-        }
+        // foreach (var key in World.InputState.PressedKeys)
+        // {
+        //     switch (key)
+        //     {
+        //         case KeyboardKey.KEY_RIGHT:
+        //             activeCam.Position.target.X += delta*1000;
+        //             break;
+        //         case KeyboardKey.KEY_LEFT:
+        //             activeCam.Position.target.X -= delta*1000;
+        //             break;
+        //         case KeyboardKey.KEY_UP:
+        //             activeCam.Position.target.Y -= delta*1000;
+        //             break;
+        //         case KeyboardKey.KEY_DOWN:
+        //             activeCam.Position.target.Y += delta*1000;
+        //             break;
+        //     }
+        // }
         foreach(var sprite in World.GetComponents<AnimatedSprite2>()){
             UpdateSpriteAnimation(delta,sprite);
         }

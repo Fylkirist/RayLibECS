@@ -73,8 +73,8 @@ public class World
                 ));
         var testPhysics1 = CreateComponent<Physics2>();
         
-        testPhysics1.Velocity = new Vector2(200,-300);
-        testPhysics1.PhysicsType = PhysicsType2D.Dynamic;
+        testPhysics1.Velocity = new Vector2(0,0);
+        testPhysics1.PhysicsType = PhysicsType2D.Kinematic;
         testPhysics1.Rotation = 0f;
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
         testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,new Vector2(180,50)));
@@ -84,11 +84,19 @@ public class World
         
         var testState1 = CreateComponent<EntityState>();
         testState1.EntityCategory = "character";
+        testState1.CurrentState = "idle";
+        testState1.LastUpdate = "idle";
+
+        var testStats1 = CreateComponent<CharacterStats>();
+        testStats1.JumpHeight = 200f;
+        testStats1.Speed = 300f;
 
         AttachComponents(
             testEntity1,
             testPhysics1,
-            testRender1
+            testRender1,
+            testState1,
+            testStats1
             );
         
         var testEntity2 = CreateEntity("");
