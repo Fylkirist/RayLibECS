@@ -31,8 +31,11 @@ public class World
     public InputState InputState => _inputState;
 
     private int _entityLimit;
+
+    public AssetManager AssetManager;
     public World()
     {
+        AssetManager = new AssetManager(2147483648);
         _entityLimit = 1000;
         _componentTable = new Dictionary<Type, Component?[]>();
         _entities = new List<Entity>();
@@ -55,24 +58,11 @@ public class World
 
         var testEntity1 = CreateEntity("");
 
-        var testRender1 = CreateComponent<ColouredMesh2>();
-        
-        testRender1.Colours.Add(Color.WHITE);
-        testRender1.Colours.Add(Color.BLUE);
+        var testRender1 = CreateComponent<AnimatedSprite2>();
+        testRender1.TextureStateMap = new Dictionary<string, KeyValuePair<float, Texture2D>[]>();
 
-        testRender1.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0)));
-        testRender1.Mesh.Shapes.Add(new CircleGeometry(200, new Vector2(180, 50)));
-        testRender1.Mesh.Shapes.Add(new TriangleGeometry(
-                    new Vector2[]{
-                        new(-200,-200),
-                        new(-200,0),
-                        new(0,0)
-                    },
-                    new Vector2(-400,0),
-                    2f
-                ));
         var testPhysics1 = CreateComponent<Physics2>();
-        
+
         testPhysics1.Velocity = new Vector2(0,0);
         testPhysics1.PhysicsType = PhysicsType2D.Kinematic;
         testPhysics1.Rotation = 0f;
