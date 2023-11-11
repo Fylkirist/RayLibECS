@@ -6,6 +6,7 @@ namespace RayLibECS;
 public class AssetManager
 {
     public ulong AssetCacheLimit;
+    public ulong VramLimit;
 
     private const string Texturepath = "./Assets/Textures/";
     private const string Audiopath = "./Assets/Audio/";
@@ -21,8 +22,9 @@ public class AssetManager
     
     private Dictionary<string,int> _assetFrequency;
 
-    internal AssetManager(ulong cacheLimit){
+    internal AssetManager(ulong cacheLimit, ulong vramLimit){
         AssetCacheLimit = cacheLimit;
+        VramLimit = vramLimit;
         
         _assetFrequency = new Dictionary<string, int>();
         _fontFiles = Directory.EnumerateFiles("./Assets/Fonts").ToArray();
@@ -52,6 +54,7 @@ public class AssetManager
 
         return size;
     }
+
     private void ManageAssetCache()
     {
         ulong size = 0;

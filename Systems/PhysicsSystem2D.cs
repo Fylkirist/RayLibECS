@@ -304,7 +304,7 @@ internal class PhysicsSystem2D : SystemBase
     {
         foreach (var physics in World.GetComponents<Physics2>())
         {
-            if (physics.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic)
+            if (physics.PhysicsType is not PhysicsType2D.Static)
             {
                 physics.Velocity.Y += _gravity * _scale * delta;
             }
