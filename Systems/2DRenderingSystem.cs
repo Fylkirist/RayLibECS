@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -178,6 +173,6 @@ internal class RenderingSystem2D:SystemBase
         for(int i = 0; i<sprite.TextureStateMap[sprite.AnimationState].Length; i++){
             frameIndex = sprite.AnimationTimer > sprite.TextureStateMap[sprite.AnimationState][i].Key? i: frameIndex;
         }
-        Raylib.DrawTextureEx(sprite.TextureStateMap[sprite.AnimationState][frameIndex].Value,sprite.Offset+position.Position,position.Rotation,sprite.Scale,sprite.Tint);
+        Raylib.DrawTextureEx(World.AssetManager.GetTexture(sprite.TextureStateMap[sprite.AnimationState][frameIndex].Value), sprite.Offset+position.Position, position.Rotation, sprite.Scale, sprite.Tint);
     }
 }

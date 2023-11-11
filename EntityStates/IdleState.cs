@@ -31,17 +31,22 @@ public class IdleState : IEntityState
     {
         var charState = world.QueryComponent<EntityState>(entity);
         var physicsComponent = world.QueryComponent<Physics2>(entity);
+        var collisionEvent = world.QueryComponent<CollisionEvent>(entity);
+
         if(physicsComponent == null || charState == null){
             throw new Exception("Entity must contain physics component");
         }
         if(physicsComponent.Velocity.Length() > 0){
             physicsComponent.Velocity = physicsComponent.Velocity.Length() > 1? physicsComponent.Velocity * 0.1f * delta: Vector2.Zero;
         }
-        if(input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT)){
+        if(input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT) 
+            || input.PressedKeys.Contains(KeyboardKey.KEY_LEFT))
+        {
             charState.CurrentState = "running";
         }
-        if(input.PressedKeys.Contains(KeyboardKey.KEY_LEFT)){
-            charState.CurrentState = "running";
+        if(collisionEvent != null){
+            var collider = collisionEvent.Owner;
+            var colliderPhysics = world.QueryComponent<Physics2>(collider);
         }
     }
 }

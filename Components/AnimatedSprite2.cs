@@ -3,13 +3,13 @@ using Raylib_cs;
 
 namespace RayLibECS.Components;
 
-public class AnimatedSprite2:RenderableComponent
+public class AnimatedSprite2 : RenderableComponent
 {
     public Vector2 Offset;
     public float Scale;
     public string AnimationState;
     public float AnimationTimer;
-    public Dictionary<string,KeyValuePair<float,Texture2D>[]> TextureStateMap;
+    public Dictionary<string,KeyValuePair<float,string>[]> TextureStateMap;
     public Color Tint;
     public Vector2 Facing;
   
@@ -18,7 +18,7 @@ public class AnimatedSprite2:RenderableComponent
         Offset = new Vector2();
         Scale = 0f;
         AnimationState = "";
-        TextureStateMap = new Dictionary<string,KeyValuePair<float,Texture2D>[]>();
+        TextureStateMap = new Dictionary<string,KeyValuePair<float,string>[]>();
         Tint = Color.BLANK;
         AnimationTimer = 0f;
     }

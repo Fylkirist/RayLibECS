@@ -59,7 +59,7 @@ public class World
         var testEntity1 = CreateEntity("");
 
         var testRender1 = CreateComponent<AnimatedSprite2>();
-        testRender1.TextureStateMap = new Dictionary<string, KeyValuePair<float, Texture2D>[]>();
+        testRender1.TextureStateMap = new Dictionary<string, KeyValuePair<float, string>[]>();
 
         var testPhysics1 = CreateComponent<Physics2>();
 
