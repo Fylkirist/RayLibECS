@@ -12,6 +12,7 @@ internal class Camera3 : Component
 {
     public Camera3D CameraPosition;
     public CameraMode CameraMode;
+    public double FieldOfView;
     public Camera3(Entity owner) : base(owner)
     {
         CameraPosition = new Camera3D();
@@ -22,5 +23,6 @@ internal class Camera3 : Component
     {
         CameraMode = CameraMode.CAMERA_FREE;
         CameraPosition = new Camera3D();
+        FieldOfView = 0;
     }
 }

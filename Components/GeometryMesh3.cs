@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace RayLibECS.Components;
 
-public class GeometryMesh3 : Component{
+public class GeometryMesh3{
     public Mesh Mesh;
     public Vector3 Offset;
     public Quaternion Rotation;
