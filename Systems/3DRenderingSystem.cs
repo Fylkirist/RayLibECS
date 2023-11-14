@@ -21,23 +21,36 @@ public class RenderingSystem3D : SystemBase
         if (_currentCamera == null) return;
         var cameraComponent = World.QueryComponent<Camera3>(_currentCamera);
         if(cameraComponent == null) return;
-        var renderables = World.GetComponents<RenderableComponent3>().ToArray();
+        var renderables = SortAndPruneRenderables(World.GetComponents<RenderableComponent3>().ToArray(),cameraComponent);
      
         foreach (var renderable in renderables){
-            
+            var physics = World.QueryComponent<Physics3>(renderable.Owner);
+            if(physics == null){
+                continue;
+            }
+            Raylib.DrawMesh(renderable.Mesh.Mesh, renderable.Material, Matrix4x4.CreateTranslation(physics.Position+renderable.Mesh.Offset));
         }
     }
 
     private IEnumerable<RenderableComponent3> SortAndPruneRenderables(RenderableComponent3[] renderables, Camera3 component)
     {
-        double angle = Math.Cos(component.FieldOfView / 57.29578);
+        double angle = Math.Cos(component.CameraPosition.fovy / 57.29578);
+        Vector3 direction = Vector3.Normalize(component.CameraPosition.target);
 
         var sorted = renderables.OrderBy(e=>
-            World.QueryComponent<Physics3>(e.Owner).Position - component.CameraPosition
+            World.QueryComponent<Physics3>(e.Owner)!.Position - component.CameraPosition.position
                 ).ToArray();
-        
-        foreach(var renderable in sorted){
-            yield renderable;
+
+        foreach (var renderable in sorted){
+            var position = World.QueryComponent<Physics3>(renderable.Owner);
+            if(position == null){
+                continue;
+            }
+            Vector3 relativePosition = Vector3.Normalize(position.Position - component.CameraPosition.position);
+            float product = Vector3.Dot(direction, relativePosition);
+            if(product > angle){
+                yield return renderable;
+            }
         }
     }
    
