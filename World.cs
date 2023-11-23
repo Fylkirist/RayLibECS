@@ -6,6 +6,7 @@ using RayLibECS.Shapes;
 using RayLibECS.Systems;
 using RayLibECS.Factories;
 using RayLibECS.Interfaces;
+using RayLibECS.Events;
 
 namespace RayLibECS;
 
@@ -19,6 +20,8 @@ public class World
 {
     private Dictionary<Type, Component?[]> _componentTable;
     public Dictionary<Type, Component?[]> ComponentTable => _componentTable;
+    
+    private Stack<WorldEvent> _events;
 
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
@@ -35,7 +38,8 @@ public class World
     public AssetManager AssetManager;
     public World()
     {
-        AssetManager = new AssetManager(2147483648);
+        _events = new Stack<WorldEvent>();
+        AssetManager = new AssetManager(2147483648,2147483648);
         _entityLimit = 1000;
         _componentTable = new Dictionary<Type, Component?[]>();
         _entities = new List<Entity>();

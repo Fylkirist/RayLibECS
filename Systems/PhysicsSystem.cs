@@ -11,11 +11,11 @@ public enum PhysicsMode{
 
 public class PhysicsSystem : SystemBase{
     private bool _running;
-    private PhysicsMode _mode;
+    private double _simulationDistance;
     
-    public PhysicsSystem(World world, PhysicsMode mode) : base(world){
+    public PhysicsSystem(World world, double simDistance) : base(world){
         _running = false;
-        _mode = mode;
+        _simulationDistance = simDistance;
     }
 
     public override void Detach()
@@ -39,24 +39,33 @@ public class PhysicsSystem : SystemBase{
 
     public override void Update(float delta)
     {
-        throw new NotImplementedException();
+        HandleMovement3D(delta);
+        HandleMovement2D(delta);
+        HandleCollisions();
     }
 
     public void HandleCollisions(){
         var collisions = World.GetComponents<CollisionEvent>();
-
+        foreach(var collision in collisions){
+            
+        }
     }
 
-    public void HandleMovement2D(){
+    public void HandleMovement2D(float delta){
        var physicsComponents = World.GetComponents<Physics2>();
        foreach(var component in physicsComponents){
-           component.Position += component.Velocity;
-           component.Rotation += component.RotationSpeed;
+           component.Position += component.Velocity * delta;
+           component.Rotation += component.RotationSpeed * delta;
        }
     }
 
-    public void HandleMovement3D(){
+    public void HandleMovement3D(float delta){
         var physicsComponents = World.GetComponents<Physics3>();
+        foreach (var component in physicsComponents)
+        {
+           component.Position += component.Velocity * delta;
+           component.Rotation += component.AngularMomentum * delta;
 
+        }
     }
 }
