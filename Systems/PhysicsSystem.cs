@@ -1,6 +1,7 @@
 using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Shapes;
+using System.Numerics;
 
 namespace RayLibECS.Systems;
 
@@ -12,10 +13,12 @@ public enum PhysicsMode{
 public class PhysicsSystem : SystemBase{
     private bool _running;
     private double _simulationDistance;
+    private Vector3 _gravityVector; //Temporary solution
     
     public PhysicsSystem(World world, double simDistance) : base(world){
         _running = false;
         _simulationDistance = simDistance;
+        _gravityVector = new Vector3(0,100,0);
     }
 
     public override void Detach()
@@ -39,15 +42,30 @@ public class PhysicsSystem : SystemBase{
 
     public override void Update(float delta)
     {
+
         HandleMovement3D(delta);
         HandleMovement2D(delta);
         HandleCollisions();
+        UpdateSoftBodies2(delta);
     }
 
     public void HandleCollisions(){
         var collisions = World.GetComponents<CollisionEvent>();
         foreach(var collision in collisions){
             
+        }
+    }
+
+    public void UpdateSoftBodies2(float delta){
+        var softBodies2 = World.GetComponents<SoftBody2>();
+        foreach(SoftBody2 softBody in softBodies2){
+            for(int i = 0; i<softBody.Points.Length; i++){
+                softBody.Points[i].ForceVector.X = _gravityVector.X * softBody.Points[i].Mass;
+                softBody.Points[i].ForceVector.Y = _gravityVector.Y * softBody.Points[i].Mass;
+                softBody.Points[i].VelocityVector.X += (softBody.Points[i].ForceVector.X * delta)/softBody.Points[i].Mass;
+                softBody.Points[i].VelocityVector.Y += (softBody.Points[i].ForceVector.Y * delta)/softBody.Points[i].Mass;
+                softBody.Points[i].PositionVector += softBody.Points[i].VelocityVector;
+            }
         }
     }
 
