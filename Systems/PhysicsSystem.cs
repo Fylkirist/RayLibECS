@@ -11,14 +11,16 @@ public enum PhysicsMode{
 }
 
 public class PhysicsSystem : SystemBase{
+    private float _physicsScale;
     private bool _running;
     private double _simulationDistance;
     private Vector3 _gravityVector; //Temporary solution
     
-    public PhysicsSystem(World world, double simDistance) : base(world){
+    public PhysicsSystem(World world, double simDistance, float scale) : base(world){
         _running = false;
         _simulationDistance = simDistance;
         _gravityVector = new Vector3(0,100,0);
+        _physicsScale = scale;
     }
 
     public override void Detach()

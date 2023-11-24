@@ -19,12 +19,16 @@ public class AssetManager
     private Dictionary<string,Font> _loadedFonts;
     private Dictionary<string,Texture2D> _loadedTextures;
     private Dictionary<string,Sound> _loadedSounds;
-    
+
+    private Dictionary<string, ulong> _assetSizeDict;
+
     private Dictionary<string,int> _assetFrequency;
 
     internal AssetManager(ulong cacheLimit, ulong vramLimit){
         AssetCacheLimit = cacheLimit;
         VramLimit = vramLimit;
+
+        _assetSizeDict = new Dictionary<string,ulong>();
         
         _assetFrequency = new Dictionary<string, int>();
         _fontFiles = Directory.EnumerateFiles("./Assets/Fonts").ToArray();
@@ -94,7 +98,7 @@ public class AssetManager
     }
 
     public void ResetUsage(){
-        _assetFrequency = new Dictionary<string, int>();
+        _assetFrequency.Clear();
     }
 
     public Texture2D GetTexture(string file){
@@ -104,6 +108,8 @@ public class AssetManager
         }
 
         if (!_texture2DFiles.Contains(file)) throw new Exception($"Texture {file} does not exist");
+        var fileSize = new FileInfo(file);
+        _assetSizeDict.Add(filename,(ulong)fileSize.Length);
         _loadedTextures.Add(file,Raylib.LoadTexture(filename));
         return _loadedTextures[file];
     }
