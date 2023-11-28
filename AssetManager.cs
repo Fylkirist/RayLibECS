@@ -1,5 +1,6 @@
 ﻿using Raylib_cs;
 using System.Runtime.InteropServices;
+using RayLibECS.Events;
 
 namespace RayLibECS;
 
@@ -7,11 +8,15 @@ public class AssetManager
 {
     public ulong AssetCacheLimit;
     public ulong VramLimit;
+    
+    private EventBus _eventBus = EventBus.Instance;
+
+    private bool _dirty;
 
     private const string Texturepath = "./Assets/Textures/";
     private const string Audiopath = "./Assets/Audio/";
     private const string Fontpath = "./Assets/Fonts/";
- 
+
     private string[] _fontFiles;
     private string[] _texture2DFiles;
     private string[] _soundFiles;
@@ -25,6 +30,7 @@ public class AssetManager
     private Dictionary<string,int> _assetFrequency;
 
     internal AssetManager(ulong cacheLimit, ulong vramLimit){
+        _dirty = true;
         AssetCacheLimit = cacheLimit;
         VramLimit = vramLimit;
 
@@ -39,51 +45,29 @@ public class AssetManager
         _loadedTextures = new Dictionary<string, Texture2D>();
         _loadedSounds = new Dictionary<string, Sound>();
     }
-    private ulong GetSizeInMemory<T>(Dictionary<string, T> collection)
-    {
-        ulong size = 0;
-
-        foreach (var pair in collection)
-        {
-            ulong elementSize = (ulong)Marshal.SizeOf(pair.Value);
-
-            if (size + elementSize < size)
-            {
-                size = ulong.MaxValue;
-                break;
-            }
-
-            size += elementSize;
-        }
-
-        return size;
-    }
+    
 
     private void ManageAssetCache()
     {
-        ulong size = 0;
-        size += GetSizeInMemory(_loadedSounds);
-        size += GetSizeInMemory(_loadedTextures);
-        size += GetSizeInMemory(_loadedFonts);
+        ulong size =_assetSizeDict.Values.Aggregate(0UL,(acc, value) => acc + value);
 
         while (size < AssetCacheLimit){
             var leastPolled = _assetFrequency.MinBy(e=>e.Value).Key;
             _assetFrequency.Remove(leastPolled);
+            size = size - _assetSizeDict[leastPolled];
+            _assetSizeDict.Remove(leastPolled);
             if(_loadedFonts.ContainsKey(leastPolled))
             {
-                size -= (ulong)Marshal.SizeOf(_loadedFonts[leastPolled]);
                 Raylib.UnloadFont(_loadedFonts[leastPolled]);
                 _loadedFonts.Remove(leastPolled);
             }
             else if(_loadedTextures.ContainsKey(leastPolled))
-            {
-                size -= (ulong)Marshal.SizeOf(_loadedTextures[leastPolled]);
+            { 
                 Raylib.UnloadTexture(_loadedTextures[leastPolled]);
                 _loadedTextures.Remove(leastPolled);
             }
             else if (_loadedSounds.ContainsKey(leastPolled))
             {
-                size -= (ulong)Marshal.SizeOf(_loadedSounds[leastPolled]);
                 Raylib.UnloadSound(_loadedSounds[leastPolled]);
                 _loadedSounds.Remove(leastPolled);
             }
@@ -106,7 +90,6 @@ public class AssetManager
         if(_loadedTextures.TryGetValue(file, out var texture)){
             return texture;
         }
-
         if (!_texture2DFiles.Contains(file)) throw new Exception($"Texture {file} does not exist");
         var fileSize = new FileInfo(file);
         _assetSizeDict.Add(filename,(ulong)fileSize.Length);
@@ -119,8 +102,9 @@ public class AssetManager
         if(_loadedFonts.TryGetValue(file, out var font)){
             return font;
         }
-
         if (!_fontFiles.Contains(file)) throw new Exception($"Font {file} does not exist");
+        var fileSize = new FileInfo(file);
+        _assetSizeDict.Add(filename,(ulong)fileSize.Length);
         _loadedFonts.Add(file,Raylib.LoadFont(filename));
         return _loadedFonts[file];
     }
@@ -132,11 +116,17 @@ public class AssetManager
             return audio;
         }
         if (!_soundFiles.Contains(file)) throw new Exception($"Sound {file} does not exist");
+        var fileSize = new FileInfo(file);
+        _assetSizeDict.Add(filename,(ulong)fileSize.Length);
         _loadedSounds.Add(file,Raylib.LoadSound(filename));
         return _loadedSounds[file];
     }
 
     public void ResolveAssetDelta(){
+        
+    }
+    
+    public void Run(){
         
     }
 }

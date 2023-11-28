@@ -7,13 +7,11 @@ namespace RayLibECS.Shapes;
 public abstract class Geometry2D
 {
     public Vector2 Offset;
+    public float Rotation;
 
-    protected Geometry2D(Vector2 offset)
+    protected Geometry2D(Vector2 offset, float rotation)
     {
+        Rotation = rotation;
         Offset = offset;
     }
-
-    public abstract bool CollidesWith(CollisionDetectionSystem2D systemBase, Physics2 pos1, Geometry2D collider , Physics2 pos2);
-
-    public abstract dynamic GetShapeAsType();
 }

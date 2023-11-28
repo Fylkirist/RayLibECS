@@ -1,5 +1,7 @@
 using Raylib_cs;
 using RayLibECS.Components;
+using RayLibECS.Entities;
+using RayLibECS.Events;
 
 namespace RayLibECS.Systems;
 
@@ -43,15 +45,13 @@ public class CollisionDetectionSystem : SystemBase{
     }
 
     private void DetectCollisions2D(){
-        var physicalEntities = World.GetComponents<Physics2>().ToArray();
-        foreach(var collider1 in physicalEntities){
-            foreach(var collider2 in physicalEntities){
-                if(collider1 == collider2) continue;
-                if(World.QueryComponent<CollisionEvent>(collider2.Owner) != null) continue;
-                
+        var physicalEntities = World.GetEntitiesWith<Physics2>().ToArray();
+        foreach(Entity entity1 in physicalEntities){
+            foreach(Entity entity2 in physicalEntities){
+                if(entity1 == entity2) continue;
+
             }
         }
-
     }
 
     private void DetectCollisions3D(){

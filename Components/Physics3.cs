@@ -8,7 +8,6 @@ public class Physics3 : Component{
     public Quaternion Rotation;
     public Quaternion AngularMomentum;
     public PhysicsType3 Type;
-    public GeometryMesh3 Mesh;
 
     public Physics3(){
         Position = Vector3.Zero;
@@ -16,7 +15,6 @@ public class Physics3 : Component{
         Rotation = Quaternion.Zero;
         AngularMomentum = Quaternion.Zero;
         Type = PhysicsType3.Ethereal;
-        Mesh = new GeometryMesh3();
     }
 }
 

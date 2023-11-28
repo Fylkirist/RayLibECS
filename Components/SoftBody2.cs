@@ -7,6 +7,7 @@ namespace RayLibECS.Components;
 public class SoftBody2 : Component{
     public MassPoint2[] Points;
     public Spring[] Springs;
+    public float Friction;
     private Rectangle? _boundingRect;
     public Rectangle BoundingRect => _boundingRect ??= GetBoundingRect();
     public SoftBody2(MassPoint2[] points, Spring[] springs){
@@ -17,6 +18,7 @@ public class SoftBody2 : Component{
     public SoftBody2(){
         Points = new MassPoint2[1];
         Springs = new Spring[0];
+        Friction = 0f;
     }
 
     public Rectangle GetBoundingRect(){
