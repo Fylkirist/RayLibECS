@@ -8,8 +8,6 @@ public class SoftBody2 : Component{
     public MassPoint2[] Points;
     public Spring[] Springs;
     public float Friction;
-    private Rectangle? _boundingRect;
-    public Rectangle BoundingRect => _boundingRect ??= GetBoundingRect();
     public SoftBody2(MassPoint2[] points, Spring[] springs){
         Points = points;
         Springs = springs;
@@ -21,7 +19,7 @@ public class SoftBody2 : Component{
         Friction = 0f;
     }
 
-    public Rectangle GetBoundingRect(){
+    public Rectangle GetBoundingRect(Vector2 worldPosition){
         float minX = Points[0].PositionVector.X;
         float maxX = Points[0].PositionVector.X;
         float minY = Points[0].PositionVector.Y;
@@ -32,7 +30,7 @@ public class SoftBody2 : Component{
             minY = minX>Points[i].PositionVector.Y? Points[i].PositionVector.Y:minY;
             maxY = maxY<Points[i].PositionVector.Y? Points[i].PositionVector.Y:maxY;
         }
-        return new Rectangle(minX,minY,maxX-minX,maxY-minY);
+        return new Rectangle(minX+worldPosition.X,minY+worldPosition.Y,maxX-minX,maxY-minY);
     }
 }
 
@@ -42,6 +40,7 @@ public struct MassPoint2
     public Vector2 VelocityVector;
     public Vector2 ForceVector;
     public float Mass;
+    public float Radius;
 }
 
 public struct Spring{
