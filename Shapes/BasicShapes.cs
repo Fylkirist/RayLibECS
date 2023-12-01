@@ -29,6 +29,13 @@ public struct SymmetricalPolygon{
     public float Radius;
     public float Rotation;
     public Vector2 Offset;
+    
+    public SymmetricalPolygon(int numVertices, float radius, float rotation, Vector2 offset){
+        NumVertices = numVertices;
+        Radius = radius;
+        Rotation = rotation;
+        Offset = offset;
+    }
 }
 
 public struct BasedRectangle{
@@ -71,25 +78,25 @@ public struct Polygon2{
     }
 }
 
-[StructLayout(LayoutKind.Explicit)]
+//[StructLayout(LayoutKind.Explicit)]
 public struct Shape2D
 {
-    [FieldOffset(0)]
+   // [FieldOffset(0)]
     public ShapeType2D Type;
 
-    [FieldOffset(4)]
+   // [FieldOffset(4)]
     public Polygon2 Polygon2;
 
-    [FieldOffset(4)]
+   // [FieldOffset(4)]
     public BasedRectangle Rectangle;
 
-    [FieldOffset(4)]
+   // [FieldOffset(4)]
     public SymmetricalPolygon SymmetricalPolygon;
 
-    [FieldOffset(4)]
+   // [FieldOffset(4)]
     public Triangle Triangle;
 
-    [FieldOffset(4)]
+  //  [FieldOffset(4)]
     public Circle Circle;
 }
 

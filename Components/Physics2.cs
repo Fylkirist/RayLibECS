@@ -17,3 +17,10 @@ public class Physics2:Component
         Z = 0;
     }
 }
+
+public enum PhysicsType2D{
+    Static,
+    Ethereal,
+    Dynamic,
+    Kinematic,
+}

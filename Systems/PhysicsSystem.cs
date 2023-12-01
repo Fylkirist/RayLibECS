@@ -126,7 +126,6 @@ public class PhysicsSystem : SystemBase{
        var physicsComponents = World.GetComponents<Physics2>();
        foreach(var component in physicsComponents){
            component.Position += component.Velocity * delta;
-           component.Rotation += component.RotationSpeed * delta;
        }
     }
 

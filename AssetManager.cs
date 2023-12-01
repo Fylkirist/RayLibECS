@@ -37,6 +37,18 @@ public class AssetManager
         _assetSizeDict = new Dictionary<string,ulong>();
         
         _assetFrequency = new Dictionary<string, int>();
+        if (!Directory.Exists("./Assets/Fonts"))
+        {
+            Directory.CreateDirectory("./Assets/Fonts");
+        }
+        if (!Directory.Exists("./Assets/Textures"))
+        {
+            Directory.CreateDirectory("./Assets/Textures");
+        }
+        if (!Directory.Exists("./Assets/Audio"))
+        {
+            Directory.CreateDirectory("./Assets/Audio");
+        }
         _fontFiles = Directory.EnumerateFiles("./Assets/Fonts").ToArray();
         _texture2DFiles = Directory.EnumerateFiles("./Assets/Textures").ToArray();
         _soundFiles = Directory.EnumerateFiles("./Assets/Audio").ToArray();

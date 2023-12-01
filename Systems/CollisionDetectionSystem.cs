@@ -1,3 +1,4 @@
+using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -24,6 +25,7 @@ public class CollisionDetectionSystem : SystemBase{
 
     public override void Draw()
     {
+        if (!_renderingWireframes || !_running) return;
         var camera2 = World.GetComponents<Camera2>().First();
         Raylib.BeginMode2D(camera2.Position);
         var softBodies = World.GetComponents<SoftBody2>();
@@ -57,7 +59,7 @@ public class CollisionDetectionSystem : SystemBase{
                         
                     case ShapeType2D.SymmetricalPolygon:
                         var symmPoly = rigidBody.Shapes[i].SymmetricalPolygon;
-                        Raylib.DrawPolyLinesEx(symmPoly.Offset+transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,2,Color.WHITE);
+                        Raylib.DrawPoly(symmPoly.Offset+transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,Color.WHITE);
                         break;
                         
                     case ShapeType2D.Triangle:
@@ -94,7 +96,12 @@ public class CollisionDetectionSystem : SystemBase{
 
     public override void Initialize()
     {
-       _running = true; 
+        var camEntity = World.CreateEntity("camera");
+        var cam = World.CreateComponent<Camera2>();
+        cam.Position.zoom = 1f;
+        cam.Position.offset = new Vector2(1920 / 2f, 1080 / 2f);
+        World.AttachComponents(camEntity,cam);
+        _running = true; 
     }
 
     public override void Stop()
@@ -104,9 +111,6 @@ public class CollisionDetectionSystem : SystemBase{
 
     public override void Update(float delta)
     {
-        foreach(var leftover in World.GetComponents<CollisionEvent>()){
-            World.DetachComponent(leftover);
-        }
         if(!_running) return;
         DetectCollisions2D();
         DetectCollisions3D();
@@ -167,7 +171,47 @@ public class CollisionDetectionSystem : SystemBase{
     }
 
     private bool CheckShapeCollision(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2){
+        switch (shape1.Type)
+        {
+            case ShapeType2D.Circle:
+                break;
+                
+            case ShapeType2D.Polygon2:
+                break;
 
+            case ShapeType2D.Triangle:
+                break;
+
+            case ShapeType2D.SymmetricalPolygon:
+                break;
+
+            case ShapeType2D.Rectangle:
+                break;
+
+            default:
+                break;
+        }
+
+        switch(shape2.Type)
+        {
+            case ShapeType2D.Circle:
+                break;
+                
+            case ShapeType2D.Polygon2:
+                break;
+
+            case ShapeType2D.Triangle:
+                break;
+
+            case ShapeType2D.SymmetricalPolygon:
+                break;
+
+            case ShapeType2D.Rectangle:
+                break;
+
+            default:
+                break;
+        }
         return true;
     }
 

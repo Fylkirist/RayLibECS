@@ -22,7 +22,7 @@ public class JumpingState : IEntityState
         charAnim.AnimationTimer = 0f;
 
         charPhysics.Velocity.Y -= charStats.JumpHeight;
-        charPhysics.PhysicsType = Systems.PhysicsType2D.Kinematic;
+        charPhysics.PhysicsType = PhysicsType2D.Kinematic;
 
         entityState.LastUpdate = "jumping";
     }
@@ -33,7 +33,7 @@ public class JumpingState : IEntityState
         if(charPhysics == null){
             return;
         }
-        charPhysics.PhysicsType = Systems.PhysicsType2D.Kinematic; 
+        charPhysics.PhysicsType = PhysicsType2D.Kinematic; 
     }
 
     public void Update(World world, Entity entity, InputState input, float delta)
@@ -55,14 +55,5 @@ public class JumpingState : IEntityState
             charPhysics.Velocity.X = charPhysics.Velocity.X<charStats.Speed? charPhysics.Velocity.X - 100 * delta : -charStats.Speed;
             anim.Facing = new Vector2(-1,0);
         }
-
-        var charCollision = world.QueryComponent<CollisionEvent>(entity);
-        if(charCollision == null){
-            return;
-        } 
-
-        var collidedEntity = charCollision.Collider;
-
-        
     }
 }

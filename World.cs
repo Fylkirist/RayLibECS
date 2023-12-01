@@ -51,104 +51,22 @@ public class World
     public void InitializeWorld()
     {
 
-        AddSystem(new RenderingSystem2D(this));
-        AddSystem(new CollisionDetectionSystem2D(this));
-        AddSystem(new PhysicsSystem2D(this));
-        AddSystem(new MovementSystem(this));
-        AddSystem(new EntityStateManagementSystem(this,
-                    new Dictionary<string, IStateFactory>{
-                        {"character", new PlatformerStateFactory()}
-                    }));
+        var entity1 = CreateEntity("test");
 
-        var testEntity1 = CreateEntity("");
+        var physics1 = CreateComponent<Physics2>();
+        physics1.Position = Vector2.Zero;
+        physics1.Z = 0;
+        physics1.PhysicsType = PhysicsType2D.Static;
 
-        var testRender1 = CreateComponent<AnimatedSprite2>();
-        testRender1.TextureStateMap = new Dictionary<string, KeyValuePair<float, string>[]>();
+        var rigidbody1 = CreateComponent<RigidBody2>();
+        rigidbody1.Shapes = new Shape2D[1];
+        rigidbody1.Shapes[0] = new Shape2D();
+        rigidbody1.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
+        rigidbody1.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0,Vector2.Zero);
 
-        var testPhysics1 = CreateComponent<Physics2>();
+        AttachComponents(entity1,physics1,rigidbody1);
 
-        testPhysics1.Velocity = new Vector2(0,0);
-        testPhysics1.PhysicsType = PhysicsType2D.Kinematic;
-        testPhysics1.Rotation = 0f;
-        testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
-        testPhysics1.CollisionMesh.Shapes.Add(new CircleGeometry(200,new Vector2(180,50)));
-        testPhysics1.RotationSpeed = 1f;
-        testPhysics1.Position = new Vector2(-400,0);
-        testPhysics1.Mass = 20f;
-        
-        var testState1 = CreateComponent<EntityState>();
-        testState1.EntityCategory = "character";
-        testState1.CurrentState = "idle";
-        testState1.LastUpdate = "idle";
-
-        var testStats1 = CreateComponent<CharacterStats>();
-        testStats1.JumpHeight = 200f;
-        testStats1.Speed = 300f;
-
-        AttachComponents(
-            testEntity1,
-            testPhysics1,
-            testRender1,
-            testState1,
-            testStats1
-            );
-        
-        var testEntity2 = CreateEntity("");
-
-        var testRender2 = CreateComponent<ColouredMesh2>();
-        testRender2.Mesh.Shapes.Add(new CircleGeometry(200,new Vector2(0,0))); 
-
-        testRender2.Colours.Add(Color.RED);
-        testRender2.Colours.Add(Color.BLUE);
-
-        var testPhysics2 = CreateComponent<Physics2>();
-
-        testPhysics2.Velocity = new Vector2(-200,-300);
-        testPhysics2.Position = new Vector2(300,100);
-        testPhysics2.PhysicsType = PhysicsType2D.Dynamic;
-        testPhysics2.Rotation = 0f;
-        testPhysics2.CollisionMesh.Shapes.Add(new CircleGeometry(200,Vector2.Zero));
-        testPhysics2.Mass = 10f;
-
-        AttachComponents(
-                testEntity2,
-                testPhysics2,
-                testRender2
-                );
-        
-        var testEntity3 = CreateEntity("");
-
-        var testRender3 = CreateComponent<ColouredMesh2>();
-        testRender3.Colours.Add(Color.SKYBLUE);
-        testRender3.Mesh.Shapes.Add(new CircleGeometry(300, Vector2.Zero));
-
-        var testPhysics3 = CreateComponent<Physics2>();
-        testPhysics3.Mass = 30f;
-        testPhysics3.Velocity = new Vector2(0,-600);
-        testPhysics3.Position = new Vector2(0,800);
-        testPhysics3.PhysicsType = PhysicsType2D.Dynamic;
-        testPhysics3.CollisionMesh.Shapes.Add(new CircleGeometry(300, Vector2.Zero));
-        
-        AttachComponents(testEntity3,
-                testRender3,
-                testPhysics3);
-        
-        var testEntity4 = CreateEntity("");
-
-        var testRender4 = CreateComponent<ColouredMesh2>();
-        testRender4.Colours.Add(Color.SKYBLUE);
-        testRender4.Mesh.Shapes.Add(new CircleGeometry(50, Vector2.Zero));
-
-        var testPhysics4 = CreateComponent<Physics2>();
-        testPhysics4.Mass = 5f;
-        testPhysics4.Velocity = new Vector2(0,300);
-        testPhysics4.Position = new Vector2(300,-500);
-        testPhysics4.PhysicsType = PhysicsType2D.Dynamic;
-        testPhysics4.CollisionMesh.Shapes.Add(new CircleGeometry(50, Vector2.Zero));
-        
-        AttachComponents(testEntity4,
-                testRender4,
-                testPhysics4);
+        AddSystem(new CollisionDetectionSystem(this,PhysicsMode.TWO_DIMENSIONAL));
     }
 
     public void Update(float delta)
@@ -324,6 +242,10 @@ public class World
 
     public IEnumerable<Entity> GetEntitiesWith<T>()
     {
+        if (!_componentTable.ContainsKey(typeof(T)))
+        {
+            AllocateComponentArray<T>();
+        }
         return _entities.Where(e => _componentTable[typeof(T)][e.Id] != null);
     }
 }
