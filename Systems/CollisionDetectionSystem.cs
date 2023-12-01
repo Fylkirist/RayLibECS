@@ -59,7 +59,7 @@ public class CollisionDetectionSystem : SystemBase{
                         
                     case ShapeType2D.SymmetricalPolygon:
                         var symmPoly = rigidBody.Shapes[i].SymmetricalPolygon;
-                        Raylib.DrawPoly(symmPoly.Offset+transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,Color.WHITE);
+                        Raylib.DrawPolyLinesEx(symmPoly.Offset+transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,2,Color.WHITE);
                         break;
                         
                     case ShapeType2D.Triangle:
