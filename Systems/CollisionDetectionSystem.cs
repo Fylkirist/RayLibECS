@@ -89,6 +89,7 @@ public class CollisionDetectionSystem : SystemBase{
                 }
             }
         }
+        Raylib.EndMode2D();
     }
 
     public override void Initialize()
@@ -147,8 +148,7 @@ public class CollisionDetectionSystem : SystemBase{
                 }
                 DetectRigidBodyCollsion(transform1,body1,transform2,body2);
             }
-        }
-        Raylib.EndMode2D();
+        } 
     }
 
     private void DetectRigidBodyCollsion(Physics2 entity1Physics, RigidBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
@@ -160,6 +160,7 @@ public class CollisionDetectionSystem : SystemBase{
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
                 if(CheckShapeCollision(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j])){
                     EventBus.Publish<CollisionEvent2>(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
+                    return;
                 }
             }
         }
@@ -174,10 +175,23 @@ public class CollisionDetectionSystem : SystemBase{
         var boundingRect1 = entity1Body.GetBoundingRect(entity1Physics.Position);
         var boundingRect2 = entity2Body.GetBoundingRect(entity2Physics.Position);
         if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return;
-        
+
+        for(int i = 0; i<entity1Body.Points.Length; i++){
+            for (int j = 0; j<entity2Body.Points.Length; j++){
+                var distance = ((entity1Body.Points[i].PositionVector + entity1Physics.Position) - (entity2Body.Points[j].PositionVector + entity2Physics.Position)).Length();
+                if(distance < entity1Body.Points[i].Radius + entity2Body.Points[j].Radius){
+                    EventBus.Publish<CollisionEvent2>(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
+                    return;
+                }
+            }
+        }        
     }
 
     private void DetectSoftAndRigidBodyCollsion(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
+        var boundingRect1 = entity1Body.GetBoundingRect(entity1Physics.Position);
+        var boundingRect2 = entity2Body.GetBoundingRect(entity2Physics.Position);
+        if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return;
+
 
     }
 
