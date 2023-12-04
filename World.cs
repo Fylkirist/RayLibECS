@@ -59,6 +59,8 @@ public class World
         physics1.PhysicsType = PhysicsType2D.Static;
 
         var rigidbody1 = CreateComponent<RigidBody2>();
+
+        rigidbody1.AngularVelocity = 1;
         rigidbody1.Shapes = new Shape2D[1];
         rigidbody1.Shapes[0] = new Shape2D();
         rigidbody1.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
@@ -68,6 +70,7 @@ public class World
         AttachComponents(entity1,physics1,rigidbody1);
 
         AddSystem(new CollisionDetectionSystem(this,PhysicsMode.TWO_DIMENSIONAL));
+        AddSystem(new PhysicsSystem(this,1000,100));
     }
 
     public void Update(float delta)

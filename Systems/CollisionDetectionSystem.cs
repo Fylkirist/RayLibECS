@@ -60,7 +60,7 @@ public class CollisionDetectionSystem : SystemBase{
                         
                     case ShapeType2D.SymmetricalPolygon:
                         var symmPoly = rigidBody.Shapes[i].SymmetricalPolygon;
-                        Raylib.DrawPolyLinesEx(rigidBody.Shapes[i].Offset + transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,2,Color.WHITE);
+                        Raylib.DrawPolyLinesEx(rigidBody.Shapes[i].Offset + transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation*57.5f,2,Color.WHITE);
                         break;
                         
                     case ShapeType2D.Triangle:
@@ -179,33 +179,124 @@ public class CollisionDetectionSystem : SystemBase{
                 return true;
             }
         }
-
+        var normal = Vector2.Normalize((physics1.Position+shape1.Offset) - (physics2.Position+shape2.Offset));
         
         return false;
     }
 
     private Vector2 CalculateSupportVector2(Shape2D shape1, Physics2 transform1, Shape2D shape2, Physics2 transform2, Vector2 normal){
+        var supports = new Vector2[2];
+
+        var shape1Centre = transform1.Position + shape1.Offset;
+        var shape2Centre = transform2.Position + shape2.Offset;
+
         switch (shape1.Type)
         {
             case ShapeType2D.Circle:
+                supports[0] = shape1Centre + normal * shape1.Circle.Radius;
                 break;
                 
             case ShapeType2D.Polygon2:
+                int idx = 0;
+                var currentDistance = (shape1.Polygon2.Vertices[0] - normal).Length();
+                for(int i = 0; i<shape1.Polygon2.NumVertices; i++){
+                    var d = (shape1.Polygon2.Vertices[i]-normal).Length();
+                    idx = d<currentDistance ? i: idx;
+                }
+                supports[0] = shape1.Offset + shape1.Polygon2.Vertices[idx] + transform1.Position;
                 break;
 
             case ShapeType2D.Triangle:
+                var currentSupport = shape1.Triangle.P1;
+                currentSupport = (currentSupport - normal).Length() > (shape1.Triangle.P2 - normal).Length()? shape1.Triangle.P2: currentSupport;
+                currentSupport = (currentSupport - normal).Length() > (shape1.Triangle.P3 - normal).Length()? shape1.Triangle.P3: currentSupport;
+
+                supports[0] = currentSupport + shape1.Offset + transform1.Position;
                 break;
 
             case ShapeType2D.SymmetricalPolygon:
+                var startPosition = Vector2.Transform(new Vector2(0,shape1.SymmetricalPolygon.Radius),Matrix3x2.CreateRotation(shape1.SymmetricalPolygon.Rotation));
+                var shortestDistance = startPosition;
+
+                for(int vIdx = 0; vIdx<shape1.SymmetricalPolygon.NumVertices; vIdx++){
+                    var currentVector = Vector2.Transform(startPosition, Matrix3x2.CreateRotation((2*(float)Math.PI)/shape1.SymmetricalPolygon.NumVertices));
+                    
+                    var currentVectorDistance = (currentVector - normal).Length();
+                    if(currentVectorDistance < (shortestDistance - normal).Length()){
+                        shortestDistance = currentVector;   
+                    }
+                }
+                supports[0] = shortestDistance + shape1.Offset + transform1.Position;
                 break;
 
             case ShapeType2D.Rectangle:
+                var currentRectSupport = shape1.Rectangle.P1;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape1.Rectangle.P2 - normal).Length()? shape1.Rectangle.P2: currentRectSupport;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape1.Rectangle.P3 - normal).Length()? shape1.Rectangle.P3: currentRectSupport;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape1.Rectangle.P4 - normal).Length()? shape1.Rectangle.P4: currentRectSupport;
+
+                supports[0] = currentRectSupport + shape1.Offset + transform1.Position;
                 break;
 
             default:
                 break;
         }
-        return new Vector2();
+        
+        normal = -normal;
+        switch (shape2.Type)
+        {
+            case ShapeType2D.Circle:
+                supports[1] = shape2Centre + normal * shape2.Circle.Radius;
+                break;
+                
+            case ShapeType2D.Polygon2:
+                int idx = 0;
+                var currentDistance = (shape2.Polygon2.Vertices[0] - normal).Length();
+                for(int i = 0; i<shape2.Polygon2.NumVertices; i++){
+                    var d = (shape2.Polygon2.Vertices[i]-normal).Length();
+                    idx = d<currentDistance ? i: idx;
+                }
+                supports[1] = shape2.Offset + shape2.Polygon2.Vertices[idx] + transform2.Position;
+                break;
+
+            case ShapeType2D.Triangle:
+                var currentSupport = shape2.Triangle.P1;
+                currentSupport = (currentSupport - normal).Length() > (shape2.Triangle.P2 - normal).Length()? shape2.Triangle.P2: currentSupport;
+                currentSupport = (currentSupport - normal).Length() > (shape2.Triangle.P3 - normal).Length()? shape2.Triangle.P3: currentSupport;
+
+                supports[1] = currentSupport + shape2.Offset + transform2.Position;
+                break;
+
+            case ShapeType2D.SymmetricalPolygon:
+                var startPosition = Vector2.Transform(new Vector2(0,shape2.SymmetricalPolygon.Radius),Matrix3x2.CreateRotation(shape2.SymmetricalPolygon.Rotation));
+
+                var shortestDistance = startPosition;
+
+                for(int vIdx = 0; vIdx<shape2.SymmetricalPolygon.NumVertices; vIdx++){
+                    var currentVector = Vector2.Transform(startPosition, Matrix3x2.CreateRotation((2*(float)Math.PI)/shape2.SymmetricalPolygon.NumVertices));
+                    
+                    var currentVectorDistance = (currentVector - normal).Length();
+                    if(currentVectorDistance < (shortestDistance - normal).Length()){
+                        shortestDistance = currentVector;   
+                    }
+                }
+                supports[1] = shortestDistance + shape2.Offset + transform2.Position;
+                break;
+
+            case ShapeType2D.Rectangle:
+                var currentRectSupport = shape2.Rectangle.P1;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape2.Rectangle.P2 - normal).Length()? shape2.Rectangle.P2: currentRectSupport;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape2.Rectangle.P3 - normal).Length()? shape2.Rectangle.P3: currentRectSupport;
+                currentRectSupport = (currentRectSupport - normal).Length() > (shape2.Rectangle.P4 - normal).Length()? shape2.Rectangle.P4: currentRectSupport;
+
+                supports[1] = currentRectSupport + shape2.Offset + transform2.Position;
+                break;
+
+            default:
+                break;
+        }
+
+        return supports[0]-supports[1];
     }
 
     private void DetectSoftBodyCollision(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, SoftBody2 entity2Body){
