@@ -13,28 +13,25 @@ public enum ShapeType2D{
 
 public struct Circle
 {
-    public Vector2 Offset;
     public float Radius; 
 }
 
 public struct Triangle{
     public Vector2 P1;
     public Vector2 P2;
-    public Vector2 P3;
-    public Vector2 Offset;
+    public Vector2 P3; 
 }
 
 public struct SymmetricalPolygon{
     public int NumVertices;
     public float Radius;
     public float Rotation;
-    public Vector2 Offset;
     
-    public SymmetricalPolygon(int numVertices, float radius, float rotation, Vector2 offset){
+    
+    public SymmetricalPolygon(int numVertices, float radius, float rotation){
         NumVertices = numVertices;
         Radius = radius;
-        Rotation = rotation;
-        Offset = offset;
+        Rotation = rotation; 
     }
 }
 
@@ -42,8 +39,7 @@ public struct BasedRectangle{
     public Vector2 P1;
     public Vector2 P2;
     public Vector2 P3;
-    public Vector2 P4;
-    public Vector2 Offset;
+    public Vector2 P4; 
 
     public BasedRectangle(float height, float width){
         P1 = new Vector2(-width/2,-height/2);
@@ -55,16 +51,14 @@ public struct BasedRectangle{
 
 public struct Polygon2{
     public Vector2[] Vertices;
-    public Vector2 Offset;
     public int NumVertices;
 
-    public Polygon2(Vector2[] vertices, Vector2 offset){
+    public Polygon2(Vector2[] vertices){
         int numVertices = vertices.Length;
         if(numVertices>16){
             numVertices = 16;
         }
         Vertices = new Vector2[16];
-        Offset = offset;
         NumVertices = numVertices;
         for(int i = 0; i<numVertices; i++){
             Vertices[i] = vertices[i];
@@ -73,7 +67,6 @@ public struct Polygon2{
 
     public Polygon2(){
         Vertices = new Vector2[16];
-        Offset = Vector2.Zero;
         NumVertices = 0;
     }
 }
@@ -83,6 +76,8 @@ public struct Shape2D
 {
    // [FieldOffset(0)]
     public ShapeType2D Type;
+
+    public Vector2 Offset;
 
    // [FieldOffset(4)]
     public Polygon2 Polygon2;

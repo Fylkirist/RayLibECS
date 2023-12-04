@@ -34,8 +34,8 @@ public class RigidBody2 : Component{
                     var triangle = Shapes[i].Triangle;
                     foreach (var point in new[] { triangle.P1, triangle.P2, triangle.P3 })
                     {
-                        var adjustedX = point.X + triangle.Offset.X;
-                        var adjustedY = point.Y + triangle.Offset.Y;
+                        var adjustedX = point.X + Shapes[i].Offset.X;
+                        var adjustedY = point.Y + Shapes[i].Offset.Y;
                         minX = Math.Min(minX, adjustedX);
                         maxX = Math.Max(maxX, adjustedX);
                         minY = Math.Min(minY, adjustedY);
@@ -44,17 +44,17 @@ public class RigidBody2 : Component{
                     break;
 
                 case ShapeType2D.SymmetricalPolygon:
-                    minX = Math.Min(minX,Shapes[i].SymmetricalPolygon.Offset.X - Shapes[i].SymmetricalPolygon.Radius);
-                    maxX = Math.Max(maxX,Shapes[i].SymmetricalPolygon.Offset.X + Shapes[i].SymmetricalPolygon.Radius);
-                    minY = Math.Min(minY,Shapes[i].SymmetricalPolygon.Offset.Y - Shapes[i].SymmetricalPolygon.Radius);
-                    maxY = Math.Max(maxY,Shapes[i].SymmetricalPolygon.Offset.Y + Shapes[i].SymmetricalPolygon.Radius);
+                    minX = Math.Min(minX,Shapes[i].Offset.X - Shapes[i].SymmetricalPolygon.Radius);
+                    maxX = Math.Max(maxX,Shapes[i].Offset.X + Shapes[i].SymmetricalPolygon.Radius);
+                    minY = Math.Min(minY,Shapes[i].Offset.Y - Shapes[i].SymmetricalPolygon.Radius);
+                    maxY = Math.Max(maxY,Shapes[i].Offset.Y + Shapes[i].SymmetricalPolygon.Radius);
                     break;
 
                 case ShapeType2D.Polygon2:
                     var polygon = Shapes[i].Polygon2;
                     for(int idx = 0; idx<polygon.Vertices.Length; idx++){
-                        var adjustedY = polygon.Vertices[idx].Y + polygon.Offset.Y;
-                        var adjustedX = polygon.Vertices[idx].X + polygon.Offset.X;
+                        var adjustedY = polygon.Vertices[idx].Y + Shapes[i].Offset.Y;
+                        var adjustedX = polygon.Vertices[idx].X + Shapes[i].Offset.X;
 
                         minX = Math.Min(adjustedX, minX);
                         maxX = Math.Max(adjustedX, maxX);
@@ -64,24 +64,24 @@ public class RigidBody2 : Component{
                     break;
 
                 case ShapeType2D.Circle:
-                    minX = Math.Min(minX,Shapes[i].Circle.Offset.X - Shapes[i].Circle.Radius);
-                    maxX = Math.Max(maxX,Shapes[i].Circle.Offset.X + Shapes[i].Circle.Radius);
-                    minY = Math.Min(minY,Shapes[i].Circle.Offset.Y - Shapes[i].Circle.Radius);
-                    maxY = Math.Max(maxY,Shapes[i].Circle.Offset.Y + Shapes[i].Circle.Radius);
+                    minX = Math.Min(minX,Shapes[i].Offset.X - Shapes[i].Circle.Radius);
+                    maxX = Math.Max(maxX,Shapes[i].Offset.X + Shapes[i].Circle.Radius);
+                    minY = Math.Min(minY,Shapes[i].Offset.Y - Shapes[i].Circle.Radius);
+                    maxY = Math.Max(maxY,Shapes[i].Offset.Y + Shapes[i].Circle.Radius);
                     break;
 
                 case ShapeType2D.Rectangle:
                     var rectangle = Shapes[i].Rectangle;
                     foreach (var point in new[] { rectangle.P1, rectangle.P2, rectangle.P3, rectangle.P4 })
                     {
-                        var adjustedX = point.X + rectangle.Offset.X;
-                        var adjustedY = point.Y + rectangle.Offset.Y;
+                        var adjustedX = point.X + Shapes[i].Offset.X;
+                        var adjustedY = point.Y + Shapes[i].Offset.Y;
                         minX = Math.Min(minX, adjustedX);
                         maxX = Math.Max(maxX, adjustedX);
                         minY = Math.Min(minY, adjustedY);
                         maxY = Math.Max(maxY, adjustedY);                    
                     }
-                   break;
+                    break;
            }
         }
         return new Rectangle(minX+worldPosition.X,minY+worldPosition.Y,maxX-minX,maxY-minY);

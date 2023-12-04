@@ -62,7 +62,8 @@ public class World
         rigidbody1.Shapes = new Shape2D[1];
         rigidbody1.Shapes[0] = new Shape2D();
         rigidbody1.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
-        rigidbody1.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0,Vector2.Zero);
+        rigidbody1.Shapes[0].Offset = Vector2.Zero;
+        rigidbody1.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0);
 
         AttachComponents(entity1,physics1,rigidbody1);
 

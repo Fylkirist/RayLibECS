@@ -42,6 +42,7 @@ public class CollisionDetectionSystem : SystemBase{
             for(int i = 0; i<softBody.Points.Length; i++){
                 Raylib.DrawCircleV(softBody.Points[i].PositionVector + transform.Position,softBody.Points[i].Radius,Color.RED); 
             }
+            Raylib.DrawText(transform.Position.ToString(), (int)transform.Position.X, (int)transform.Position.Y,24,Color.GREEN);
         }
         
         foreach(var rigidBody in rigidBodies){
@@ -51,29 +52,29 @@ public class CollisionDetectionSystem : SystemBase{
                 switch(rigidBody.Shapes[i].Type){
                     case ShapeType2D.Rectangle:
                         var rect = rigidBody.Shapes[i].Rectangle;
-                        Raylib.DrawLineEx(rect.P1+transform.Position+rect.Offset,rect.P2+transform.Position+rect.Offset,2,Color.WHITE);
-                        Raylib.DrawLineEx(rect.P2+transform.Position+rect.Offset,rect.P3+transform.Position+rect.Offset,2,Color.WHITE);
-                        Raylib.DrawLineEx(rect.P3+transform.Position+rect.Offset,rect.P4+transform.Position+rect.Offset,2,Color.WHITE);
-                        Raylib.DrawLineEx(rect.P4+transform.Position+rect.Offset,rect.P1+transform.Position+rect.Offset,2,Color.WHITE);
+                        Raylib.DrawLineEx(rect.P1+transform.Position+rigidBody.Shapes[i].Offset,rect.P2+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
+                        Raylib.DrawLineEx(rect.P2+transform.Position+rigidBody.Shapes[i].Offset, rect.P3+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
+                        Raylib.DrawLineEx(rect.P3+transform.Position+rigidBody.Shapes[i].Offset,rect.P4+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
+                        Raylib.DrawLineEx(rect.P4+transform.Position+rigidBody.Shapes[i].Offset,rect.P1+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
                         break;
                         
                     case ShapeType2D.SymmetricalPolygon:
                         var symmPoly = rigidBody.Shapes[i].SymmetricalPolygon;
-                        Raylib.DrawPolyLinesEx(symmPoly.Offset+transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,2,Color.WHITE);
+                        Raylib.DrawPolyLinesEx(rigidBody.Shapes[i].Offset + transform.Position,symmPoly.NumVertices,symmPoly.Radius,symmPoly.Rotation,2,Color.WHITE);
                         break;
                         
                     case ShapeType2D.Triangle:
                         var triangle = rigidBody.Shapes[i].Triangle;
-                        Raylib.DrawTriangleLines(triangle.P1+triangle.Offset+transform.Position,
-                                triangle.P2+triangle.Offset+transform.Position,
-                                triangle.P3+triangle.Offset+transform.Position,
+                        Raylib.DrawTriangleLines(triangle.P1+ rigidBody.Shapes[i].Offset + transform.Position,
+                                triangle.P2+ rigidBody.Shapes[i].Offset + transform.Position,
+                                triangle.P3+ rigidBody.Shapes[i].Offset + transform.Position,
                                 Color.WHITE);
                         break;
 
                     case ShapeType2D.Circle:
                         var circle = rigidBody.Shapes[i].Circle;
-                        Raylib.DrawCircleLines((int)(circle.Offset.X+transform.Position.X),
-                                (int)(circle.Offset.Y+transform.Position.Y),
+                        Raylib.DrawCircleLines((int)(rigidBody.Shapes[i].Offset.X + transform.Position.X),
+                                (int)(rigidBody.Shapes[i].Offset.Y+transform.Position.Y),
                                 circle.Radius,
                                 Color.WHITE);
                         break;
@@ -82,14 +83,15 @@ public class CollisionDetectionSystem : SystemBase{
                         var poly = rigidBody.Shapes[i].Polygon2;
                         for(int vertIdx = 0; vertIdx < poly.NumVertices; vertIdx++){
                             var next = vertIdx + 1 == poly.NumVertices? 0: vertIdx + 1;
-                            Raylib.DrawLineEx(poly.Vertices[vertIdx]+transform.Position+poly.Offset,
-                                    poly.Vertices[next]+transform.Position+poly.Offset,
+                            Raylib.DrawLineEx(poly.Vertices[vertIdx]+transform.Position+ rigidBody.Shapes[i].Offset,
+                                    poly.Vertices[next]+transform.Position+ rigidBody.Shapes[i].Offset,
                                     2,
                                     Color.WHITE);
                         }
                         break;
                 }
             }
+            Raylib.DrawText(transform.Position.ToString(), (int)transform.Position.X, (int)transform.Position.Y,24,Color.GREEN);
         }
         Raylib.EndMode2D();
     }
@@ -162,7 +164,7 @@ public class CollisionDetectionSystem : SystemBase{
         
         for(int i = 0; i<entity1Body.Shapes.Length; i++){
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
-                if(CheckShapeCollision(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j])){
+                if(CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j])){
                     EventBus.Publish<CollisionEvent2>(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
                     return;
                 }
@@ -170,7 +172,19 @@ public class CollisionDetectionSystem : SystemBase{
         }
     }
 
-    private bool CheckShapeCollision(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2){
+    private bool CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2){
+        if(shape1.Type == ShapeType2D.Circle && shape2.Type == ShapeType2D.Circle){
+            var distance = ((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset)).Length();
+            if(distance < shape1.Circle.Radius + shape2.Circle.Radius){
+                return true;
+            }
+        }
+
+        
+        return false;
+    }
+
+    private Vector2 CalculateSupportVector2(Shape2D shape1, Physics2 transform1, Shape2D shape2, Physics2 transform2, Vector2 normal){
         switch (shape1.Type)
         {
             case ShapeType2D.Circle:
@@ -191,28 +205,7 @@ public class CollisionDetectionSystem : SystemBase{
             default:
                 break;
         }
-
-        switch(shape2.Type)
-        {
-            case ShapeType2D.Circle:
-                break;
-                
-            case ShapeType2D.Polygon2:
-                break;
-
-            case ShapeType2D.Triangle:
-                break;
-
-            case ShapeType2D.SymmetricalPolygon:
-                break;
-
-            case ShapeType2D.Rectangle:
-                break;
-
-            default:
-                break;
-        }
-        return true;
+        return new Vector2();
     }
 
     private void DetectSoftBodyCollision(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, SoftBody2 entity2Body){

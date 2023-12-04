@@ -197,11 +197,11 @@ public class PhysicsSystem : SystemBase{
                     if(body.Shapes[i].SymmetricalPolygon.Rotation > 2*Math.PI){
                         body.Shapes[i].SymmetricalPolygon.Rotation -= 2*(float)Math.PI;
                     }
-                    body.Shapes[i].SymmetricalPolygon.Offset = Vector2.Transform(body.Shapes[i].SymmetricalPolygon.Offset,Matrix3x2.CreateRotation(rotationDiff,transform.Position));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset,Matrix3x2.CreateRotation(rotationDiff,transform.Position));
                     break;
                     
                 case ShapeType2D.Circle:
-                    body.Shapes[i].Circle.Offset = Vector2.Transform(body.Shapes[i].Circle.Offset,Matrix3x2.CreateRotation(rotationDiff,transform.Position));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff, transform.Position));
                     break;
 
                 case ShapeType2D.Polygon2:
@@ -209,38 +209,38 @@ public class PhysicsSystem : SystemBase{
                         body.Shapes[i].Polygon2.Vertices[vIdx] =
                             Vector2.Transform(body.Shapes[i].Polygon2.Vertices[vIdx],Matrix3x2.CreateRotation(rotationDiff));
                         body.Shapes[i].Polygon2.Vertices[vIdx] = 
-                            Vector2.Transform(body.Shapes[i].Polygon2.Vertices[vIdx]+body.Shapes[i].Polygon2.Offset,Matrix3x2.CreateRotation(rotationDiff));
+                            Vector2.Transform(body.Shapes[i].Polygon2.Vertices[vIdx]+body.Shapes[i].Offset,Matrix3x2.CreateRotation(rotationDiff));
                     }
-                    body.Shapes[i].Polygon2.Offset = Vector2.Transform(body.Shapes[i].Polygon2.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
                     break;
 
                 case ShapeType2D.Triangle:
                     body.Shapes[i].Triangle.P1 = Vector2.Transform(body.Shapes[i].Triangle.P1, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Triangle.P1 = Vector2.Transform(body.Shapes[i].Triangle.P1+body.Shapes[i].Triangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Triangle.P1 = Vector2.Transform(body.Shapes[i].Triangle.P1+body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
                     body.Shapes[i].Triangle.P2 = Vector2.Transform(body.Shapes[i].Triangle.P2, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Triangle.P2 = Vector2.Transform(body.Shapes[i].Triangle.P2+body.Shapes[i].Triangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Triangle.P2 = Vector2.Transform(body.Shapes[i].Triangle.P2+body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
                     body.Shapes[i].Triangle.P3 = Vector2.Transform(body.Shapes[i].Triangle.P3, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Triangle.P3 = Vector2.Transform(body.Shapes[i].Triangle.P3+body.Shapes[i].Triangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Triangle.P3 = Vector2.Transform(body.Shapes[i].Triangle.P3+body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
-                    body.Shapes[i].Triangle.Offset = Vector2.Transform(body.Shapes[i].Triangle.Offset,Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
                     break;
 
                 case ShapeType2D.Rectangle:
                     body.Shapes[i].Rectangle.P1 = Vector2.Transform(body.Shapes[i].Rectangle.P1, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Rectangle.P1 = Vector2.Transform(body.Shapes[i].Rectangle.P1 + body.Shapes[i].Rectangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Rectangle.P1 = Vector2.Transform(body.Shapes[i].Rectangle.P1 + body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
                     body.Shapes[i].Rectangle.P2 = Vector2.Transform(body.Shapes[i].Rectangle.P2, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Rectangle.P2 = Vector2.Transform(body.Shapes[i].Rectangle.P2 + body.Shapes[i].Rectangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Rectangle.P2 = Vector2.Transform(body.Shapes[i].Rectangle.P2 + body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
                     body.Shapes[i].Rectangle.P3 = Vector2.Transform(body.Shapes[i].Rectangle.P3, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Rectangle.P3 = Vector2.Transform(body.Shapes[i].Rectangle.P3 + body.Shapes[i].Rectangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Rectangle.P3 = Vector2.Transform(body.Shapes[i].Rectangle.P3 + body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
                     body.Shapes[i].Rectangle.P4 = Vector2.Transform(body.Shapes[i].Rectangle.P4, Matrix3x2.CreateRotation(rotationDiff));
-                    body.Shapes[i].Rectangle.P4 = Vector2.Transform(body.Shapes[i].Rectangle.P4 + body.Shapes[i].Rectangle.Offset, Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Rectangle.P4 = Vector2.Transform(body.Shapes[i].Rectangle.P4 + body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
 
-                    body.Shapes[i].Rectangle.Offset = Vector2.Transform(body.Shapes[i].Rectangle.Offset,Matrix3x2.CreateRotation(rotationDiff));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
                     break;
 
                 default:
