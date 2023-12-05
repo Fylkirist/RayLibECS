@@ -197,11 +197,11 @@ public class PhysicsSystem : SystemBase{
                     if(body.Shapes[i].SymmetricalPolygon.Rotation > 2*Math.PI){
                         body.Shapes[i].SymmetricalPolygon.Rotation -= 2*(float)Math.PI;
                     }
-                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset,Matrix3x2.CreateRotation(rotationDiff,transform.Position));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset,Matrix3x2.CreateRotation(rotationDiff));
                     break;
                     
                 case ShapeType2D.Circle:
-                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff, transform.Position));
+                    body.Shapes[i].Offset = Vector2.Transform(body.Shapes[i].Offset, Matrix3x2.CreateRotation(rotationDiff));
                     break;
 
                 case ShapeType2D.Polygon2:

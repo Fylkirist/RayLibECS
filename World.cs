@@ -67,6 +67,24 @@ public class World
         rigidbody1.Shapes[0].Offset = Vector2.Zero;
         rigidbody1.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0);
 
+
+        var entity2 = CreateEntity("test");
+
+        var physics2 = CreateComponent<Physics2>();
+        physics2.Position = new Vector2(100,100);
+        physics2.Z = 0;
+        physics2.PhysicsType = PhysicsType2D.Static;
+
+        var rigidbody2 = CreateComponent<RigidBody2>();
+
+        rigidbody2.AngularVelocity = 1;
+        rigidbody2.Shapes = new Shape2D[1];
+        rigidbody2.Shapes[0] = new Shape2D();
+        rigidbody2.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
+        rigidbody2.Shapes[0].Offset = Vector2.Zero;
+        rigidbody2.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0);
+
+        AttachComponents(entity2,physics2,rigidbody2);
         AttachComponents(entity1,physics1,rigidbody1);
 
         AddSystem(new CollisionDetectionSystem(this,PhysicsMode.TWO_DIMENSIONAL));
