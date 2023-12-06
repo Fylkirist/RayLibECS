@@ -112,11 +112,80 @@ public class PhysicsSystem : SystemBase{
     }
 
     private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2){
+        var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
+        var normal = Vector2.Normalize(distanceVector);
+        
+        var shape1Furthest = GetFurthestPoint(rigidBody1.Shapes[index1], physics1, normal);
+        var shape2Furthest = GetFurthestPoint(rigidBody2.Shapes[index2], physics2, -normal);
 
+        
     }
+
+    private Vector2 VectorProjection2(Vector2 v, Vector2 u)
+    {
+        float dotProduct = Vector2.Dot(v, u);
+        float magnitudeSquared = u.LengthSquared();
+        return (dotProduct / magnitudeSquared) * u;
+    }    
 
     public void HandleCollision3(CollisionEvent3 collisionEvent){
 
+    }
+
+    private Vector2 GetFurthestPoint(Shape2D shape, Physics2 transform, Vector2 normal)
+    {
+        Vector2 transformVec = transform.Position;
+        Vector2 offset3 = shape.Offset;
+
+        Vector2 furthest = shape.Type switch
+        {
+            ShapeType2D.Circle => offset3 + normal * shape.Circle.Radius,
+
+            ShapeType2D.Polygon2 =>
+                shape.Offset + shape.Polygon2.Vertices[GetFurthestPointIndex(shape.Polygon2.Vertices, normal)] + transform.Position,
+
+            ShapeType2D.Triangle =>
+                new[] { shape.Triangle.P1, shape.Triangle.P2, shape.Triangle.P3 }
+                    .Select(v => v + shape.Offset + transform.Position).MaxBy(v => (v - normal).Length()),
+
+            ShapeType2D.SymmetricalPolygon =>
+                GetSymmetricalPolygonSupports(shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Rotation, shape.Offset + transform.Position,shape.SymmetricalPolygon.Radius)
+                    .MaxBy(v => (v - normal).Length()),
+
+            ShapeType2D.Rectangle =>
+                new[] { shape.Rectangle.P1, shape.Rectangle.P2, shape.Rectangle.P3, shape.Rectangle.P4 }
+                    .Select(v => v + shape.Offset + transform.Position).MaxBy(v => (v - normal).Length()),
+
+            _ => throw new ArgumentException("Invalid shape type")
+        };
+
+        return furthest + transformVec;
+    }
+
+    private int GetFurthestPointIndex(Vector2[] vertices, Vector2 normal)
+    {
+        int idx = 0;
+        var currentDistance = (vertices[0] - normal).Length();
+
+        for (int i = 1; i < vertices.Length; i++)
+        {
+            var d = (vertices[i] - normal).Length();
+            idx = d > currentDistance ? i : idx;
+            currentDistance = d;
+        }
+
+        return idx;
+    }
+
+    private IEnumerable<Vector2> GetSymmetricalPolygonSupports(int numVertices, float rotation, Vector2 offset,float radius)
+    {
+        var startPosition = Vector2.Transform(new Vector2(0, radius), Matrix3x2.CreateRotation(rotation));
+
+        for (int vIdx = 0; vIdx < numVertices; vIdx++)
+        {
+            var currentVector = Vector2.Transform(startPosition, Matrix3x2.CreateRotation((2 * (float)Math.PI) / numVertices * vIdx));
+            yield return currentVector +  offset;
+        }
     }
 
     private void UpdateSoftBodies2(float delta){
