@@ -13,7 +13,12 @@ public enum ShapeType2D{
 
 public struct Circle
 {
-    public float Radius; 
+    public float Radius;
+
+    public Circle(float radius)
+    {
+        Radius = radius;
+    }
 }
 
 public struct Triangle{

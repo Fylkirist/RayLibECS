@@ -63,9 +63,9 @@ public class World
         rigidbody1.AngularVelocity = 1;
         rigidbody1.Shapes = new Shape2D[1];
         rigidbody1.Shapes[0] = new Shape2D();
-        rigidbody1.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
+        rigidbody1.Shapes[0].Type = ShapeType2D.Rectangle;
         rigidbody1.Shapes[0].Offset = Vector2.Zero;
-        rigidbody1.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0);
+        rigidbody1.Shapes[0].Rectangle = new BasedRectangle(200,200);
 
 
         var entity2 = CreateEntity("test");
@@ -80,15 +80,24 @@ public class World
         rigidbody2.AngularVelocity = 1;
         rigidbody2.Shapes = new Shape2D[1];
         rigidbody2.Shapes[0] = new Shape2D();
-        rigidbody2.Shapes[0].Type = ShapeType2D.SymmetricalPolygon;
+        rigidbody2.Shapes[0].Type = ShapeType2D.Rectangle;
         rigidbody2.Shapes[0].Offset = Vector2.Zero;
-        rigidbody2.Shapes[0].SymmetricalPolygon = new SymmetricalPolygon(5,100,0);
+        rigidbody2.Shapes[0].Rectangle = new BasedRectangle(200,200);
 
-        AttachComponents(entity2,physics2,rigidbody2);
+        var testState2 = CreateComponent<EntityState>();
+        testState2.EntityCategory = "test";
+        testState2.CurrentState = "test";
+        testState2.LastUpdate = "test";
+
+        AttachComponents(entity2,physics2,rigidbody2,testState2);
         AttachComponents(entity1,physics1,rigidbody1);
 
         AddSystem(new CollisionDetectionSystem(this,PhysicsMode.TWO_DIMENSIONAL));
         AddSystem(new PhysicsSystem(this,1000,100));
+        AddSystem(new EntityStateManagementSystem(this, new Dictionary<string, IStateFactory>
+        {
+            {"test", new TestStateFactory()}
+        }));
     }
 
     public void Update(float delta)
