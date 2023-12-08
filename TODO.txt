@@ -1,0 +1,10 @@
+1. Collision Detection and physics for 2D rigid and soft bodies
+
+2. Make a small game as PoC
+
+3. Object loader -> entity initialization from game files
+
+4. 3D collision detection and physics
+
+5. Map textures to bodies (either have the physical objects also be visual representations, or create new visual component attached to entities)
+

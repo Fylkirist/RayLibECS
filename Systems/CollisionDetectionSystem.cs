@@ -164,9 +164,9 @@ public class CollisionDetectionSystem : SystemBase{
         
         for(int i = 0; i<entity1Body.Shapes.Length; i++){
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
-                if(CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j])){
+                bool collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
+                if(collided){
                     EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
-                    return;
                 }
             }
         }
@@ -184,137 +184,124 @@ public class CollisionDetectionSystem : SystemBase{
 
     private bool CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2)
     {
-        var epsilon = 1e-6f;
-
         if (shape1.Type == ShapeType2D.Circle && shape2.Type == ShapeType2D.Circle)
         {
             var distance = ((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset)).Length();
             return distance < shape1.Circle.Radius + shape2.Circle.Radius;
         }
 
-        var normal = Vector2.Normalize((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset));
-        var simplex = new Vector3[3];
-        var diff = -simplex[0];
+        var A = ToVec3((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset));
+        var simplex = new List<Vector3>();
+        simplex.Add(A);
+        var D = -A;
 
-        int maxIterations = 100; 
-        int iterationCount = 0;
-
-        while (iterationCount < maxIterations)
-        {
-            var newSupport = GetSupportVector(shape1, physics1, shape2, physics2, diff);
-            if (Vector3.Dot(newSupport, diff) < -epsilon)
-            {
+        while(true){
+            A = GetFurthestPoint(shape1,physics1,D) - GetFurthestPoint(shape2,physics2,-D);
+            if(Vector3.Dot(A,D)<0){
                 return false;
             }
 
-            simplex[2] = simplex[1];
-            simplex[1] = simplex[0];
-            simplex[0] = newSupport;
+            simplex.Add(A);
 
-            if (ProcessSimplex(ref simplex, ref diff))
-            {
-                return true; 
+            Vector3 a,b,c;
+            Vector3 ab,ac,ao;
+            Vector3 abPerp,acPerp;
+
+            if(simplex.Count == 2){
+                a = simplex[1];
+                b = simplex[0];
+
+                ab = b-a;
+                ao = -a;
+                abPerp = Vector3.Cross(ab,Vector3.Cross(ao,ab));
+
+                D = abPerp;
+            }
+            else{
+                a = simplex[2];
+                b = simplex[1];
+                c = simplex[0];
+
+                ab = b-a;
+                ac = c-a;
+                ao = -a;
+                
+                abPerp = Vector3.Cross(ac,Vector3.Cross(ab,ab));
+                acPerp = Vector3.Cross(ab, Vector3.Cross(ac,ac));
+
+                if(Vector3.Dot(abPerp,ao)>0){
+                    simplex.Remove(c);
+                    D = abPerp;
+                }
+                else if(Vector3.Dot(acPerp,ao)>0){
+                    simplex.Remove(b);
+                    D = acPerp;
+                }
+                else{
+                    return true;
+                }
             }
 
-            iterationCount++;
         }
 
-        return false; 
-    }
-
-    private bool ProcessSimplex(ref Vector3[] simplex, ref Vector3 diff)
-    {
-        var a = simplex[0];
-        var b = simplex[1];
-        var c = simplex[2];
-
-        var AB = b - a;
-        var AC = c - a;
-        var AO = -a;
-        var abp = Vector3.Cross(AC, Vector3.Cross(AB, AB));
-        var acp = Vector3.Cross(AB, Vector3.Cross(AC, AC));
-        var abpParallel = Vector3.Cross(AC, abp);
-
-        if (abpParallel.LengthSquared() == 0)
-        {
-            return true;
-        }
-
-        if (Vector3.Dot(abp, AO) > 0)
-        {
-            simplex[2] = a;
-            simplex[1] = b;
-            diff = abp;
-        }
-        else if (Vector3.Dot(acp, AO) > 0)
-        {
-            simplex[2] = a;
-            simplex[0] = c;
-            diff = acp;
-        }
-        else
-        {
-
-            return true;
-        }
-
-        return false;
-    }
-
+    }   
 
     private Vector3 GetFurthestPoint(Shape2D shape, Physics2 transform, Vector3 normal)
     {
         Vector3 transformVec = ToVec3(transform.Position);
         Vector3 offset3 = ToVec3(shape.Offset);
+        Vector3 normalized = Vector3.Normalize(normal);
 
         Vector3 furthest = shape.Type switch
         {
-            ShapeType2D.Circle => offset3 + normal * shape.Circle.Radius,
+            ShapeType2D.Circle => normalized * shape.Circle.Radius,
 
             ShapeType2D.Polygon2 =>
-                ToVec3(shape.Offset + shape.Polygon2.Vertices[GetFurthestPointIndex(shape.Polygon2.Vertices, normal)] + transform.Position),
+                ToVec3(shape.Polygon2.Vertices[GetFurthestPointIndex(shape.Polygon2.Vertices, normal)]),
 
             ShapeType2D.Triangle =>
-                new[] { shape.Triangle.P1, shape.Triangle.P2, shape.Triangle.P3 }
-                    .Select(v => ToVec3(v) + ToVec3(shape.Offset + transform.Position)).MaxBy(v => (v - normal).Length()),
+                ToVec3(new[] { shape.Triangle.P1, shape.Triangle.P2, shape.Triangle.P3 }
+                .MaxBy(v => Vector3.Dot(ToVec3(v),normalized))),
 
             ShapeType2D.SymmetricalPolygon =>
-                GetSymmetricalPolygonSupports(shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Rotation, shape.Offset + transform.Position,shape.SymmetricalPolygon.Radius)
-                    .MaxBy(v => (v - normal).Length()),
+                GetSymmetricalPolygonSupports(shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Rotation,shape.SymmetricalPolygon.Radius)
+                    .MaxBy(v => Vector3.Dot(v,normalized)),
 
             ShapeType2D.Rectangle =>
-                new[] { shape.Rectangle.P1, shape.Rectangle.P2, shape.Rectangle.P3, shape.Rectangle.P4 }
-                    .Select(v => ToVec3(v) + ToVec3(shape.Offset + transform.Position)).MaxBy(v => (v - normal).Length()),
+                ToVec3(new[] { shape.Rectangle.P1, shape.Rectangle.P2, shape.Rectangle.P3, shape.Rectangle.P4 }
+                    .MaxBy(v => Vector3.Dot(ToVec3(v),normalized))),
 
             _ => throw new ArgumentException("Invalid shape type")
         };
 
-        return furthest + transformVec;
+        return furthest + transformVec + offset3;
     }
 
     private int GetFurthestPointIndex(Vector2[] vertices, Vector3 normal)
     {
         int idx = 0;
-        var currentDistance = (ToVec3(vertices[0]) - normal).Length();
+        var currentAlignment = Vector3.Dot(ToVec3(vertices[0]),normal);
 
         for (int i = 1; i < vertices.Length; i++)
         {
-            var d = (ToVec3(vertices[i]) - normal).Length();
-            idx = d > currentDistance ? i : idx;
-            currentDistance = d;
+            var d = Vector3.Dot(ToVec3(vertices[i]),normal);
+            if(d > currentAlignment){
+                idx = i;
+                currentAlignment = d;
+            }
         }
 
         return idx;
     }
 
-    private IEnumerable<Vector3> GetSymmetricalPolygonSupports(int numVertices, float rotation, Vector2 offset,float radius)
+    private IEnumerable<Vector3> GetSymmetricalPolygonSupports(int numVertices, float rotation, float radius)
     {
         var startPosition = Vector2.Transform(new Vector2(0, radius), Matrix3x2.CreateRotation(rotation));
 
         for (int vIdx = 0; vIdx < numVertices; vIdx++)
         {
             var currentVector = Vector2.Transform(startPosition, Matrix3x2.CreateRotation((2 * (float)Math.PI) / numVertices * vIdx));
-            yield return ToVec3(currentVector) + ToVec3(offset);
+            yield return ToVec3(currentVector);
         }
     }
 

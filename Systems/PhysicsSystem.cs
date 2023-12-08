@@ -3,6 +3,7 @@ using RayLibECS.Entities;
 using RayLibECS.Shapes;
 using System.Numerics;
 using RayLibECS.Events;
+using Raylib_cs;
 
 namespace RayLibECS.Systems;
 
@@ -57,6 +58,7 @@ public class PhysicsSystem : SystemBase{
     }
 
     public void HandleCollision2(CollisionEvent2 collisionEvent){
+
         var collider1 = collisionEvent.Collider1;
         var physics1 = World.QueryComponent<Physics2>(collider1);
         if(physics1 == null){
@@ -69,6 +71,8 @@ public class PhysicsSystem : SystemBase{
             return;
         }
 
+        Console.WriteLine($"Entity: {collider1.Id} is colliding with Entity: {collider2.Id}");
+        
         var rigidBody1 = World.QueryComponent<RigidBody2>(collider1);
         var rigidBody2 = World.QueryComponent<RigidBody2>(collider2);
 
@@ -135,56 +139,59 @@ public class PhysicsSystem : SystemBase{
     private Vector2 GetFurthestPoint(Shape2D shape, Physics2 transform, Vector2 normal)
     {
         Vector2 transformVec = transform.Position;
-        Vector2 offset3 = shape.Offset;
+        Vector2 offset = shape.Offset;
+        Vector2 normalized = Vector2.Normalize(normal);
 
         Vector2 furthest = shape.Type switch
         {
-            ShapeType2D.Circle => offset3 + normal * shape.Circle.Radius,
+            ShapeType2D.Circle => normalized * shape.Circle.Radius,
 
-            ShapeType2D.Polygon2 =>
-                shape.Offset + shape.Polygon2.Vertices[GetFurthestPointIndex(shape.Polygon2.Vertices, normal)] + transform.Position,
+            ShapeType2D.Polygon2 => shape.Polygon2.Vertices[GetFurthestPointIndex(shape.Polygon2.Vertices, normal)],
 
             ShapeType2D.Triangle =>
                 new[] { shape.Triangle.P1, shape.Triangle.P2, shape.Triangle.P3 }
-                    .Select(v => v + shape.Offset + transform.Position).MaxBy(v => (v - normal).Length()),
+                    .MaxBy(v => Vector2.Dot(v,normalized)),
 
             ShapeType2D.SymmetricalPolygon =>
-                GetSymmetricalPolygonSupports(shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Rotation, shape.Offset + transform.Position,shape.SymmetricalPolygon.Radius)
-                    .MaxBy(v => (v - normal).Length()),
+                GetSymmetricalPolygonSupports(shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Rotation,shape.SymmetricalPolygon.Radius)
+                    .MaxBy(v => Vector2.Dot(v, normalized)),
 
             ShapeType2D.Rectangle =>
                 new[] { shape.Rectangle.P1, shape.Rectangle.P2, shape.Rectangle.P3, shape.Rectangle.P4 }
-                    .Select(v => v + shape.Offset + transform.Position).MaxBy(v => (v - normal).Length()),
+                    .MaxBy(v => Vector2.Dot(v, normalized)),
 
             _ => throw new ArgumentException("Invalid shape type")
         };
 
-        return furthest + transformVec;
+        return furthest + transformVec + offset;
     }
 
     private int GetFurthestPointIndex(Vector2[] vertices, Vector2 normal)
     {
         int idx = 0;
-        var currentDistance = (vertices[0] - normal).Length();
+        var currentDistance = Vector2.Dot(vertices[0],normal);
 
         for (int i = 1; i < vertices.Length; i++)
         {
-            var d = (vertices[i] - normal).Length();
-            idx = d > currentDistance ? i : idx;
-            currentDistance = d;
+            var d = Vector2.Dot(vertices[i],normal);
+            if (d > currentDistance)
+            {
+                idx = i;
+                currentDistance = d;
+            }
         }
 
         return idx;
     }
 
-    private IEnumerable<Vector2> GetSymmetricalPolygonSupports(int numVertices, float rotation, Vector2 offset,float radius)
+    private IEnumerable<Vector2> GetSymmetricalPolygonSupports(int numVertices, float rotation,float radius)
     {
         var startPosition = Vector2.Transform(new Vector2(0, radius), Matrix3x2.CreateRotation(rotation));
 
         for (int vIdx = 0; vIdx < numVertices; vIdx++)
         {
             var currentVector = Vector2.Transform(startPosition, Matrix3x2.CreateRotation((2 * (float)Math.PI) / numVertices * vIdx));
-            yield return currentVector +  offset;
+            yield return currentVector;
         }
     }
 

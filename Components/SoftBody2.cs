@@ -41,6 +41,14 @@ public struct MassPoint2
     public Vector2 ForceVector;
     public float Mass;
     public float Radius;
+    
+    public MassPoint2(Vector2 position, Vector2 velocity, float mass, float radius){
+        ForceVector = Vector2.Zero;
+        PositionVector = position;
+        VelocityVector = velocity;
+        Mass = mass;
+        Radius = radius;
+    }
 }
 
 public struct Spring{
@@ -48,6 +56,14 @@ public struct Spring{
     public float Stiffness;
     public float RestLength;
     public float Damping;
+
+    public Spring(Vector2Int connection, float stiffness, float rest, float damping)
+    {
+        Connection = connection;
+        Stiffness = stiffness;
+        RestLength = rest;
+        Damping = damping;
+    }
 }
 
 public struct Vector2Int{
