@@ -1,10 +1,12 @@
 using System.Numerics;
 using Raylib_cs;
+using RayLibECS.Interfaces;
+using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
 
-public class SoftBody2 : Component{
+public class SoftBody2 : Component, IBoundingRectable{
     public MassPoint2[] Points;
     public Spring[] Springs;
     public float Friction;
@@ -17,6 +19,10 @@ public class SoftBody2 : Component{
         Points = new MassPoint2[1];
         Springs = new Spring[0];
         Friction = 0f;
+    }
+
+    public Entity GetOwner(){
+        return Owner;
     }
 
     public Rectangle GetBoundingRect(Vector2 worldPosition){

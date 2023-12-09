@@ -71,7 +71,7 @@ public class PhysicsSystem : SystemBase{
             return;
         }
 
-        Console.WriteLine($"Entity: {collider1.Id} is colliding with Entity: {collider2.Id}");
+        Console.WriteLine($"Entity: {collider1.Id} is colliding with Entity: {collider2.Id} with overlap: {collisionEvent.Overlap}");
         
         var rigidBody1 = World.QueryComponent<RigidBody2>(collider1);
         var rigidBody2 = World.QueryComponent<RigidBody2>(collider2);

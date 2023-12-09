@@ -4,6 +4,7 @@ using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Events;
 using RayLibECS.Shapes;
+using RayLibECS.Interfaces;
 
 namespace RayLibECS.Systems;
 
@@ -119,7 +120,15 @@ public class CollisionDetectionSystem : SystemBase{
     }
 
     private void DetectCollisions2D(){
-        var physicalEntities = World.GetEntitiesWith<Physics2>().ToArray();
+
+        IOrderedEnumerable<IBoundingRectable> bodies =
+            World.GetComponents<SoftBody2>()
+            .Concat(World.GetComponents<RigidBody2>().Cast<IBoundingRectable>())
+            .Where(e => World.QueryComponent<Physics2>(e.GetOwner())!=null)
+            .OrderBy(e => e.GetBoundingRect(World.QueryComponent<Physics2>(e.GetOwner()).Position).x);
+        
+        var physicalEntities = bodies.Select(e => e.GetOwner()).ToArray();
+
         foreach(Entity entity1 in physicalEntities){
             foreach(Entity entity2 in physicalEntities){
                 if(entity1 == entity2) continue;
@@ -138,56 +147,49 @@ public class CollisionDetectionSystem : SystemBase{
                     if(body2 == null){
                         var softBody2 = World.QueryComponent<SoftBody2>(entity2);
                         if(softBody2 == null) continue;
-                        DetectSoftBodyCollision(transform1, softBody1,transform2, softBody2);
-                        continue;
+                        if(!DetectSoftBodyCollision(transform1, softBody1,transform2, softBody2)) break;
                     }
                     else{
-                        DetectSoftAndRigidBodyCollsion(transform1, softBody1, transform2, body2);
+                        if(!DetectSoftAndRigidBodyCollsion(transform1, softBody1, transform2, body2)) break ;
                         continue;
                     }
                 }
                 else if(body2 == null){
                     var softBody2 = World.QueryComponent<SoftBody2>(entity2);
                     if(softBody2 == null) continue;
-                    DetectSoftAndRigidBodyCollsion(transform2,softBody2,transform1,body1);
+                    if(!DetectSoftAndRigidBodyCollsion(transform2,softBody2,transform1,body1)) break;
                     continue;
                 }
-                DetectRigidBodyCollsion(transform1,body1,transform2,body2);
+                if (!DetectRigidBodyCollsion(transform1, body1, transform2, body2)) break;
             }
         } 
     }
 
-    private void DetectRigidBodyCollsion(Physics2 entity1Physics, RigidBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
-        var boundingRect1 = entity1Body.GetBoundingRect(entity1Physics.Position);
-        var boundingRect2 = entity2Body.GetBoundingRect(entity2Physics.Position);
-        if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return;
-        
+    private bool DetectRigidBodyCollsion(Physics2 entity1Physics, RigidBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
+
         for(int i = 0; i<entity1Body.Shapes.Length; i++){
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
-                bool collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
-                if(collided){
-                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
+                float collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
+                if(collided > 0){
+                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,collided));
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 
     private Vector3 ToVec3(Vector2 vec){
         return new Vector3(vec.X,vec.Y,0f);
-    }
+    } 
 
-    private Vector3 GetSupportVector(Shape2D shape1, Physics2 transform1, Shape2D shape2, Physics2 transform2, Vector3 normal)
-    {
-        return GetFurthestPoint(shape1, transform1, normal) -
-               GetFurthestPoint(shape2, transform2, -normal);
-    }
-
-    private bool CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2)
+    private float CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2)
     {
         if (shape1.Type == ShapeType2D.Circle && shape2.Type == ShapeType2D.Circle)
         {
             var distance = ((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset)).Length();
-            return distance < shape1.Circle.Radius + shape2.Circle.Radius;
+            return -(distance - shape1.Circle.Radius + shape2.Circle.Radius);
         }
 
         var A = ToVec3((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset));
@@ -198,7 +200,7 @@ public class CollisionDetectionSystem : SystemBase{
         while(true){
             A = GetFurthestPoint(shape1,physics1,D) - GetFurthestPoint(shape2,physics2,-D);
             if(Vector3.Dot(A,D)<0){
-                return false;
+                return -1f;
             }
 
             simplex.Add(A);
@@ -238,7 +240,7 @@ public class CollisionDetectionSystem : SystemBase{
                     D = acPerp;
                 }
                 else{
-                    return true;
+                    return 1;
                 }
             }
 
@@ -305,28 +307,27 @@ public class CollisionDetectionSystem : SystemBase{
         }
     }
 
-    private void DetectSoftBodyCollision(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, SoftBody2 entity2Body){
-        var boundingRect1 = entity1Body.GetBoundingRect(entity1Physics.Position);
-        var boundingRect2 = entity2Body.GetBoundingRect(entity2Physics.Position);
-        if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return;
+    private bool DetectSoftBodyCollision(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, SoftBody2 entity2Body){
 
         for(int i = 0; i<entity1Body.Points.Length; i++){
             for (int j = 0; j<entity2Body.Points.Length; j++){
                 var distance = ((entity1Body.Points[i].PositionVector + entity1Physics.Position) - (entity2Body.Points[j].PositionVector + entity2Physics.Position)).Length();
                 if(distance < entity1Body.Points[i].Radius + entity2Body.Points[j].Radius){
-                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j));
-                    return;
+                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,0f));
+                    return true;
                 }
             }
-        }        
+        }
+
+        return false;
     }
 
-    private void DetectSoftAndRigidBodyCollsion(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
+    private bool DetectSoftAndRigidBodyCollsion(Physics2 entity1Physics, SoftBody2 entity1Body, Physics2 entity2Physics, RigidBody2 entity2Body){
         var boundingRect1 = entity1Body.GetBoundingRect(entity1Physics.Position);
         var boundingRect2 = entity2Body.GetBoundingRect(entity2Physics.Position);
-        if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return;
+        if(!Raylib.CheckCollisionRecs(boundingRect1,boundingRect2)) return false;
 
-
+        return false;
     }
 
     private void DetectCollisions3D(){

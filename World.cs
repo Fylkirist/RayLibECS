@@ -77,7 +77,7 @@ public class World
 
         var rigidbody2 = CreateComponent<RigidBody2>();
 
-        rigidbody2.AngularVelocity = 1;
+        rigidbody2.AngularVelocity = 1.2f;
         rigidbody2.Shapes = new Shape2D[1];
         rigidbody2.Shapes[0] = new Shape2D();
         rigidbody2.Shapes[0].Type = ShapeType2D.Rectangle;

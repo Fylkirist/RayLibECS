@@ -1,10 +1,12 @@
 using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Shapes;
+using RayLibECS.Interfaces;
+using RayLibECS.Entities;
 
 namespace RayLibECS.Components;
 
-public class RigidBody2 : Component{
+public class RigidBody2 : Component,IBoundingRectable{
     public Shape2D[] Shapes;
     public string Texture;
     public float Mass;
@@ -21,6 +23,10 @@ public class RigidBody2 : Component{
         Shapes = new Shape2D[0];
         Texture = "";
         AngularVelocity = 0f;
+    }
+
+    public Entity GetOwner(){
+        return Owner;
     }
 
     public Rectangle GetBoundingRect(Vector2 worldPosition){
