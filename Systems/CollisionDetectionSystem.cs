@@ -54,7 +54,7 @@ public class CollisionDetectionSystem : SystemBase{
                     case ShapeType2D.Rectangle:
                         var rect = rigidBody.Shapes[i].Rectangle;
                         Raylib.DrawLineEx(rect.P1+transform.Position+rigidBody.Shapes[i].Offset,rect.P2+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
-                        Raylib.DrawLineEx(rect.P2+transform.Position+rigidBody.Shapes[i].Offset, rect.P3+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
+                        Raylib.DrawLineEx(rect.P2+transform.Position+rigidBody.Shapes[i].Offset,rect.P3+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
                         Raylib.DrawLineEx(rect.P3+transform.Position+rigidBody.Shapes[i].Offset,rect.P4+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
                         Raylib.DrawLineEx(rect.P4+transform.Position+rigidBody.Shapes[i].Offset,rect.P1+transform.Position+rigidBody.Shapes[i].Offset,2,Color.WHITE);
                         break;
@@ -169,9 +169,9 @@ public class CollisionDetectionSystem : SystemBase{
 
         for(int i = 0; i<entity1Body.Shapes.Length; i++){
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
-                float collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
-                if(collided > 0){
-                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,collided));
+                float? collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
+                if(collided != null){
+                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,collided.Value));
                     return true;
                 }
             }
@@ -184,7 +184,7 @@ public class CollisionDetectionSystem : SystemBase{
         return new Vector3(vec.X,vec.Y,0f);
     } 
 
-    private float CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2)
+    private float? CheckShapeCollision2(Physics2 physics1, Shape2D shape1, Physics2 physics2, Shape2D shape2)
     {
         if (shape1.Type == ShapeType2D.Circle && shape2.Type == ShapeType2D.Circle)
         {
@@ -200,7 +200,7 @@ public class CollisionDetectionSystem : SystemBase{
         while(true){
             A = GetFurthestPoint(shape1,physics1,D) - GetFurthestPoint(shape2,physics2,-D);
             if(Vector3.Dot(A,D)<0){
-                return -1f;
+                return null;
             }
 
             simplex.Add(A);
