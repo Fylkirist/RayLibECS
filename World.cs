@@ -71,7 +71,7 @@ public class World
         var entity2 = CreateEntity("test");
 
         var physics2 = CreateComponent<Physics2>();
-        physics2.Position = new Vector2(100,100);
+        physics2.Position = new Vector2(300,300);
         physics2.Z = 0;
         physics2.PhysicsType = PhysicsType2D.Static;
 

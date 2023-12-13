@@ -121,6 +121,8 @@ public class PhysicsSystem : SystemBase{
         
         physics1.Position += normal * overlap * 0.5f;
         physics2.Position -= normal * overlap * 0.5f;
+        
+        
     }
 
     private Vector2 VectorProjection2(Vector2 v, Vector2 u)

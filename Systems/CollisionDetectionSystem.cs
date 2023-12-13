@@ -252,38 +252,11 @@ public class CollisionDetectionSystem : SystemBase{
                     D = acPerp;
                 }
                 else{
-                    a = simplex[2];
-                    b = simplex[1];
-                    c = simplex[0];
-
-                    float distanceA = Vector3.Distance(Vector3.Zero, a);
-                    float distanceB = Vector3.Distance(Vector3.Zero, b);
-                    float distanceC = Vector3.Distance(Vector3.Zero, c);
- 
-                    if (distanceA < distanceB && distanceA < distanceC)
-                    {
-                        return GetClosestPointOnEdge(b, c).Length();
-                    }
-                    else if (distanceB < distanceA && distanceB < distanceC)
-                    {
-                        return GetClosestPointOnEdge(a, c).Length();
-                    }
-                    else
-                    {
-                        return GetClosestPointOnEdge(a, b).Length();
-                    }
+                    return 1f;
                 }
             }
         }
-    }
-
-    private Vector3 GetClosestPointOnEdge(Vector3 lineStart, Vector3 lineEnd){
-        float t = Vector3.Dot(Vector3.Zero - lineStart, lineEnd - lineStart) / Vector3.Dot(lineEnd - lineStart, lineEnd - lineStart);
-        t = Math.Max(0, Math.Min(t, 1));
-        Vector3 closestPoint = lineStart + t * (lineEnd - lineStart);
-
-        return closestPoint;
-    }
+    }   
 
     private Vector3 GetFurthestPoint(Shape2D shape, Physics2 transform, Vector3 normal)
     {
