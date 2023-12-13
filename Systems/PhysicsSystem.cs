@@ -86,11 +86,11 @@ public class PhysicsSystem : SystemBase{
                 if(softBody2 == null){
                     return;
                 }
-                SoftBody2Collision(softBody1, physics1, collisionEvent.CollisionIndex1 ,softBody2, physics2, collisionEvent.CollisionIndex2);
+                SoftBody2Collision(softBody1, physics1, collisionEvent.CollisionIndex1 ,softBody2, physics2, collisionEvent.CollisionIndex2,collisionEvent.Overlap);
                 return;
             }   
             else{
-                RigidSoftBody2Collision(rigidBody2, physics2,collisionEvent.CollisionIndex1, softBody1, physics1,collisionEvent.CollisionIndex1);
+                RigidSoftBody2Collision(rigidBody2, physics2,collisionEvent.CollisionIndex1, softBody1, physics1,collisionEvent.CollisionIndex1,collisionEvent.Overlap);
                 return;
             }
         }
@@ -99,30 +99,28 @@ public class PhysicsSystem : SystemBase{
             if(softBody2 == null){
                 return;
             }
-            RigidSoftBody2Collision(rigidBody1, physics1, collisionEvent.CollisionIndex1, softBody2, physics2,collisionEvent.CollisionIndex2);
+            RigidSoftBody2Collision(rigidBody1, physics1, collisionEvent.CollisionIndex1, softBody2, physics2,collisionEvent.CollisionIndex2,collisionEvent.Overlap);
             return;
         }
 
-        RigidBody2Collision(rigidBody1,physics1, collisionEvent.CollisionIndex1, rigidBody2,physics2,collisionEvent.CollisionIndex2);
+        RigidBody2Collision(rigidBody1,physics1, collisionEvent.CollisionIndex1, rigidBody2,physics2,collisionEvent.CollisionIndex2,collisionEvent.Overlap);
 
     }
 
-    private void RigidSoftBody2Collision(RigidBody2 rigidBody, Physics2 rigidPhysics, int rigidIndex, SoftBody2 softBody, Physics2 softPhysics, int softIndex){
+    private void RigidSoftBody2Collision(RigidBody2 rigidBody, Physics2 rigidPhysics, int rigidIndex, SoftBody2 softBody, Physics2 softPhysics, int softIndex, float overlap){
         
     }
 
-    private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2){
+    private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2,float overlap){
 
     }
 
-    private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2){
+    private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2, float overlap){
         var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
         
-        var shape1Furthest = GetFurthestPoint(rigidBody1.Shapes[index1], physics1, normal);
-        var shape2Furthest = GetFurthestPoint(rigidBody2.Shapes[index2], physics2, -normal);
-
-        
+        physics1.Position += normal * overlap * 0.5f;
+        physics2.Position -= normal * overlap * 0.5f;
     }
 
     private Vector2 VectorProjection2(Vector2 v, Vector2 u)

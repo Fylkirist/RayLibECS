@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
@@ -12,11 +13,14 @@ public class CollisionDetectionSystem : SystemBase{
     private bool _running;
     private double _simulationDistance;
     private bool _renderingWireframes;
+    private Dictionary<Entity,Entity> _collision2InCycle;
 
     public CollisionDetectionSystem(World world, PhysicsMode mode) : base(world)
     {
         _running = false;
         _renderingWireframes = true;
+        _collision2InCycle = new Dictionary<Entity, Entity>();
+        _simulationDistance = 0;
     }
 
     public override void Detach()
@@ -120,7 +124,7 @@ public class CollisionDetectionSystem : SystemBase{
     }
 
     private void DetectCollisions2D(){
-
+        _collision2InCycle.Clear();
         IOrderedEnumerable<IBoundingRectable> bodies =
             World.GetComponents<SoftBody2>()
             .Concat(World.GetComponents<RigidBody2>().Cast<IBoundingRectable>())
@@ -148,6 +152,7 @@ public class CollisionDetectionSystem : SystemBase{
                         var softBody2 = World.QueryComponent<SoftBody2>(entity2);
                         if(softBody2 == null) continue;
                         if(!DetectSoftBodyCollision(transform1, softBody1,transform2, softBody2)) break;
+                        continue;
                     }
                     else{
                         if(!DetectSoftAndRigidBodyCollsion(transform1, softBody1, transform2, body2)) break ;
@@ -170,8 +175,16 @@ public class CollisionDetectionSystem : SystemBase{
         for(int i = 0; i<entity1Body.Shapes.Length; i++){
             for(int j = 0; j<entity2Body.Shapes.Length; j++){
                 float? collided = CheckShapeCollision2(entity1Physics, entity1Body.Shapes[i],entity2Physics, entity2Body.Shapes[j]);
-                if(collided != null){
-                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,collided.Value));
+                if(collided != null)
+                {
+                    if (_collision2InCycle.ContainsKey(entity2Body.Owner) && _collision2InCycle[entity2Body.Owner] == entity1Body.Owner)
+                    {
+                        return true;
+                    }
+                    CollisionEvent2 collision =
+                        new CollisionEvent2(entity1Body.Owner, i, entity2Body.Owner, j, collided.Value);
+                    _collision2InCycle.Add(entity2Body.Owner,entity1Body.Owner);
+                    EventBus.Publish(collision);
                     return true;
                 }
             }
@@ -189,12 +202,11 @@ public class CollisionDetectionSystem : SystemBase{
         if (shape1.Type == ShapeType2D.Circle && shape2.Type == ShapeType2D.Circle)
         {
             var distance = ((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset)).Length();
-            return -(distance - shape1.Circle.Radius + shape2.Circle.Radius);
+            return -(distance - shape1.Circle.Radius + shape2.Circle.Radius)>0?-(distance - shape1.Circle.Radius + shape2.Circle.Radius):null;
         }
 
         var A = ToVec3((physics1.Position + shape1.Offset) - (physics2.Position + shape2.Offset));
-        var simplex = new List<Vector3>();
-        simplex.Add(A);
+        var simplex = new List<Vector3> { A };
         var D = -A;
 
         while(true){
@@ -240,13 +252,38 @@ public class CollisionDetectionSystem : SystemBase{
                     D = acPerp;
                 }
                 else{
-                    return 1;
+                    a = simplex[2];
+                    b = simplex[1];
+                    c = simplex[0];
+
+                    float distanceA = Vector3.Distance(Vector3.Zero, a);
+                    float distanceB = Vector3.Distance(Vector3.Zero, b);
+                    float distanceC = Vector3.Distance(Vector3.Zero, c);
+ 
+                    if (distanceA < distanceB && distanceA < distanceC)
+                    {
+                        return GetClosestPointOnEdge(b, c).Length();
+                    }
+                    else if (distanceB < distanceA && distanceB < distanceC)
+                    {
+                        return GetClosestPointOnEdge(a, c).Length();
+                    }
+                    else
+                    {
+                        return GetClosestPointOnEdge(a, b).Length();
+                    }
                 }
             }
-
         }
+    }
 
-    }   
+    private Vector3 GetClosestPointOnEdge(Vector3 lineStart, Vector3 lineEnd){
+        float t = Vector3.Dot(Vector3.Zero - lineStart, lineEnd - lineStart) / Vector3.Dot(lineEnd - lineStart, lineEnd - lineStart);
+        t = Math.Max(0, Math.Min(t, 1));
+        Vector3 closestPoint = lineStart + t * (lineEnd - lineStart);
+
+        return closestPoint;
+    }
 
     private Vector3 GetFurthestPoint(Shape2D shape, Physics2 transform, Vector3 normal)
     {
@@ -313,7 +350,11 @@ public class CollisionDetectionSystem : SystemBase{
             for (int j = 0; j<entity2Body.Points.Length; j++){
                 var distance = ((entity1Body.Points[i].PositionVector + entity1Physics.Position) - (entity2Body.Points[j].PositionVector + entity2Physics.Position)).Length();
                 if(distance < entity1Body.Points[i].Radius + entity2Body.Points[j].Radius){
-                    EventBus.Publish(new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,0f));
+                    if(!_collision2InCycle.ContainsKey(entity2Body.Owner) || _collision2InCycle[entity2Body.Owner] != entity1Body.Owner){
+                        var collision = new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,0f);
+                        _collision2InCycle.Add(entity2Body.Owner,entity1Body.Owner);
+                        EventBus.Publish(collision);
+                    }
                     return true;
                 }
             }
