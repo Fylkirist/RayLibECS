@@ -108,11 +108,23 @@ public class PhysicsSystem : SystemBase{
     }
 
     private void RigidSoftBody2Collision(RigidBody2 rigidBody, Physics2 rigidPhysics, int rigidIndex, SoftBody2 softBody, Physics2 softPhysics, int softIndex, float overlap){
+        var pointPosition = softBody.Points[softIndex].PositionVector;
+        var rigidPosition = rigidBody.Shapes[rigidIndex].Offset + rigidPhysics.Position;
+        
+        var distanceVector = rigidPosition - pointPosition;
+        var normal = Vector2.Normalize(distanceVector);
+
+        rigidPhysics.Position += normal * overlap * 0.5f;
+        softBody.Points[softIndex].PositionVector -= normal * overlap * 0.5f;
         
     }
 
     private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2,float overlap){
+        var distanceVector = (softBody1.Points[index1].PositionVector + physics1.Position) - (softBody2.Points[index2].PositionVector + physics2.Position);
+        var normal = Vector2.Normalize(distanceVector);
 
+        softBody1.Points[index1].PositionVector += normal * overlap * 0.5f;
+        softBody2.Points[index2].PositionVector -= normal * overlap * 0.5f;
     }
 
     private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2, float overlap){
@@ -122,15 +134,8 @@ public class PhysicsSystem : SystemBase{
         physics1.Position += normal * overlap * 0.5f;
         physics2.Position -= normal * overlap * 0.5f;
         
-        
+        var relativeVelocity = physics1.Velocity - physics2.Velocity;
     }
-
-    private Vector2 VectorProjection2(Vector2 v, Vector2 u)
-    {
-        float dotProduct = Vector2.Dot(v, u);
-        float magnitudeSquared = u.LengthSquared();
-        return (dotProduct / magnitudeSquared) * u;
-    }    
 
     public void HandleCollision3(CollisionEvent3 collisionEvent){
 

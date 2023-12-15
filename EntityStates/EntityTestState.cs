@@ -8,6 +8,7 @@ using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Events;
 using RayLibECS.Interfaces;
+using System.Numerics;
 
 namespace RayLibECS.EntityStates;
 
@@ -25,24 +26,28 @@ internal class EntityTestState : IEntityState
         {
             return;
         }
+        
+        physics.Velocity -= physics.Velocity * 0.9f * delta;
+        physics.Velocity = physics.Velocity.Length() < 20? Vector2.Zero: physics.Velocity;
+        
         foreach (var pressed in input.PressedKeys)
         {
             switch (pressed)
             {
                 case KeyboardKey.KEY_RIGHT:
-                    physics.Position.X += 1000 * delta;
+                    physics.Velocity.X = 150;
                     break;
                 case KeyboardKey.KEY_LEFT:
-                    physics.Position.X -= 1000 * delta;
+                    physics.Velocity.X = -150;
                     break;
                 case KeyboardKey.KEY_UP:
-                    physics.Position.Y -= 1000 * delta;
+                    physics.Velocity.Y = -150;
                     break;
                 case KeyboardKey.KEY_DOWN:
-                    physics.Position.Y += 1000 * delta;
+                    physics.Velocity.Y = 150;
                     break;
             }
-        }
+        } 
     }
 
     public void ExitState(World world, Entity entity)
