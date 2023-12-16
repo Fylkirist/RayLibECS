@@ -88,4 +88,8 @@ public struct Vector2Int{
     public static Vector2Int operator -(Vector2Int a, Vector2Int b){
         return new Vector2Int(a.X-b.X,a.Y-b.Y);
     }
+
+    public static Vector2Int Invert(Vector2Int a){
+        return new Vector2Int(a.Y,a.X);
+    }
 }

@@ -20,13 +20,15 @@ public static class DebugLoader{
                         -width*10f*0.5f + 10f*i,
                         -height*10f*0.5f + 10f*j
                         );
-                var pointMass = mass/(numPoints);
+                var pointMass = mass/numPoints;
                 points[idx] = new MassPoint2(position,Vector2.Zero,pointMass,4);
             }
         }
 
         for(int i = 0; i < points.Length; i++){
-            
+            foreach(var conn in GetUnusedWorkingConnections(width,height,i,connections)){
+                connections.Add(conn);
+            }
         }
         
         List<Spring> springs = new List<Spring>();
@@ -36,5 +38,21 @@ public static class DebugLoader{
             springs.Add(spring);
         }
         return new SoftBody2(points,springs.ToArray());
+    }
+
+    private static Vector2Int[] GetUnusedWorkingConnections(int width, int height, int current, HashSet<Vector2Int> previousConnections){
+        var connections = new List<Vector2Int>();
+        var row = current/height;
+        var column = current - row*width;
+        var currentGridCoordinate = new Vector2Int(column,row);
+        foreach(var connectionOffset in new Vector2Int[]{new(0,1), new(1,0), new(1,1), new(-1,-1), new(-1,0), new(0,-1),new(1,-1),new(-1,1)}){
+            var possibleConnection = currentGridCoordinate + connectionOffset;
+            if(possibleConnection.X < width && possibleConnection.X > 0
+            && possibleConnection.Y < height && possibleConnection.Y > 0
+            && !previousConnections.Contains(Vector2Int.Invert(possibleConnection))){
+                connections.Add(possibleConnection);
+            }
+        }
+        return connections.ToArray();
     }
 }
