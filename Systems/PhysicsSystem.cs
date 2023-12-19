@@ -71,8 +71,6 @@ public class PhysicsSystem : SystemBase{
             return;
         }
 
-        Console.WriteLine($"Entity: {collider1.Id} is colliding with Entity: {collider2.Id} with overlap: {collisionEvent.Overlap}");
-        
         var rigidBody1 = World.QueryComponent<RigidBody2>(collider1);
         var rigidBody2 = World.QueryComponent<RigidBody2>(collider2);
 
@@ -122,7 +120,8 @@ public class PhysicsSystem : SystemBase{
     private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2,float overlap){
         var distanceVector = (softBody1.Points[index1].PositionVector + physics1.Position) - (softBody2.Points[index2].PositionVector + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
-
+        
+        
         softBody1.Points[index1].PositionVector += normal * overlap * 0.5f;
         softBody2.Points[index2].PositionVector -= normal * overlap * 0.5f;
     }
@@ -131,8 +130,13 @@ public class PhysicsSystem : SystemBase{
         var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
         
-        physics1.Position += normal * overlap * 0.5f;
-        physics2.Position -= normal * overlap * 0.5f;
+        if(physics1.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic){
+            physics1.Position += normal * overlap * 0.5f;
+        }
+
+        if(physics2.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic){
+            physics2.Position -= normal * overlap * 0.5f;
+        }
         
         var relativeVelocity = physics1.Velocity - physics2.Velocity;
     }

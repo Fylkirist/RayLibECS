@@ -56,7 +56,7 @@ public class World
         var physics1 = CreateComponent<Physics2>();
         physics1.Position = Vector2.Zero;
         physics1.Z = 0;
-        physics1.PhysicsType = PhysicsType2D.Static;
+        physics1.PhysicsType = PhysicsType2D.Dynamic;
 
         var rigidbody1 = CreateComponent<RigidBody2>();
 
