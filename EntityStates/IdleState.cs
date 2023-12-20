@@ -6,22 +6,8 @@ using Raylib_cs;
 
 namespace RayLibECS.EntityStates;
 
-public class IdleStateBase : EntityStateBase
+public class IdleState : EntityStateBase
 {
-    public override void EnterState(World world, Entity entity)
-    {
-        var physics = world.QueryComponent<Physics2>(entity);
-        if (physics != null)
-        {
-            physics.PhysicsType = PhysicsType2D.Kinematic;
-        }
-    }
-
-    public override void ExitState(World world, Entity entity)
-    {
-        
-    }
-
     public override void Update(World world, Entity entity, InputState input, float delta)
     {
         var charState = world.QueryComponent<EntityState>(entity);
@@ -36,7 +22,7 @@ public class IdleStateBase : EntityStateBase
         if(input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT) 
             || input.PressedKeys.Contains(KeyboardKey.KEY_LEFT))
         {
-            charState.CurrentState = "running";
+            charState.PushNextState("running");
         }
     }
 }

@@ -1,49 +1,41 @@
-using System.Numerics;
 using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Interfaces;
+using System.Numerics;
 using Raylib_cs;
+using RayLibECS.Events;
 
 namespace RayLibECS.EntityStates;
 
-public class RunningStateBase : EntityStateBase
+public class JumpingState : EntityStateBase
 {
-
-    public override void EnterState(World world, Entity entity)
-    {
-
-    }
-
-
-    public override void ExitState(World world, Entity entity)
-    {
-        
-    }
-
-
     public override void Update(World world, Entity entity, InputState input, float delta)
     {
         var charPhysics = world.QueryComponent<Physics2>(entity);
-        var charState = world.QueryComponent<EntityState>(entity);
         var charStats = world.QueryComponent<CharacterStats>(entity);
-        if(charPhysics == null || charState == null || charStats == null){
+        var charState = world.QueryComponent<EntityState>(entity);
+        if(charPhysics == null || charStats == null || charState == null){
             return;
         }
 
+        charPhysics.Velocity.Y += 100*9.81f*delta;
+        
         if(input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT)){
             charPhysics.Velocity.X = charPhysics.Velocity.X<charStats.Speed? charPhysics.Velocity.X + 100 * delta : charStats.Speed;
+            charState.PushNextState("running");
         }
-        if(input.PressedKeys.Contains(KeyboardKey.KEY_LEFT)){
+        else if(input.PressedKeys.Contains(KeyboardKey.KEY_LEFT)){
             charPhysics.Velocity.X = charPhysics.Velocity.X<charStats.Speed? charPhysics.Velocity.X - 100 * delta : -charStats.Speed;
-        }
-        if(input.PressedKeys.Contains(KeyboardKey.KEY_SPACE)){
-            charState.CurrentState = "jumping";
-            return;
-        }
-        if (!input.PressedKeys.Contains(KeyboardKey.KEY_RIGHT) && !input.PressedKeys.Contains(KeyboardKey.KEY_LEFT))
-        {
-            charState.CurrentState = "idle";
+            charState.PushNextState("running");
         }
 
+        foreach (var collision in world.GetWorldEvents<CollisionEvent2>())
+        {
+            if (collision.Collider1 == entity || collision.Collider2 == entity)
+            {
+                charState.PushNextState("grounded");
+                break;
+            }
+        }
     }
 }

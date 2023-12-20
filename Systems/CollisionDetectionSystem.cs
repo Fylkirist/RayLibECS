@@ -184,7 +184,7 @@ public class CollisionDetectionSystem : SystemBase{
                     CollisionEvent2 collision =
                         new CollisionEvent2(entity1Body.Owner, i, entity2Body.Owner, j, collided.Value);
                     _collision2InCycle.Add(entity2Body.Owner,entity1Body.Owner);
-                    EventBus.Publish(collision);
+                    World.PublishEvent(collision);
                     return true;
                 }
             }
@@ -326,7 +326,7 @@ public class CollisionDetectionSystem : SystemBase{
                     if(!_collision2InCycle.ContainsKey(entity2Body.Owner) || _collision2InCycle[entity2Body.Owner] != entity1Body.Owner){
                         var collision = new CollisionEvent2(entity1Body.Owner,i,entity2Body.Owner,j,0f);
                         _collision2InCycle.Add(entity2Body.Owner,entity1Body.Owner);
-                        EventBus.Publish(collision);
+                        World.PublishEvent(collision);
                     }
                     return true;
                 }

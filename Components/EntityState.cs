@@ -2,14 +2,24 @@ namespace RayLibECS.Components;
 
 public class EntityState : Component
 {
-    public string CurrentState;
-    public string LastUpdate;
+    public string[] StateIdentifiers;
+
+    public List<string> NextState;
 
     public string EntityCategory;
 
     public EntityState(){
-        CurrentState = "";
-        LastUpdate = "";
+        StateIdentifiers = Array.Empty<string>();
         EntityCategory = "";
+        NextState = new List<string>();
+    }
+
+    public void PushNextState(string stateId)
+    {
+        if (NextState.Contains(stateId))
+        {
+            return;
+        }
+        NextState.Add(stateId);
     }
 }

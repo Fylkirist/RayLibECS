@@ -17,15 +17,19 @@ internal class PlatformerStateFactory : IStateFactory
             case "idle":
                 return _cachedStates.ContainsKey("idle")
                     ? _cachedStates["idle"]
-                    : NewState("idle", new IdleStateBase());
+                    : NewState("idle", new IdleState());
             case "running":
                 return _cachedStates.ContainsKey("running")
                     ? _cachedStates["running"]
-                    : NewState("running", new RunningStateBase());
+                    : NewState("running", new RunningState());
             case "jumping":
                 return _cachedStates.ContainsKey("jumping")
                     ? _cachedStates["jumping"]
-                    : NewState("jumping", new JumpingStateBase());
+                    : NewState("jumping", new JumpingState());
+            case "grounded":
+                return _cachedStates.ContainsKey("grounded")
+                    ? _cachedStates["grounded"]
+                    : NewState("grounded", new GroundedState());
 
         }
         throw new Exception("invalid state");

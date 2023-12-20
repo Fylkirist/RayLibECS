@@ -8,16 +8,9 @@ using RayLibECS.Systems;
 using RayLibECS.Factories;
 using RayLibECS.Interfaces;
 using RayLibECS.Events;
-using EntityState = RayLibECS.Components.EntityState;
 
 namespace RayLibECS;
 
-public enum RenderingModes
-{
-    TwoD,
-    ThreeD,
-    Static
-}
 public class World
 {
     private static World? _world;
@@ -25,8 +18,8 @@ public class World
 
     private Dictionary<Type, Component?[]> _componentTable;
     public Dictionary<Type, Component?[]> ComponentTable => _componentTable;
-    
-    private Stack<WorldEvent> _events;
+
+    private Dictionary<Type, List<WorldEvent>> _eventTable;
 
     private List<Entity> _entities;
     public List<Entity> Entities => _entities;
@@ -43,7 +36,7 @@ public class World
     public AssetManager AssetManager;
     public World()
     {
-        _events = new Stack<WorldEvent>();
+        _eventTable = new Dictionary<Type, List<WorldEvent>>();
         AssetManager = new AssetManager(2147483648,2147483648);
         _entityLimit = 1000;
         _componentTable = new Dictionary<Type, Component?[]>();
@@ -68,10 +61,12 @@ public class World
 
         rigidbody1.AngularVelocity = 0;
         rigidbody1.Shapes = new Shape2D[1];
-        rigidbody1.Shapes[0] = new Shape2D();
-        rigidbody1.Shapes[0].Type = ShapeType2D.Rectangle;
-        rigidbody1.Shapes[0].Offset = Vector2.Zero;
-        rigidbody1.Shapes[0].Rectangle = new BasedRectangle(100,1000);
+        rigidbody1.Shapes[0] = new Shape2D
+        {
+            Type = ShapeType2D.Rectangle,
+            Offset = Vector2.Zero,
+            Rectangle = new BasedRectangle(100, 1000)
+        };
 
 
         var entity2 = CreateEntity("test");
@@ -85,15 +80,17 @@ public class World
 
         rigidbody2.AngularVelocity = 0f;
         rigidbody2.Shapes = new Shape2D[1];
-        rigidbody2.Shapes[0] = new Shape2D();
-        rigidbody2.Shapes[0].Type = ShapeType2D.Rectangle;
-        rigidbody2.Shapes[0].Offset = Vector2.Zero;
-        rigidbody2.Shapes[0].Rectangle = new BasedRectangle(200,200);
+        rigidbody2.Shapes[0] = new Shape2D
+        {
+            Type = ShapeType2D.Rectangle,
+            Offset = Vector2.Zero,
+            Rectangle = new BasedRectangle(200,200)
+        };
 
         var testState2 = CreateComponent<EntityState>();
         testState2.EntityCategory = "platformer";
-        testState2.CurrentState = "idle";
-        testState2.LastUpdate = "idle";
+        testState2.NextState = new List<string>{"idle", "grounded"};
+        testState2.StateIdentifiers = Array.Empty<string>();
 
         var testStats2 = CreateComponent<CharacterStats>();
         testStats2.JumpHeight = 400;
@@ -107,7 +104,7 @@ public class World
         AddSystem(new EntityStateManagementSystem(this, new Dictionary<string, IStateFactory>
         {
             { "test", new TestStateFactory() },
-            { "platformer", new PlatformerStateFactory()},
+            { "platformer", new PlatformerStateFactory() }
         }));
     }
 
@@ -133,10 +130,33 @@ public class World
         }
     }
 
+    public void ClearEvents<T>()
+    {
+        if (!_eventTable.ContainsKey(typeof(T)))
+        {
+            return;
+        }
+        _eventTable[typeof(T)].Clear();
+    }
+
+    public void PublishEvent<T>(T worldEvent) where T : WorldEvent
+    {
+        if (!_eventTable.ContainsKey(typeof(T)))
+        {
+            _eventTable.Add(typeof(T),new List<WorldEvent>());
+        }
+        _eventTable[typeof(T)].Add(worldEvent);
+    }
+
+    public IEnumerable<T> GetWorldEvents<T>() where T : WorldEvent
+    {
+        return !_eventTable.ContainsKey(typeof(T)) ? Array.Empty<T>() : _eventTable[typeof(T)].Cast<T>();
+    }
+
     public void AllocateComponentArray<T>()
     {
         if (_componentTable.ContainsKey(typeof(T))) return;
-        _componentTable.Add(typeof(T),new Component[_entityLimit]);
+        _componentTable.Add(typeof(T), new Component[_entityLimit]);
     }
     public void Draw()
     {
@@ -204,7 +224,7 @@ public class World
     public void DetachComponent(Component component)
     {
         _componentTable[component.GetType()][component.Owner.Id] = null;
-        component.Owner=Entity.Placeholder;
+        component.Owner = Entity.Placeholder;
         _componentCache.Add(component);
         if (_componentCache.Count > 1000)
         {

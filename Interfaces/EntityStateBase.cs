@@ -13,9 +13,6 @@ public abstract class EntityStateBase
         World = World.Instance;
     }
 
-    public abstract void EnterState(World world, Entity entity);
-
     public abstract void Update(World world, Entity entity, InputState input,float delta);
 
-    public abstract void ExitState(World world, Entity entity);
 }

@@ -15,7 +15,6 @@ public enum PhysicsMode{
 
 public class PhysicsSystem : SystemBase{
     
-    private EventBus _eventBus;
     private float _physicsScale;
     private bool _running;
     private double _simulationDistance;
@@ -26,9 +25,6 @@ public class PhysicsSystem : SystemBase{
         _simulationDistance = simDistance;
         _gravityVector = new Vector3(0,100,0);
         _physicsScale = scale;
-        _eventBus = EventBus.Instance;
-        _eventBus.Subscribe<CollisionEvent2>(HandleCollision2);
-        _eventBus.Subscribe<CollisionEvent3>(HandleCollision3);
     }
 
     public override void Detach()
@@ -52,12 +48,27 @@ public class PhysicsSystem : SystemBase{
 
     public override void Update(float delta)
     {
+        HandleCollisionEvents();
         HandleMovement3D(delta);
         HandleMovement2D(delta);
         UpdateSoftBodies2(delta);
         UpdateSoftBodies3(delta);
     }
 
+    public void HandleCollisionEvents()
+    {
+        var collision2Events = World.GetWorldEvents<CollisionEvent2>();
+        foreach (var collision in collision2Events)
+        {
+            HandleCollision2(collision);
+        }
+
+        var collision3Events = World.GetWorldEvents<CollisionEvent3>();
+        foreach (var collision in collision3Events)
+        {
+            HandleCollision3(collision);
+        }
+    }
     public void HandleCollision2(CollisionEvent2 collisionEvent){
 
         var collider1 = collisionEvent.Collider1;

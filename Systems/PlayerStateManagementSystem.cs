@@ -1,6 +1,5 @@
 using RayLibECS.Components;
 using RayLibECS.Interfaces;
-using EntityState = RayLibECS.Components.EntityState;
 
 namespace RayLibECS.Systems;
 
@@ -31,20 +30,16 @@ public class EntityStateManagementSystem:SystemBase
     {
         if(!_active) return;
 
-        foreach(var entityState in World.GetComponents<EntityState>()){
-            
-            var state = _factoryDict[entityState.EntityCategory].CreateState(entityState.CurrentState);
-            
-            if(entityState.CurrentState != entityState.LastUpdate)
+        foreach(var entityState in World.GetComponents<EntityState>())
+        {
+            entityState.StateIdentifiers = entityState.NextState.ToArray();
+            entityState.NextState.Clear();
+
+            for (var i = 0; i < entityState.StateIdentifiers.Length; i++)
             {
-                var oldState = _factoryDict[entityState.EntityCategory].CreateState(entityState.LastUpdate);
-                oldState.ExitState(World,entityState.Owner);
-                
-                state.EnterState(World,entityState.Owner);
+                var state = _factoryDict[entityState.EntityCategory].CreateState(entityState.StateIdentifiers[i]);
+                state.Update(World,entityState.Owner,World.InputState,delta);
             }
-            state.Update(World,entityState.Owner, World.InputState, delta);
-            
-            entityState.LastUpdate = entityState.CurrentState;
         }
     }
 

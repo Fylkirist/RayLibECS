@@ -1,5 +1,6 @@
 namespace RayLibECS.Events;
 
-public class WorldEvent{
+public abstract class WorldEvent
+{
     
 }

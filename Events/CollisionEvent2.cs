@@ -2,7 +2,7 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Events;
 
-public class CollisionEvent2{
+public class CollisionEvent2 : WorldEvent{
     public Entity Collider1;
     public Entity Collider2;
     public int CollisionIndex1;

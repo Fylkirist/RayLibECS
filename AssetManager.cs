@@ -8,8 +8,6 @@ public class AssetManager
 {
     public ulong AssetCacheLimit;
     public ulong VramLimit;
-    
-    private EventBus _eventBus = EventBus.Instance;
 
     private bool _dirty;
 

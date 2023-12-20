@@ -14,11 +14,6 @@ namespace RayLibECS.EntityStates;
 
 internal class EntityTestState : EntityStateBase
 {
-    public override void EnterState(World world, Entity entity)
-    {
-        
-    }
-
     public override void Update(World world, Entity entity, InputState input, float delta)
     {
         var physics = world.QueryComponent<Physics2>(entity);
@@ -42,10 +37,5 @@ internal class EntityTestState : EntityStateBase
                     break;
             }
         } 
-    }
-
-    public override void ExitState(World world, Entity entity)
-    {
-        
     }
 }
