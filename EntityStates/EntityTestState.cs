@@ -12,14 +12,14 @@ using System.Numerics;
 
 namespace RayLibECS.EntityStates;
 
-internal class EntityTestState : IEntityState
+internal class EntityTestState : EntityStateBase
 {
-    public void EnterState(World world, Entity entity)
+    public override void EnterState(World world, Entity entity)
     {
         
     }
 
-    public void Update(World world, Entity entity, InputState input, float delta)
+    public override void Update(World world, Entity entity, InputState input, float delta)
     {
         var physics = world.QueryComponent<Physics2>(entity);
         if (physics == null)
@@ -40,17 +40,11 @@ internal class EntityTestState : IEntityState
                 case KeyboardKey.KEY_LEFT:
                     physics.Velocity.X = -150;
                     break;
-                case KeyboardKey.KEY_UP:
-                    physics.Velocity.Y = -150;
-                    break;
-                case KeyboardKey.KEY_DOWN:
-                    physics.Velocity.Y = 150;
-                    break;
             }
         } 
     }
 
-    public void ExitState(World world, Entity entity)
+    public override void ExitState(World world, Entity entity)
     {
         
     }

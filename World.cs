@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using Raylib_cs;
 using RayLibECS.Components;
 using RayLibECS.Entities;
@@ -7,6 +8,7 @@ using RayLibECS.Systems;
 using RayLibECS.Factories;
 using RayLibECS.Interfaces;
 using RayLibECS.Events;
+using EntityState = RayLibECS.Components.EntityState;
 
 namespace RayLibECS;
 
@@ -18,6 +20,9 @@ public enum RenderingModes
 }
 public class World
 {
+    private static World? _world;
+    public static World? Instance => _world;
+
     private Dictionary<Type, Component?[]> _componentTable;
     public Dictionary<Type, Component?[]> ComponentTable => _componentTable;
     
@@ -46,6 +51,7 @@ public class World
         _systems = new List<SystemBase>();
         _componentCache = new List<Component>();
         _inputState = new InputState();
+        _world = this;
     }
 
     public void InitializeWorld()
@@ -54,30 +60,30 @@ public class World
         var entity1 = CreateEntity("test");
 
         var physics1 = CreateComponent<Physics2>();
-        physics1.Position = Vector2.Zero;
+        physics1.Position = new Vector2(0, 400);
         physics1.Z = 0;
-        physics1.PhysicsType = PhysicsType2D.Dynamic;
+        physics1.PhysicsType = PhysicsType2D.Static;
 
         var rigidbody1 = CreateComponent<RigidBody2>();
 
-        rigidbody1.AngularVelocity = 1;
+        rigidbody1.AngularVelocity = 0;
         rigidbody1.Shapes = new Shape2D[1];
         rigidbody1.Shapes[0] = new Shape2D();
         rigidbody1.Shapes[0].Type = ShapeType2D.Rectangle;
         rigidbody1.Shapes[0].Offset = Vector2.Zero;
-        rigidbody1.Shapes[0].Rectangle = new BasedRectangle(200,200);
+        rigidbody1.Shapes[0].Rectangle = new BasedRectangle(100,1000);
 
 
         var entity2 = CreateEntity("test");
 
         var physics2 = CreateComponent<Physics2>();
-        physics2.Position = new Vector2(300,300);
+        physics2.Position = Vector2.Zero;
         physics2.Z = 0;
-        physics2.PhysicsType = PhysicsType2D.Static;
+        physics2.PhysicsType = PhysicsType2D.Dynamic;
 
         var rigidbody2 = CreateComponent<RigidBody2>();
 
-        rigidbody2.AngularVelocity = 1.2f;
+        rigidbody2.AngularVelocity = 0f;
         rigidbody2.Shapes = new Shape2D[1];
         rigidbody2.Shapes[0] = new Shape2D();
         rigidbody2.Shapes[0].Type = ShapeType2D.Rectangle;
@@ -85,18 +91,23 @@ public class World
         rigidbody2.Shapes[0].Rectangle = new BasedRectangle(200,200);
 
         var testState2 = CreateComponent<EntityState>();
-        testState2.EntityCategory = "test";
-        testState2.CurrentState = "test";
-        testState2.LastUpdate = "test";
+        testState2.EntityCategory = "platformer";
+        testState2.CurrentState = "idle";
+        testState2.LastUpdate = "idle";
+
+        var testStats2 = CreateComponent<CharacterStats>();
+        testStats2.JumpHeight = 400;
+        testStats2.Speed = 200;
 
         AttachComponents(entity2,physics2,rigidbody2,testState2);
         AttachComponents(entity1,physics1,rigidbody1);
 
-        AddSystem(new CollisionDetectionSystem(this,PhysicsMode.TWO_DIMENSIONAL));
-        AddSystem(new PhysicsSystem(this,1000,100));
+        AddSystem(new CollisionDetectionSystem(this));
+        AddSystem(new PhysicsSystem(this,10000,100));
         AddSystem(new EntityStateManagementSystem(this, new Dictionary<string, IStateFactory>
         {
-            {"test", new TestStateFactory()}
+            { "test", new TestStateFactory() },
+            { "platformer", new PlatformerStateFactory()},
         }));
     }
 

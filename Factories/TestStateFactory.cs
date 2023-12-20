@@ -10,13 +10,13 @@ namespace RayLibECS.Factories
 {
     internal class TestStateFactory : IStateFactory
     {
-        private Dictionary<string, IEntityState> _cachedStates;
+        private Dictionary<string, EntityStateBase> _cachedStates;
 
         internal TestStateFactory()
         {
-            _cachedStates = new Dictionary<string, IEntityState>();
+            _cachedStates = new Dictionary<string, EntityStateBase>();
         }
-        public IEntityState CreateState(string state)
+        public EntityStateBase CreateState(string state)
         {
             switch (state)
             {
@@ -29,9 +29,9 @@ namespace RayLibECS.Factories
             throw new Exception("invalid state");
         }
 
-        public IEntityState NewState(string key, IEntityState state)
+        public EntityStateBase NewState(string key, EntityStateBase stateBase)
         {
-            _cachedStates.Add(key, state);
+            _cachedStates.Add(key, stateBase);
             return _cachedStates[key];
         }
     }

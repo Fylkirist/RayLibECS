@@ -1,5 +1,6 @@
 using RayLibECS.Components;
 using RayLibECS.Interfaces;
+using EntityState = RayLibECS.Components.EntityState;
 
 namespace RayLibECS.Systems;
 

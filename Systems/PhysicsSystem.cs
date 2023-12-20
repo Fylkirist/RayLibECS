@@ -2,6 +2,7 @@ using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Shapes;
 using System.Numerics;
+using Microsoft.VisualBasic;
 using RayLibECS.Events;
 using Raylib_cs;
 
@@ -61,13 +62,13 @@ public class PhysicsSystem : SystemBase{
 
         var collider1 = collisionEvent.Collider1;
         var physics1 = World.QueryComponent<Physics2>(collider1);
-        if(physics1 == null){
+        if(physics1 == null || physics1.PhysicsType == PhysicsType2D.Ethereal){
             return;
         }
-
+        
         var collider2 = collisionEvent.Collider2;
         var physics2 = World.QueryComponent<Physics2>(collider2);
-        if(physics2 == null){
+        if(physics2 == null || physics2.PhysicsType == PhysicsType2D.Ethereal){
             return;
         }
 
@@ -129,13 +130,22 @@ public class PhysicsSystem : SystemBase{
     private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2, float overlap){
         var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
-        
-        if(physics1.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic){
-            physics1.Position += normal * overlap * 0.5f;
-        }
 
-        if(physics2.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic){
+        bool movable1 = physics1.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic;
+        bool movable2 = physics2.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic;
+
+        if (movable1 && movable2)
+        {
+            physics1.Position += normal * overlap * 0.5f;
             physics2.Position -= normal * overlap * 0.5f;
+        }
+        else if (movable1 && !movable2)
+        {
+            physics1.Position += normal * overlap;
+        }
+        else if (!movable1 && movable2)
+        {
+            physics2.Position -= normal * overlap;
         }
         
         var relativeVelocity = physics1.Velocity - physics2.Velocity;
@@ -266,6 +276,10 @@ public class PhysicsSystem : SystemBase{
        var physicsComponents = World.GetComponents<Physics2>();
        foreach(var component in physicsComponents){
            component.Position += component.Velocity * delta;
+           if (component.PhysicsType is not PhysicsType2D.Kinematic and not PhysicsType2D.Static)
+           {
+               component.Velocity.Y += _gravityVector.Y * delta;
+           }
            var rigidBody = World.QueryComponent<RigidBody2>(component.Owner);
            if(rigidBody != null){
                UpdateRigidBody2(rigidBody, component, delta);
@@ -340,6 +354,7 @@ public class PhysicsSystem : SystemBase{
         {
            component.Position += component.Velocity * delta;
            component.Rotation += component.AngularMomentum * delta;
+           component.Position += _gravityVector;
         }
     }
 }

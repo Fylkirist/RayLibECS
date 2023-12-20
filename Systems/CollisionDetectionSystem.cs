@@ -15,7 +15,7 @@ public class CollisionDetectionSystem : SystemBase{
     private bool _renderingWireframes;
     private Dictionary<Entity,Entity> _collision2InCycle;
 
-    public CollisionDetectionSystem(World world, PhysicsMode mode) : base(world)
+    public CollisionDetectionSystem(World world) : base(world)
     {
         _running = false;
         _renderingWireframes = true;

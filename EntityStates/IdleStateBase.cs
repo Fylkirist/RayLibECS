@@ -6,28 +6,23 @@ using Raylib_cs;
 
 namespace RayLibECS.EntityStates;
 
-public class IdleState : IEntityState
+public class IdleStateBase : EntityStateBase
 {
-    public void EnterState(World world, Entity entity)
+    public override void EnterState(World world, Entity entity)
     {
-        var physicsComponent = world.QueryComponent<Physics2>(entity);
-        var animSprite = world.QueryComponent<AnimatedSprite2>(entity);
-        if(animSprite == null){
-            throw new Exception($"Entity {entity.Id} must have sprite component");
+        var physics = world.QueryComponent<Physics2>(entity);
+        if (physics != null)
+        {
+            physics.PhysicsType = PhysicsType2D.Kinematic;
         }
-        if(physicsComponent == null){
-            throw new Exception($"Entity {entity.Id} must have physics component");
-        }
-        animSprite.AnimationState = "idle";
-        physicsComponent.PhysicsType = PhysicsType2D.Kinematic;
     }
 
-    public void ExitState(World world, Entity entity)
+    public override void ExitState(World world, Entity entity)
     {
         
     }
 
-    public void Update(World world, Entity entity, InputState input, float delta)
+    public override void Update(World world, Entity entity, InputState input, float delta)
     {
         var charState = world.QueryComponent<EntityState>(entity);
         var physicsComponent = world.QueryComponent<Physics2>(entity);
