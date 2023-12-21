@@ -1,17 +1,10 @@
 using RayLibECS.Components;
-using RayLibECS.Entities;
 using RayLibECS.Shapes;
 using System.Numerics;
-using Microsoft.VisualBasic;
 using RayLibECS.Events;
 using Raylib_cs;
 
 namespace RayLibECS.Systems;
-
-public enum PhysicsMode{
-    TWO_DIMENSIONAL,
-    THREE_DIMENSIONAL
-}
 
 public class PhysicsSystem : SystemBase{
     

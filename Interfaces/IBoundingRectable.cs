@@ -4,7 +4,8 @@ using RayLibECS.Entities;
 
 namespace RayLibECS.Interfaces;
 
-public interface IBoundingRectable{
+public interface IBoundingRectable
+{
     public Rectangle GetBoundingRect(Vector2 worldPosition);
 
     public Entity GetOwner();

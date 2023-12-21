@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Numerics;
 using Raylib_cs;
 using RayLibECS.Components;
@@ -105,8 +104,8 @@ public class CollisionDetectionSystem : SystemBase{
     {
         var camEntity = World.CreateEntity("camera");
         var cam = World.CreateComponent<Camera2>();
-        cam.Position.zoom = 1f;
-        cam.Position.offset = new Vector2(1920 / 2f, 1080 / 2f);
+        cam.Position.Zoom = 1f;
+        cam.Position.Offset = new Vector2(1920 / 2f, 1080 / 2f);
         World.AttachComponents(camEntity,cam);
         _running = true; 
     }
@@ -118,6 +117,8 @@ public class CollisionDetectionSystem : SystemBase{
 
     public override void Update(float delta)
     {
+        World.ClearEvents<CollisionEvent2>();
+        World.ClearEvents<CollisionEvent3>();
         if(!_running) return;
         DetectCollisions2D();
         DetectCollisions3D();
@@ -129,7 +130,7 @@ public class CollisionDetectionSystem : SystemBase{
             World.GetComponents<SoftBody2>()
             .Concat(World.GetComponents<RigidBody2>().Cast<IBoundingRectable>())
             .Where(e => World.QueryComponent<Physics2>(e.GetOwner())!=null)
-            .OrderBy(e => e.GetBoundingRect(World.QueryComponent<Physics2>(e.GetOwner()).Position).x);
+            .OrderBy(e => e.GetBoundingRect(World.QueryComponent<Physics2>(e.GetOwner()).Position).X);
         
         var physicalEntities = bodies.Select(e => e.GetOwner()).ToArray();
 

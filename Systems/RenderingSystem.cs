@@ -1,7 +1,5 @@
 using Raylib_cs;
 using RayLibECS.Components;
-using RayLibECS.Shapes;
-using RayLibECS.Entities;
 
 namespace RayLibECS.Systems;
 

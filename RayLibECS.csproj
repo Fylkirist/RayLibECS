@@ -8,14 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="raylib" Version="4.5.0" />
-    <PackageReference Include="Raylib-cs" Version="4.5.0.4" />
+    <PackageReference Include="raylib" Version="5.0.0" />
+    <PackageReference Include="Raylib-cs" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Assets\Fonts\" />
     <Folder Include="Assets\Audio\" />
     <Folder Include="Assets\Textures\" />
+    <Folder Include="EntityStates\" />
+    <Folder Include="Factories\" />
   </ItemGroup>
 
 </Project>

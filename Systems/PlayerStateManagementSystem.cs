@@ -7,12 +7,12 @@ namespace RayLibECS.Systems;
 public class EntityStateManagementSystem:SystemBase
 {
 
-    private Dictionary<string,IStateFactory> _factoryDict;
+    private Dictionary<string,IEntityState> _stateDict;
     private bool _active;
 
-    public EntityStateManagementSystem(World world, Dictionary<string,IStateFactory> stateFactories):base(world)
+    public EntityStateManagementSystem(World world, Dictionary<string,IEntityState> states):base(world)
     {
-        _factoryDict = stateFactories;
+        _stateDict = states;
         _active = false;
     }
 
@@ -30,16 +30,11 @@ public class EntityStateManagementSystem:SystemBase
     {
         if(!_active) return;
 
-        foreach(var entityState in World.GetComponents<EntityState>())
+        foreach(var entityState in World.GetComponents<EntityStateType>())
         {
-            entityState.StateIdentifiers = entityState.NextState.ToArray();
-            entityState.NextState.Clear();
-
-            for (var i = 0; i < entityState.StateIdentifiers.Length; i++)
-            {
-                var state = _factoryDict[entityState.EntityCategory].CreateState(entityState.StateIdentifiers[i]);
-                state.Update(World,entityState.Owner,World.InputState,delta);
-            }
+            
+            if(!_stateDict.TryGetValue(entityState.EntityCategory, out var state)) break;
+            state.Update(World,entityState.Owner,World.InputState,delta);
         }
     }
 
@@ -50,7 +45,6 @@ public class EntityStateManagementSystem:SystemBase
 
     public override void Initialize()
     {
-        World.AllocateComponentArray<EntityState>();
         _active = true;
     }
 }

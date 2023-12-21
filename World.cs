@@ -5,7 +5,6 @@ using RayLibECS.Components;
 using RayLibECS.Entities;
 using RayLibECS.Shapes;
 using RayLibECS.Systems;
-using RayLibECS.Factories;
 using RayLibECS.Interfaces;
 using RayLibECS.Events;
 
@@ -87,10 +86,8 @@ public class World
             Rectangle = new BasedRectangle(200,200)
         };
 
-        var testState2 = CreateComponent<EntityState>();
+        var testState2 = CreateComponent<EntityStateType>();
         testState2.EntityCategory = "platformer";
-        testState2.NextState = new List<string>{"idle", "grounded"};
-        testState2.StateIdentifiers = Array.Empty<string>();
 
         var testStats2 = CreateComponent<CharacterStats>();
         testStats2.JumpHeight = 400;
@@ -101,11 +98,7 @@ public class World
 
         AddSystem(new CollisionDetectionSystem(this));
         AddSystem(new PhysicsSystem(this,10000,100));
-        AddSystem(new EntityStateManagementSystem(this, new Dictionary<string, IStateFactory>
-        {
-            { "test", new TestStateFactory() },
-            { "platformer", new PlatformerStateFactory() }
-        }));
+        AddSystem(new EntityStateManagementSystem(this, new Dictionary<string, IEntityState>()));
     }
 
     public void Update(float delta)
