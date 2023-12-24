@@ -58,11 +58,16 @@ public struct Animation2D
 public struct AnimationFrame2D
 {
     public float FrameTime;
-    public int Offset;
+    public Rectangle Source;
 
-    public AnimationFrame2D(float frameTime, int offset)
+    public AnimationFrame2D(float frameTime, Vector2 topLeft, int width, int height)
     {
         FrameTime = frameTime;
-        Offset = offset;
+        Source = new Rectangle(
+                topLeft.X,
+                topLeft.Y,
+                width,
+                height
+                );
     }
 }

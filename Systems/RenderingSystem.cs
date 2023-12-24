@@ -53,7 +53,21 @@ public class RenderingSystem : SystemBase
         {
             var transform = World.QueryComponent<Physics2>(sprite2.Owner);
             if(transform == null) continue;
-            Raylib.DrawTexturePro(World.AssetManager.GetTexture(sprite2.AnimationState),new Rectangle(),new Rectangle(), Vector2.Zero, sprite2.rotation, sprite2.Tint);
+            AnimationFrame2D previous = sprite2.TextureStateMap[sprite2.AnimationState].FrameData[0];
+            foreach(var frameData in sprite2.TextureStateMap[sprite2.AnimationState].FrameData){
+                if(frameData.FrameTime < sprite2.AnimationTimer){
+                    previous = frameData;
+                    continue;
+                }
+                Rectangle destinationRectangle = new Rectangle(
+                        transform.Position.X - sprite2.TextureStateMap[sprite2.AnimationState].Width/2,
+                        transform.Position.Y - sprite2.TextureStateMap[sprite2.AnimationState].Height/2,
+                        sprite2.TextureStateMap[sprite2.AnimationState].Width,
+                        sprite2.TextureStateMap[sprite2.AnimationState].Height
+                    );
+                Raylib.DrawTexturePro(World.AssetManager.GetTexture(sprite2.AnimationState),previous.Source,destinationRectangle, transform.Position, sprite2.rotation, sprite2.Tint);
+                break;
+            }
         }
     }
 
