@@ -6,6 +6,24 @@ using Raylib_cs;
 
 namespace RayLibECS.Systems;
 
+public enum PhysicsFlags{
+    Collidable,
+    Movable,
+    Grounded,
+    Gravity,
+    Static
+}
+
+public struct PhysicsFlagHolder{
+    public PhysicsFlags Flag;
+    public bool Active;
+
+    public PhysicsFlagHolder(PhysicsFlags flag, bool active){
+        Flag = flag;
+        Active = active;
+    }
+}
+
 public class PhysicsSystem : SystemBase{
     
     private float _physicsScale;
@@ -66,13 +84,13 @@ public class PhysicsSystem : SystemBase{
 
         var collider1 = collisionEvent.Collider1;
         var physics1 = World.QueryComponent<Physics2>(collider1);
-        if(physics1 == null || physics1.PhysicsType == PhysicsType2D.Ethereal){
+        if(physics1 == null || !physics1.PhysicsFlags[(int)PhysicsFlags.Collidable].Active){
             return;
         }
         
         var collider2 = collisionEvent.Collider2;
         var physics2 = World.QueryComponent<Physics2>(collider2);
-        if(physics2 == null || physics2.PhysicsType == PhysicsType2D.Ethereal){
+        if(physics2 == null || !physics1.PhysicsFlags[(int)PhysicsFlags.Collidable].Active){
             return;
         }
 
@@ -119,6 +137,8 @@ public class PhysicsSystem : SystemBase{
 
         rigidPhysics.Position += normal * overlap * 0.5f;
         softBody.Points[softIndex].PositionVector -= normal * overlap * 0.5f;
+
+        
         
     }
 
@@ -135,8 +155,8 @@ public class PhysicsSystem : SystemBase{
         var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
 
-        bool movable1 = physics1.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic;
-        bool movable2 = physics2.PhysicsType is not PhysicsType2D.Static and not PhysicsType2D.Kinematic;
+        bool movable1 = physics1.PhysicsFlags[(int)PhysicsFlags.Movable].Active;
+        bool movable2 = physics2.PhysicsFlags[(int)PhysicsFlags.Movable].Active;
 
         if (movable1 && movable2)
         {
@@ -164,7 +184,7 @@ public class PhysicsSystem : SystemBase{
         Vector2 transformVec = transform.Position;
         Vector2 offset = shape.Offset;
         Vector2 normalized = Vector2.Normalize(normal);
-
+        
         Vector2 furthest = shape.Type switch
         {
             ShapeType2D.Circle => normalized * shape.Circle.Radius,
@@ -277,18 +297,20 @@ public class PhysicsSystem : SystemBase{
     }
 
     public void HandleMovement2D(float delta){
-       var physicsComponents = World.GetComponents<Physics2>();
-       foreach(var component in physicsComponents){
-           component.Position += component.Velocity * delta;
-           if (component.PhysicsType is not PhysicsType2D.Kinematic and not PhysicsType2D.Static)
-           {
+        var physicsComponents = World.GetComponents<Physics2>();
+        foreach(var component in physicsComponents){
+            if (component.PhysicsFlags[(int)PhysicsFlags.Movable].Active)
+            {
+                component.Position += component.Velocity * delta;          
+            }
+            if(!component.PhysicsFlags[(int)PhysicsFlags.Grounded].Active){
                component.Velocity.Y += _gravityVector.Y * delta;
-           }
-           var rigidBody = World.QueryComponent<RigidBody2>(component.Owner);
-           if(rigidBody != null){
-               UpdateRigidBody2(rigidBody, component, delta);
-           }
-       }
+            }
+            var rigidBody = World.QueryComponent<RigidBody2>(component.Owner);
+            if(rigidBody != null){
+                UpdateRigidBody2(rigidBody, component, delta);
+            }
+        }
     }
 
     private void UpdateRigidBody2(RigidBody2 body, Physics2 transform, float delta){

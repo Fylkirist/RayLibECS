@@ -54,7 +54,7 @@ public class World
         var physics1 = CreateComponent<Physics2>();
         physics1.Position = new Vector2(0, 400);
         physics1.Z = 0;
-        physics1.PhysicsType = PhysicsType2D.Static;
+        physics1.PhysicsFlags = PhysicsFlags.Static;
 
         var rigidbody1 = CreateComponent<RigidBody2>();
 
@@ -73,7 +73,7 @@ public class World
         var physics2 = CreateComponent<Physics2>();
         physics2.Position = Vector2.Zero;
         physics2.Z = 0;
-        physics2.PhysicsType = PhysicsType2D.Dynamic;
+        physics2.PhysicsFlags = PhysicsFlags.Dynamic;
 
         var rigidbody2 = CreateComponent<RigidBody2>();
 

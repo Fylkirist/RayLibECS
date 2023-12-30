@@ -12,12 +12,14 @@ public class RigidBody2 : Component,IBoundingRectable{
     public float Mass;
     public float AngularVelocity;
     public float Friction;
-    public RigidBody2(Shape2D[] shapes, string texture, float mass, float angularVelocity, float friction){
+    public float CollisionMargin;
+    public RigidBody2(Shape2D[] shapes, string texture, float mass, float angularVelocity, float friction, float margin){
         Shapes = shapes;
         Mass = mass;
         AngularVelocity = angularVelocity;
         Texture = texture;
         Friction = friction;
+        CollisionMargin = margin;
     }
 
     public RigidBody2(){
@@ -26,6 +28,7 @@ public class RigidBody2 : Component,IBoundingRectable{
         Texture = "";
         AngularVelocity = 0f;
         Friction = 0f;
+        CollisionMargin = 0.02f;
     }
 
     public Entity GetOwner(){
