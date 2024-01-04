@@ -7,10 +7,12 @@ public class Physics2:Component
 {
     public Vector2 Position;
     public Vector2 Velocity;
+    public float AngularMomentum;
     public PhysicsFlagHolder[] PhysicsFlags; 
     public int Z;
     public Physics2()
     {
+        AngularMomentum = 0f;
         Position = new Vector2();
         Velocity = new Vector2();
         PhysicsFlags = new PhysicsFlagHolder[]{

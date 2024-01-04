@@ -1,6 +1,7 @@
 using Raylib_cs;
 using RayLibECS.Components;
 using System.Numerics;
+using RayLibECS.Shapes;
 
 namespace RayLibECS.Systems;
 
@@ -71,7 +72,53 @@ public class RenderingSystem : SystemBase
         }
     }
 
+    private void RenderMesh2()
+    {
+        foreach(var mesh2 in World.GetComponents<TexturedMesh2>())
+        {
+            var transform = World.QueryComponent<Physics2>(mesh2.Owner);
+            if(transform == null) continue;
+            for(int i = 0; i<mesh2.Shapes.Length; i++){
+                RenderShape2D(mesh2.Shapes[i], mesh2.Texture, transform);
+            }
+        }
+    }
+
+    private void RenderShape2D(Shape2D shape, Texture2D texture, Physics2 transform)
+    {
+        switch(shape.Type){
+            case ShapeType2D.Circle:
+                
+                break;
+
+            case ShapeType2D.Triangle:
+                break;
+
+            case ShapeType2D.Polygon2:
+                break;
+
+            case ShapeType2D.Rectangle:
+                break;
+
+            case ShapeType2D.SymmetricalPolygon:
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void RenderTexture2(){
+
+    }
+
     private void Render3d(){
 
     }
+}
+
+public enum Texture2DisplayType{
+    Tile,
+    Stretch,
+    PerShape
 }

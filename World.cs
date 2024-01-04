@@ -54,7 +54,10 @@ public class World
         var physics1 = CreateComponent<Physics2>();
         physics1.Position = new Vector2(0, 400);
         physics1.Z = 0;
-        physics1.PhysicsFlags = PhysicsFlags.Static;
+        physics1.SetPhysicsFlags(new KeyValuePair<PhysicsFlags,bool>[]{
+                new (PhysicsFlags.Collidable, true),
+                new (PhysicsFlags.Movable, true)
+                });
 
         var rigidbody1 = CreateComponent<RigidBody2>();
 
@@ -73,7 +76,10 @@ public class World
         var physics2 = CreateComponent<Physics2>();
         physics2.Position = Vector2.Zero;
         physics2.Z = 0;
-        physics2.PhysicsFlags = PhysicsFlags.Dynamic;
+        physics2.SetPhysicsFlags(new KeyValuePair<PhysicsFlags,bool>[]{
+                new (PhysicsFlags.Collidable, true),
+                new (PhysicsFlags.Movable, true)
+                });
 
         var rigidbody2 = CreateComponent<RigidBody2>();
 
