@@ -173,6 +173,9 @@ public class PhysicsSystem : SystemBase{
         }
         
         var relativeVelocity = physics1.Velocity - physics2.Velocity;
+        var impulse = rigidBody1.Mass * physics1.Velocity.Length() - rigidBody2.Mass * physics2.Velocity.Length();
+
+        
     }
 
     public void HandleCollision3(CollisionEvent3 collisionEvent){

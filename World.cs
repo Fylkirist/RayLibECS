@@ -56,7 +56,7 @@ public class World
         physics1.Z = 0;
         physics1.SetPhysicsFlags(new KeyValuePair<PhysicsFlags,bool>[]{
                 new (PhysicsFlags.Collidable, true),
-                new (PhysicsFlags.Movable, true)
+                new (PhysicsFlags.Static, true),
                 });
 
         var rigidbody1 = CreateComponent<RigidBody2>();
