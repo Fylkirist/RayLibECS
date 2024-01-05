@@ -3,9 +3,9 @@ using Raylib_cs;
 
 namespace RayLibECS.Components;
 
-public class AnimatedSprite2 : RenderableComponent
+public class AnimatedSprite2 : RenderableComponent2
 {
-    public float rotation;
+    public float Rotation;
     public Vector2 Offset;
     public float Scale;
     public string AnimationState;
@@ -16,7 +16,7 @@ public class AnimatedSprite2 : RenderableComponent
   
     public AnimatedSprite2()
     {
-        rotation = 0f;
+        Rotation = 0f;
         Facing = new Vector2();
         Offset = new Vector2();
         Scale = 0f;

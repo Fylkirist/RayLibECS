@@ -3,7 +3,7 @@ using RayLibECS.Systems;
 
 namespace RayLibECS.Components;
 
-class MappedTexture2 : Component{
+class MappedTexture2 : RenderableComponent2{
     public Texture2D Texture;
     public Shader Shader;
     public Texture2DisplayType TextureDisplay;

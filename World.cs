@@ -258,6 +258,21 @@ public class World
         return (T)component;
     }
 
+    public List<RenderableComponent2> GetRenderables2()
+    {
+        List<RenderableComponent2> renderables = new List<RenderableComponent2>();
+        Type[] renderableTypes = {typeof(MappedTexture2),typeof(TexturedMesh2),typeof(AnimatedSprite2)};
+        
+        foreach(var type in renderableTypes){
+            renderables.AddRange(
+                (IEnumerable<RenderableComponent2>)(_componentTable.ContainsKey(type) ?
+                    _componentTable[type].Where(e => e != null) :
+                    Array.Empty<RenderableComponent2>()));
+        }
+
+        return renderables;
+    }
+
     public IEnumerable<T> GetComponents<T>()
     {
         return !_componentTable.ContainsKey(typeof(T)) ? Array.Empty<T>() : _componentTable[typeof(T)].Cast<T>().Where(e=>e!=null);

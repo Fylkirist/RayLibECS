@@ -5,7 +5,7 @@ using RayLibECS.Systems;
 
 namespace RayLibECS.Components;
 
-public class TexturedMesh2 : Component{
+public class TexturedMesh2 : RenderableComponent2{
     public Texture2D Texture;
     public Shape2D[] Shapes;
     public Vector2 Offset;
