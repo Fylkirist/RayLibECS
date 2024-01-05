@@ -2,6 +2,7 @@ using Raylib_cs;
 using RayLibECS.Components;
 using System.Numerics;
 using RayLibECS.Shapes;
+using System.Runtime.Intrinsics;
 
 namespace RayLibECS.Systems;
 
@@ -46,9 +47,9 @@ public class RenderingSystem : SystemBase
     private void Render2d(){
         var camera2 = World.GetComponents<Camera2>().First();
         Raylib.BeginMode2D(camera2.Position);
-        var renderables = World.GetRenderables2().OrderByDescending(e => e.Z);
+        var renderables = World.GetRenderables2().OrderBy(e => e.Z);
         foreach(var renderable in renderables){
-            switch(renderables){
+            switch(renderable){
                 case AnimatedSprite2 sprite:
                     RenderSprite2(sprite);
                     break;
@@ -145,7 +146,25 @@ public class RenderingSystem : SystemBase
 
     private List<Vector2[]> TriangulatePolygon2(Shape2D shape, Physics2 transform){
         List<Vector2[]> listOfTriangles = new List<Vector2[]>();
+        var sortedVertices = SortVertices(shape.Polygon2.Vertices);
         return listOfTriangles;
+    }
+
+    private Vector2[] SortVertices(Vector2[] vectors)
+    {
+        var vectorsToSort = (Vector2[])vectors.Clone();
+        Array.Sort(vectorsToSort, (v1, v2) =>
+        {
+            if (v1.X != v2.X)
+            {
+                return v1.X.CompareTo(v2.X);
+            }
+            else
+            {
+                return v1.Y.CompareTo(v2.Y);
+            }
+        });
+        return vectorsToSort;
     }
 
     private void RenderTexture2(){
