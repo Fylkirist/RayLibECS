@@ -10,10 +10,12 @@ public class TexturedMesh2 : RenderableComponent2{
     public Shape2D[] Shapes;
     public Vector2 Offset;
     public Shader Shader;
+    public Color Colour;
     public Texture2DisplayType TextureDisplay;
 
     public TexturedMesh2()
     {
+        Colour = Color.WHITE;
         Shader = new Shader();
         TextureDisplay = Texture2DisplayType.Stretch;
         Texture = new Texture2D();

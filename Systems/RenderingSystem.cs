@@ -95,32 +95,57 @@ public class RenderingSystem : SystemBase
         var transform = World.QueryComponent<Physics2>(mesh2.Owner);
         if(transform == null) return;
         for(int i = 0; i<mesh2.Shapes.Length; i++){
-            RenderShape2D(mesh2.Shapes[i], mesh2.Texture, transform);
+            RenderShape2D(mesh2.Shapes[i], mesh2.Texture, transform, mesh2);
         }
     }
 
-    private void RenderShape2D(Shape2D shape, Texture2D texture, Physics2 transform)
+    private void RenderShape2D(Shape2D shape, Texture2D texture, Physics2 transform, TexturedMesh2 mesh)
     {
         switch(shape.Type){
             case ShapeType2D.Circle:
-                
+                Raylib.DrawCircleV(transform.Position + shape.Offset,
+                        shape.Circle.Radius,
+                        mesh.Colour);
                 break;
 
             case ShapeType2D.Triangle:
+                Raylib.DrawTriangle(transform.Position + shape.Offset + shape.Triangle.P1,
+                        transform.Position + shape.Offset + shape.Triangle.P2,
+                        transform.Position + shape.Offset + shape.Triangle.P3,
+                        mesh.Colour);
                 break;
 
             case ShapeType2D.Polygon2:
+                foreach(var triangle in TriangulatePolygon2(shape,transform)){
+                    Raylib.DrawTriangle(triangle[0],triangle[1],triangle[2],mesh.Colour);
+                }
                 break;
 
             case ShapeType2D.Rectangle:
+                Raylib.DrawTriangle(transform.Position + shape.Offset + shape.Rectangle.P1,
+                        transform.Position + shape.Offset + shape.Rectangle.P2,
+                        transform.Position + shape.Offset + shape.Rectangle.P3,
+                        mesh.Colour
+                        );
+                Raylib.DrawTriangle(transform.Position + shape.Offset + shape.Rectangle.P1,
+                        transform.Position + shape.Offset + shape.Rectangle.P4,
+                        transform.Position + shape.Offset + shape.Rectangle.P3,
+                        mesh.Colour
+                        );
                 break;
 
             case ShapeType2D.SymmetricalPolygon:
+                Raylib.DrawPoly(transform.Position + shape.Offset, shape.SymmetricalPolygon.NumVertices, shape.SymmetricalPolygon.Radius, shape.SymmetricalPolygon.Rotation, mesh.Colour);
                 break;
 
             default:
                 break;
         }
+    }
+
+    private List<Vector2[]> TriangulatePolygon2(Shape2D shape, Physics2 transform){
+        List<Vector2[]> listOfTriangles = new List<Vector2[]>();
+        return listOfTriangles;
     }
 
     private void RenderTexture2(){
