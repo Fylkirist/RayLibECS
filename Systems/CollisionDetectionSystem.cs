@@ -95,6 +95,10 @@ public class CollisionDetectionSystem : SystemBase{
                         break;
                 }
             }
+            foreach (var physics in World.GetComponents<Physics2>())
+            {
+                Raylib.DrawLineEx(physics.Position, physics.Position + physics.Velocity, 2f, Color.BLUE);
+            }
             Raylib.DrawText(transform.Position.ToString(), (int)transform.Position.X, (int)transform.Position.Y,24,Color.GREEN);
         }
         Raylib.EndMode2D();

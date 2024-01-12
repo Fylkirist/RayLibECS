@@ -59,28 +59,28 @@ public class PhysicsSystem : SystemBase{
 
     public override void Update(float delta)
     {
-        HandleCollisionEvents();
+        HandleCollisionEvents(delta);
         HandleMovement3D(delta);
         HandleMovement2D(delta);
         UpdateSoftBodies2(delta);
         UpdateSoftBodies3(delta);
     }
 
-    public void HandleCollisionEvents()
+    public void HandleCollisionEvents(float delta)
     {
         var collision2Events = World.GetWorldEvents<CollisionEvent2>();
         foreach (var collision in collision2Events)
         {
-            HandleCollision2(collision);
+            HandleCollision2(collision, delta);
         }
 
         var collision3Events = World.GetWorldEvents<CollisionEvent3>();
         foreach (var collision in collision3Events)
         {
-            HandleCollision3(collision);
+            HandleCollision3(collision, delta);
         }
     }
-    public void HandleCollision2(CollisionEvent2 collisionEvent){
+    public void HandleCollision2(CollisionEvent2 collisionEvent, float delta){
 
         var collider1 = collisionEvent.Collider1;
         var physics1 = World.QueryComponent<Physics2>(collider1);
@@ -107,11 +107,11 @@ public class PhysicsSystem : SystemBase{
                 if(softBody2 == null){
                     return;
                 }
-                SoftBody2Collision(softBody1, physics1, collisionEvent.CollisionIndex1 ,softBody2, physics2, collisionEvent.CollisionIndex2,collisionEvent.Overlap);
+                SoftBody2Collision(softBody1, physics1, collisionEvent.CollisionIndex1 ,softBody2, physics2, collisionEvent.CollisionIndex2, delta);
                 return;
             }   
             else{
-                RigidSoftBody2Collision(rigidBody2, physics2,collisionEvent.CollisionIndex1, softBody1, physics1,collisionEvent.CollisionIndex1,collisionEvent.Overlap);
+                RigidSoftBody2Collision(rigidBody2, physics2,collisionEvent.CollisionIndex1, softBody1, physics1,collisionEvent.CollisionIndex1, delta);
                 return;
             }
         }
@@ -120,65 +120,49 @@ public class PhysicsSystem : SystemBase{
             if(softBody2 == null){
                 return;
             }
-            RigidSoftBody2Collision(rigidBody1, physics1, collisionEvent.CollisionIndex1, softBody2, physics2,collisionEvent.CollisionIndex2,collisionEvent.Overlap);
+            RigidSoftBody2Collision(rigidBody1, physics1, collisionEvent.CollisionIndex1, softBody2, physics2,collisionEvent.CollisionIndex2, delta);
             return;
         }
 
-        RigidBody2Collision(rigidBody1,physics1, collisionEvent.CollisionIndex1, rigidBody2,physics2,collisionEvent.CollisionIndex2,collisionEvent.Overlap);
+        RigidBody2Collision(rigidBody1,physics1, collisionEvent.CollisionIndex1, rigidBody2,physics2,collisionEvent.CollisionIndex2, delta);
 
     }
 
-    private void RigidSoftBody2Collision(RigidBody2 rigidBody, Physics2 rigidPhysics, int rigidIndex, SoftBody2 softBody, Physics2 softPhysics, int softIndex, float overlap){
+    private void RigidSoftBody2Collision(RigidBody2 rigidBody, Physics2 rigidPhysics, int rigidIndex, SoftBody2 softBody, Physics2 softPhysics, int softIndex, float delta){
         var pointPosition = softBody.Points[softIndex].PositionVector;
         var rigidPosition = rigidBody.Shapes[rigidIndex].Offset + rigidPhysics.Position;
         
         var distanceVector = rigidPosition - pointPosition;
         var normal = Vector2.Normalize(distanceVector);
 
-        rigidPhysics.Position += normal * overlap * 0.5f;
-        softBody.Points[softIndex].PositionVector -= normal * overlap * 0.5f;
-
-        
-        
+        rigidPhysics.Position -= rigidPhysics.Velocity * delta;
+        softBody.Points[softIndex].PositionVector -= softBody.Points[softIndex].VelocityVector * delta;
     }
 
-    private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2,float overlap){
+    private void SoftBody2Collision(SoftBody2 softBody1, Physics2 physics1, int index1, SoftBody2 softBody2, Physics2 physics2, int index2,float delta){
         var distanceVector = (softBody1.Points[index1].PositionVector + physics1.Position) - (softBody2.Points[index2].PositionVector + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
         
-        
-        softBody1.Points[index1].PositionVector += normal * overlap * 0.5f;
-        softBody2.Points[index2].PositionVector -= normal * overlap * 0.5f;
+        softBody1.Points[index1].PositionVector -= softBody1.Points[index1].VelocityVector * delta; 
+        softBody2.Points[index2].PositionVector -= softBody2.Points[index2].VelocityVector * delta;
     }
 
-    private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2, float overlap){
+    private void RigidBody2Collision(RigidBody2 rigidBody1, Physics2 physics1, int index1, RigidBody2 rigidBody2, Physics2 physics2, int index2, float delta){
         var distanceVector = (rigidBody1.Shapes[index1].Offset + physics1.Position) - (rigidBody2.Shapes[index2].Offset + physics2.Position);
         var normal = Vector2.Normalize(distanceVector);
 
-        bool movable1 = physics1.PhysicsFlags[(int)PhysicsFlags.Movable].Active;
-        bool movable2 = physics2.PhysicsFlags[(int)PhysicsFlags.Movable].Active;
-
-        if (movable1 && movable2)
-        {
-            physics1.Position += normal * overlap * 0.5f;
-            physics2.Position -= normal * overlap * 0.5f;
-        }
-        else if (movable1 && !movable2)
-        {
-            physics1.Position += normal * overlap;
-        }
-        else if (!movable1 && movable2)
-        {
-            physics2.Position -= normal * overlap;
-        }
+        physics1.Position -= physics1.Velocity * delta;
+        physics2.Position -= physics2.Velocity * delta;
         
+        
+
         var relativeVelocity = physics1.Velocity - physics2.Velocity;
         var impulse = rigidBody1.Mass * physics1.Velocity.Length() - rigidBody2.Mass * physics2.Velocity.Length();
 
         
     }
 
-    public void HandleCollision3(CollisionEvent3 collisionEvent){
+    public void HandleCollision3(CollisionEvent3 collisionEvent, float delta){
 
     }
 
@@ -304,9 +288,10 @@ public class PhysicsSystem : SystemBase{
         foreach(var component in physicsComponents){
             if (component.PhysicsFlags[(int)PhysicsFlags.Movable].Active)
             {
-                component.Position += component.Velocity * delta;          
+                component.Position += component.Velocity * delta;
             }
-            if(!component.PhysicsFlags[(int)PhysicsFlags.Grounded].Active){
+            if(!component.PhysicsFlags[(int)PhysicsFlags.Grounded].Active && component.PhysicsFlags[(int)PhysicsFlags.Gravity].Active)
+            {
                component.Velocity.Y += _gravityVector.Y * delta;
             }
             var rigidBody = World.QueryComponent<RigidBody2>(component.Owner);
@@ -383,7 +368,7 @@ public class PhysicsSystem : SystemBase{
         {
            component.Position += component.Velocity * delta;
            component.Rotation += component.AngularMomentum * delta;
-           component.Position += _gravityVector;
+           component.Velocity += _gravityVector * delta;
         }
     }
 }
